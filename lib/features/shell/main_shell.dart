@@ -1,27 +1,32 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
 import '../../core/rpg/rpg_models.dart';
 import '../../core/theme/lifeos_theme.dart';
+import '../../core/widgets/hero_sprite_widget.dart';
 import '../../core/widgets/pixel_panel.dart';
 import '../../data/database/app_database.dart';
+import '../../providers/app_providers.dart';
 import '../hero/hero_sheet_tab.dart';
+import '../raids/raids_tab.dart';
+import '../today/today_tab.dart';
 
 /// Navegação principal em 5 abas definida no DESIGN.md:
 /// Hoje | Raids | Casa | Loja | Herói
-class MainShell extends StatefulWidget {
+class MainShell extends ConsumerStatefulWidget {
   const MainShell({super.key, required this.hero});
 
   final HeroProfile hero;
 
   @override
-  State<MainShell> createState() => _MainShellState();
+  ConsumerState<MainShell> createState() => _MainShellState();
 }
 
-class _MainShellState extends State<MainShell> {
-  int _currentIndex = 4; // Inicia na aba Herói logo após criar o personagem
+class _MainShellState extends ConsumerState<MainShell> {
+  int _currentIndex = 0; // Inicia na aba Hoje (atividades e Modo Energia)
 
   static const _titles = [
-    'MAPA DO DIA',
+    'HOJE',
     'RAIDS',
     'CASA VIVA',
     'LOJA',
@@ -32,32 +37,12 @@ class _MainShellState extends State<MainShell> {
   Widget build(BuildContext context) {
     final hero = widget.hero;
     final heroClass = HeroClass.fromKey(hero.heroClass);
+    final unopenedChests =
+        ref.watch(unopenedChestsProvider).value?.length ?? 0;
 
     final pages = [
-      _PhasePreviewTab(
-        icon: Icons.map_rounded,
-        badge: 'FASE 2 & 4',
-        title: 'Mapa do Dia (Agenda + Tasks)',
-        description:
-            'Aqui aparecerá sua linha do tempo com compromissos do Google Agenda, tarefas do dia e o botão do Modo Energia / Dia Sem Culpa (1x por semana).',
-        highlights: const [
-          'Micro-tarefas livres com recomendação gentil após a 10ª no dia',
-          'Acertos Críticos (1.5x–2x) e Missões Relâmpago',
-          'Sincronização local com Google Agenda & Tasks',
-        ],
-      ),
-      _PhasePreviewTab(
-        icon: Icons.shield_rounded,
-        badge: 'FASE 2',
-        title: 'Sistema de Raids',
-        description:
-            'Transforme tarefas grandes e assustadoras em uma masmorra com vários inimigos (micro-passos de 2 a 15 min).',
-        highlights: const [
-          'Cada inimigo derrotado dá +25 XP e +18 Ouro na hora',
-          'Limpar toda a Raid concede +80 XP, +60 Ouro e 1 Baú de Raid',
-          'Feito para quebrar a paralisia executiva do TDAH',
-        ],
-      ),
+      TodayTab(hero: hero),
+      RaidsTab(hero: hero),
       _HousePreviewTab(hero: hero, heroClass: heroClass),
       _PhasePreviewTab(
         icon: Icons.storefront_rounded,
@@ -121,25 +106,31 @@ class _MainShellState extends State<MainShell> {
         child: NavigationBar(
           selectedIndex: _currentIndex,
           onDestinationSelected: (i) => setState(() => _currentIndex = i),
-          destinations: const [
-            NavigationDestination(
+          destinations: [
+            const NavigationDestination(
               icon: Icon(Icons.today_rounded),
               label: 'Hoje',
             ),
-            NavigationDestination(
+            const NavigationDestination(
               icon: Icon(Icons.shield_rounded),
               label: 'Raids',
             ),
-            NavigationDestination(
+            const NavigationDestination(
               icon: Icon(Icons.cabin_rounded),
               label: 'Casa',
             ),
-            NavigationDestination(
+            const NavigationDestination(
               icon: Icon(Icons.storefront_rounded),
               label: 'Loja',
             ),
             NavigationDestination(
-              icon: Icon(Icons.person_rounded),
+              icon: Badge(
+                isLabelVisible: unopenedChests > 0,
+                label: Text('$unopenedChests'),
+                backgroundColor: LifeOsColors.gold,
+                textColor: LifeOsColors.bgDark,
+                child: const Icon(Icons.person_rounded),
+              ),
               label: 'Herói',
             ),
           ],
@@ -179,11 +170,9 @@ class _HousePreviewTab extends StatelessWidget {
                 ),
                 child: Column(
                   children: [
-                    Image.asset(
-                      heroClass.spriteAsset,
-                      width: 96,
-                      height: 96,
-                      filterQuality: FilterQuality.none,
+                    HeroSpriteWidget(
+                      assetPath: heroClass.spriteAsset,
+                      size: 96,
                     ),
                     const SizedBox(height: 10),
                     Text(

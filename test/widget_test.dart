@@ -1,4 +1,7 @@
+import 'dart:math';
+
 import 'package:flutter_test/flutter_test.dart';
+import 'package:lifeos/core/rpg/reward_engine.dart';
 import 'package:lifeos/core/rpg/rpg_models.dart';
 
 void main() {
@@ -31,6 +34,58 @@ void main() {
       expect(RpgProgression.houseStageName(5), 'Casa de Madeira');
       expect(RpgProgression.houseStageName(10), 'Mansão do Aventureiro');
       expect(RpgProgression.houseStageName(20), 'Santuário Lendário');
+    });
+  });
+
+  group('Phase 2 RewardEngine (ADHD Core Loop)', () {
+    test('11th micro-task triggers gentle reminder and 50% XP outside Energy Mode', () {
+      final engine = RewardEngine(Random(42));
+      final outcome = engine.calculateTaskReward(
+        difficulty: TaskDifficulty.micro,
+        attribute: RpgAttribute.dexterity,
+        heroClass: HeroClass.warrior,
+        attributeLevels: {for (final a in RpgAttribute.values) a: 1},
+        energyModeActive: false,
+        microTasksCompletedTodayBeforeThis: 10,
+        totalTasksCompletedTodayBeforeThis: 10,
+        bardInspirationActive: false,
+      );
+
+      expect(outcome.showMicroTaskGentleReminder, isTrue);
+      // Base micro XP is 15 -> 50% = 7.5 -> 8 (or 12/15 if crit)
+      if (!outcome.isCritical) {
+        expect(outcome.xpGained, 8);
+      }
+    });
+
+    test('Energy Mode doubles micro-task gold and disables gentle XP penalty', () {
+      final engine = RewardEngine(Random(7));
+      final outcome = engine.calculateTaskReward(
+        difficulty: TaskDifficulty.micro,
+        attribute: RpgAttribute.wisdom,
+        heroClass: HeroClass.warrior,
+        attributeLevels: {for (final a in RpgAttribute.values) a: 1},
+        energyModeActive: true,
+        microTasksCompletedTodayBeforeThis: 12,
+        totalTasksCompletedTodayBeforeThis: 12,
+        bardInspirationActive: false,
+      );
+
+      expect(outcome.showMicroTaskGentleReminder, isFalse);
+      expect(outcome.goldGained, greaterThanOrEqualTo(20));
+    });
+
+    test('Final Raid enemy always awards clear bonus and drops a Raid Chest', () {
+      final engine = RewardEngine(Random(1));
+      final outcome = engine.calculateRaidEnemyReward(
+        isFinalEnemy: true,
+        heroClass: HeroClass.mage,
+        attributeLevels: {for (final a in RpgAttribute.values) a: 1},
+      );
+
+      expect(outcome.droppedChest, isNotNull);
+      expect(outcome.xpGained, greaterThanOrEqualTo(105));
+      expect(outcome.goldGained, greaterThanOrEqualTo(78));
     });
   });
 }

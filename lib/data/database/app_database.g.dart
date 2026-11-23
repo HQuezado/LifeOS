@@ -90,6 +90,32 @@ class $HeroProfilesTable extends HeroProfiles
         type: DriftSqlType.dateTime,
         requiredDuringInsert: false,
       );
+  static const VerificationMeta _energyModeActiveUntilMeta =
+      const VerificationMeta('energyModeActiveUntil');
+  @override
+  late final GeneratedColumn<DateTime> energyModeActiveUntil =
+      GeneratedColumn<DateTime>(
+        'energy_mode_active_until',
+        aliasedName,
+        true,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _bardInspirationActiveMeta =
+      const VerificationMeta('bardInspirationActive');
+  @override
+  late final GeneratedColumn<bool> bardInspirationActive =
+      GeneratedColumn<bool>(
+        'bard_inspiration_active',
+        aliasedName,
+        false,
+        type: DriftSqlType.bool,
+        requiredDuringInsert: false,
+        defaultConstraints: GeneratedColumn.constraintIsAlways(
+          'CHECK ("bard_inspiration_active" IN (0, 1))',
+        ),
+        defaultValue: const Constant(false),
+      );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -111,6 +137,8 @@ class $HeroProfilesTable extends HeroProfiles
     currentXp,
     gold,
     lastEnergyModeAt,
+    energyModeActiveUntil,
+    bardInspirationActive,
     createdAt,
   ];
   @override
@@ -171,6 +199,24 @@ class $HeroProfilesTable extends HeroProfiles
         ),
       );
     }
+    if (data.containsKey('energy_mode_active_until')) {
+      context.handle(
+        _energyModeActiveUntilMeta,
+        energyModeActiveUntil.isAcceptableOrUnknown(
+          data['energy_mode_active_until']!,
+          _energyModeActiveUntilMeta,
+        ),
+      );
+    }
+    if (data.containsKey('bard_inspiration_active')) {
+      context.handle(
+        _bardInspirationActiveMeta,
+        bardInspirationActive.isAcceptableOrUnknown(
+          data['bard_inspiration_active']!,
+          _bardInspirationActiveMeta,
+        ),
+      );
+    }
     if (data.containsKey('created_at')) {
       context.handle(
         _createdAtMeta,
@@ -214,6 +260,14 @@ class $HeroProfilesTable extends HeroProfiles
         DriftSqlType.dateTime,
         data['${effectivePrefix}last_energy_mode_at'],
       ),
+      energyModeActiveUntil: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}energy_mode_active_until'],
+      ),
+      bardInspirationActive: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}bard_inspiration_active'],
+      )!,
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
@@ -235,6 +289,8 @@ class HeroProfile extends DataClass implements Insertable<HeroProfile> {
   final int currentXp;
   final int gold;
   final DateTime? lastEnergyModeAt;
+  final DateTime? energyModeActiveUntil;
+  final bool bardInspirationActive;
   final DateTime createdAt;
   const HeroProfile({
     required this.id,
@@ -244,6 +300,8 @@ class HeroProfile extends DataClass implements Insertable<HeroProfile> {
     required this.currentXp,
     required this.gold,
     this.lastEnergyModeAt,
+    this.energyModeActiveUntil,
+    required this.bardInspirationActive,
     required this.createdAt,
   });
   @override
@@ -258,6 +316,12 @@ class HeroProfile extends DataClass implements Insertable<HeroProfile> {
     if (!nullToAbsent || lastEnergyModeAt != null) {
       map['last_energy_mode_at'] = Variable<DateTime>(lastEnergyModeAt);
     }
+    if (!nullToAbsent || energyModeActiveUntil != null) {
+      map['energy_mode_active_until'] = Variable<DateTime>(
+        energyModeActiveUntil,
+      );
+    }
+    map['bard_inspiration_active'] = Variable<bool>(bardInspirationActive);
     map['created_at'] = Variable<DateTime>(createdAt);
     return map;
   }
@@ -273,6 +337,10 @@ class HeroProfile extends DataClass implements Insertable<HeroProfile> {
       lastEnergyModeAt: lastEnergyModeAt == null && nullToAbsent
           ? const Value.absent()
           : Value(lastEnergyModeAt),
+      energyModeActiveUntil: energyModeActiveUntil == null && nullToAbsent
+          ? const Value.absent()
+          : Value(energyModeActiveUntil),
+      bardInspirationActive: Value(bardInspirationActive),
       createdAt: Value(createdAt),
     );
   }
@@ -292,6 +360,12 @@ class HeroProfile extends DataClass implements Insertable<HeroProfile> {
       lastEnergyModeAt: serializer.fromJson<DateTime?>(
         json['lastEnergyModeAt'],
       ),
+      energyModeActiveUntil: serializer.fromJson<DateTime?>(
+        json['energyModeActiveUntil'],
+      ),
+      bardInspirationActive: serializer.fromJson<bool>(
+        json['bardInspirationActive'],
+      ),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
     );
   }
@@ -306,6 +380,10 @@ class HeroProfile extends DataClass implements Insertable<HeroProfile> {
       'currentXp': serializer.toJson<int>(currentXp),
       'gold': serializer.toJson<int>(gold),
       'lastEnergyModeAt': serializer.toJson<DateTime?>(lastEnergyModeAt),
+      'energyModeActiveUntil': serializer.toJson<DateTime?>(
+        energyModeActiveUntil,
+      ),
+      'bardInspirationActive': serializer.toJson<bool>(bardInspirationActive),
       'createdAt': serializer.toJson<DateTime>(createdAt),
     };
   }
@@ -318,6 +396,8 @@ class HeroProfile extends DataClass implements Insertable<HeroProfile> {
     int? currentXp,
     int? gold,
     Value<DateTime?> lastEnergyModeAt = const Value.absent(),
+    Value<DateTime?> energyModeActiveUntil = const Value.absent(),
+    bool? bardInspirationActive,
     DateTime? createdAt,
   }) => HeroProfile(
     id: id ?? this.id,
@@ -329,6 +409,10 @@ class HeroProfile extends DataClass implements Insertable<HeroProfile> {
     lastEnergyModeAt: lastEnergyModeAt.present
         ? lastEnergyModeAt.value
         : this.lastEnergyModeAt,
+    energyModeActiveUntil: energyModeActiveUntil.present
+        ? energyModeActiveUntil.value
+        : this.energyModeActiveUntil,
+    bardInspirationActive: bardInspirationActive ?? this.bardInspirationActive,
     createdAt: createdAt ?? this.createdAt,
   );
   HeroProfile copyWithCompanion(HeroProfilesCompanion data) {
@@ -342,6 +426,12 @@ class HeroProfile extends DataClass implements Insertable<HeroProfile> {
       lastEnergyModeAt: data.lastEnergyModeAt.present
           ? data.lastEnergyModeAt.value
           : this.lastEnergyModeAt,
+      energyModeActiveUntil: data.energyModeActiveUntil.present
+          ? data.energyModeActiveUntil.value
+          : this.energyModeActiveUntil,
+      bardInspirationActive: data.bardInspirationActive.present
+          ? data.bardInspirationActive.value
+          : this.bardInspirationActive,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
     );
   }
@@ -356,6 +446,8 @@ class HeroProfile extends DataClass implements Insertable<HeroProfile> {
           ..write('currentXp: $currentXp, ')
           ..write('gold: $gold, ')
           ..write('lastEnergyModeAt: $lastEnergyModeAt, ')
+          ..write('energyModeActiveUntil: $energyModeActiveUntil, ')
+          ..write('bardInspirationActive: $bardInspirationActive, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
         .toString();
@@ -370,6 +462,8 @@ class HeroProfile extends DataClass implements Insertable<HeroProfile> {
     currentXp,
     gold,
     lastEnergyModeAt,
+    energyModeActiveUntil,
+    bardInspirationActive,
     createdAt,
   );
   @override
@@ -383,6 +477,8 @@ class HeroProfile extends DataClass implements Insertable<HeroProfile> {
           other.currentXp == this.currentXp &&
           other.gold == this.gold &&
           other.lastEnergyModeAt == this.lastEnergyModeAt &&
+          other.energyModeActiveUntil == this.energyModeActiveUntil &&
+          other.bardInspirationActive == this.bardInspirationActive &&
           other.createdAt == this.createdAt);
 }
 
@@ -394,6 +490,8 @@ class HeroProfilesCompanion extends UpdateCompanion<HeroProfile> {
   final Value<int> currentXp;
   final Value<int> gold;
   final Value<DateTime?> lastEnergyModeAt;
+  final Value<DateTime?> energyModeActiveUntil;
+  final Value<bool> bardInspirationActive;
   final Value<DateTime> createdAt;
   const HeroProfilesCompanion({
     this.id = const Value.absent(),
@@ -403,6 +501,8 @@ class HeroProfilesCompanion extends UpdateCompanion<HeroProfile> {
     this.currentXp = const Value.absent(),
     this.gold = const Value.absent(),
     this.lastEnergyModeAt = const Value.absent(),
+    this.energyModeActiveUntil = const Value.absent(),
+    this.bardInspirationActive = const Value.absent(),
     this.createdAt = const Value.absent(),
   });
   HeroProfilesCompanion.insert({
@@ -413,6 +513,8 @@ class HeroProfilesCompanion extends UpdateCompanion<HeroProfile> {
     this.currentXp = const Value.absent(),
     this.gold = const Value.absent(),
     this.lastEnergyModeAt = const Value.absent(),
+    this.energyModeActiveUntil = const Value.absent(),
+    this.bardInspirationActive = const Value.absent(),
     this.createdAt = const Value.absent(),
   }) : name = Value(name),
        heroClass = Value(heroClass);
@@ -424,6 +526,8 @@ class HeroProfilesCompanion extends UpdateCompanion<HeroProfile> {
     Expression<int>? currentXp,
     Expression<int>? gold,
     Expression<DateTime>? lastEnergyModeAt,
+    Expression<DateTime>? energyModeActiveUntil,
+    Expression<bool>? bardInspirationActive,
     Expression<DateTime>? createdAt,
   }) {
     return RawValuesInsertable({
@@ -434,6 +538,10 @@ class HeroProfilesCompanion extends UpdateCompanion<HeroProfile> {
       if (currentXp != null) 'current_xp': currentXp,
       if (gold != null) 'gold': gold,
       if (lastEnergyModeAt != null) 'last_energy_mode_at': lastEnergyModeAt,
+      if (energyModeActiveUntil != null)
+        'energy_mode_active_until': energyModeActiveUntil,
+      if (bardInspirationActive != null)
+        'bard_inspiration_active': bardInspirationActive,
       if (createdAt != null) 'created_at': createdAt,
     });
   }
@@ -446,6 +554,8 @@ class HeroProfilesCompanion extends UpdateCompanion<HeroProfile> {
     Value<int>? currentXp,
     Value<int>? gold,
     Value<DateTime?>? lastEnergyModeAt,
+    Value<DateTime?>? energyModeActiveUntil,
+    Value<bool>? bardInspirationActive,
     Value<DateTime>? createdAt,
   }) {
     return HeroProfilesCompanion(
@@ -456,6 +566,10 @@ class HeroProfilesCompanion extends UpdateCompanion<HeroProfile> {
       currentXp: currentXp ?? this.currentXp,
       gold: gold ?? this.gold,
       lastEnergyModeAt: lastEnergyModeAt ?? this.lastEnergyModeAt,
+      energyModeActiveUntil:
+          energyModeActiveUntil ?? this.energyModeActiveUntil,
+      bardInspirationActive:
+          bardInspirationActive ?? this.bardInspirationActive,
       createdAt: createdAt ?? this.createdAt,
     );
   }
@@ -484,6 +598,16 @@ class HeroProfilesCompanion extends UpdateCompanion<HeroProfile> {
     if (lastEnergyModeAt.present) {
       map['last_energy_mode_at'] = Variable<DateTime>(lastEnergyModeAt.value);
     }
+    if (energyModeActiveUntil.present) {
+      map['energy_mode_active_until'] = Variable<DateTime>(
+        energyModeActiveUntil.value,
+      );
+    }
+    if (bardInspirationActive.present) {
+      map['bard_inspiration_active'] = Variable<bool>(
+        bardInspirationActive.value,
+      );
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -500,6 +624,8 @@ class HeroProfilesCompanion extends UpdateCompanion<HeroProfile> {
           ..write('currentXp: $currentXp, ')
           ..write('gold: $gold, ')
           ..write('lastEnergyModeAt: $lastEnergyModeAt, ')
+          ..write('energyModeActiveUntil: $energyModeActiveUntil, ')
+          ..write('bardInspirationActive: $bardInspirationActive, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
         .toString();
@@ -1295,12 +1421,1293 @@ class TasksCompanion extends UpdateCompanion<Task> {
   }
 }
 
+class $RaidsTable extends Raids with TableInfo<$RaidsTable, Raid> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $RaidsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+    'title',
+    aliasedName,
+    false,
+    additionalChecks: GeneratedColumn.checkTextLength(
+      minTextLength: 1,
+      maxTextLength: 140,
+    ),
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _attributeKeyMeta = const VerificationMeta(
+    'attributeKey',
+  );
+  @override
+  late final GeneratedColumn<String> attributeKey = GeneratedColumn<String>(
+    'attribute_key',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _isCompletedMeta = const VerificationMeta(
+    'isCompleted',
+  );
+  @override
+  late final GeneratedColumn<bool> isCompleted = GeneratedColumn<bool>(
+    'is_completed',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_completed" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _completedAtMeta = const VerificationMeta(
+    'completedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> completedAt = GeneratedColumn<DateTime>(
+    'completed_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    title,
+    attributeKey,
+    isCompleted,
+    completedAt,
+    createdAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'raids';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<Raid> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+        _titleMeta,
+        title.isAcceptableOrUnknown(data['title']!, _titleMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('attribute_key')) {
+      context.handle(
+        _attributeKeyMeta,
+        attributeKey.isAcceptableOrUnknown(
+          data['attribute_key']!,
+          _attributeKeyMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_attributeKeyMeta);
+    }
+    if (data.containsKey('is_completed')) {
+      context.handle(
+        _isCompletedMeta,
+        isCompleted.isAcceptableOrUnknown(
+          data['is_completed']!,
+          _isCompletedMeta,
+        ),
+      );
+    }
+    if (data.containsKey('completed_at')) {
+      context.handle(
+        _completedAtMeta,
+        completedAt.isAcceptableOrUnknown(
+          data['completed_at']!,
+          _completedAtMeta,
+        ),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  Raid map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return Raid(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      title: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}title'],
+      )!,
+      attributeKey: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}attribute_key'],
+      )!,
+      isCompleted: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_completed'],
+      )!,
+      completedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}completed_at'],
+      ),
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+    );
+  }
+
+  @override
+  $RaidsTable createAlias(String alias) {
+    return $RaidsTable(attachedDatabase, alias);
+  }
+}
+
+class Raid extends DataClass implements Insertable<Raid> {
+  final int id;
+  final String title;
+  final String attributeKey;
+  final bool isCompleted;
+  final DateTime? completedAt;
+  final DateTime createdAt;
+  const Raid({
+    required this.id,
+    required this.title,
+    required this.attributeKey,
+    required this.isCompleted,
+    this.completedAt,
+    required this.createdAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['title'] = Variable<String>(title);
+    map['attribute_key'] = Variable<String>(attributeKey);
+    map['is_completed'] = Variable<bool>(isCompleted);
+    if (!nullToAbsent || completedAt != null) {
+      map['completed_at'] = Variable<DateTime>(completedAt);
+    }
+    map['created_at'] = Variable<DateTime>(createdAt);
+    return map;
+  }
+
+  RaidsCompanion toCompanion(bool nullToAbsent) {
+    return RaidsCompanion(
+      id: Value(id),
+      title: Value(title),
+      attributeKey: Value(attributeKey),
+      isCompleted: Value(isCompleted),
+      completedAt: completedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(completedAt),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory Raid.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return Raid(
+      id: serializer.fromJson<int>(json['id']),
+      title: serializer.fromJson<String>(json['title']),
+      attributeKey: serializer.fromJson<String>(json['attributeKey']),
+      isCompleted: serializer.fromJson<bool>(json['isCompleted']),
+      completedAt: serializer.fromJson<DateTime?>(json['completedAt']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'title': serializer.toJson<String>(title),
+      'attributeKey': serializer.toJson<String>(attributeKey),
+      'isCompleted': serializer.toJson<bool>(isCompleted),
+      'completedAt': serializer.toJson<DateTime?>(completedAt),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
+
+  Raid copyWith({
+    int? id,
+    String? title,
+    String? attributeKey,
+    bool? isCompleted,
+    Value<DateTime?> completedAt = const Value.absent(),
+    DateTime? createdAt,
+  }) => Raid(
+    id: id ?? this.id,
+    title: title ?? this.title,
+    attributeKey: attributeKey ?? this.attributeKey,
+    isCompleted: isCompleted ?? this.isCompleted,
+    completedAt: completedAt.present ? completedAt.value : this.completedAt,
+    createdAt: createdAt ?? this.createdAt,
+  );
+  Raid copyWithCompanion(RaidsCompanion data) {
+    return Raid(
+      id: data.id.present ? data.id.value : this.id,
+      title: data.title.present ? data.title.value : this.title,
+      attributeKey: data.attributeKey.present
+          ? data.attributeKey.value
+          : this.attributeKey,
+      isCompleted: data.isCompleted.present
+          ? data.isCompleted.value
+          : this.isCompleted,
+      completedAt: data.completedAt.present
+          ? data.completedAt.value
+          : this.completedAt,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('Raid(')
+          ..write('id: $id, ')
+          ..write('title: $title, ')
+          ..write('attributeKey: $attributeKey, ')
+          ..write('isCompleted: $isCompleted, ')
+          ..write('completedAt: $completedAt, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, title, attributeKey, isCompleted, completedAt, createdAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is Raid &&
+          other.id == this.id &&
+          other.title == this.title &&
+          other.attributeKey == this.attributeKey &&
+          other.isCompleted == this.isCompleted &&
+          other.completedAt == this.completedAt &&
+          other.createdAt == this.createdAt);
+}
+
+class RaidsCompanion extends UpdateCompanion<Raid> {
+  final Value<int> id;
+  final Value<String> title;
+  final Value<String> attributeKey;
+  final Value<bool> isCompleted;
+  final Value<DateTime?> completedAt;
+  final Value<DateTime> createdAt;
+  const RaidsCompanion({
+    this.id = const Value.absent(),
+    this.title = const Value.absent(),
+    this.attributeKey = const Value.absent(),
+    this.isCompleted = const Value.absent(),
+    this.completedAt = const Value.absent(),
+    this.createdAt = const Value.absent(),
+  });
+  RaidsCompanion.insert({
+    this.id = const Value.absent(),
+    required String title,
+    required String attributeKey,
+    this.isCompleted = const Value.absent(),
+    this.completedAt = const Value.absent(),
+    this.createdAt = const Value.absent(),
+  }) : title = Value(title),
+       attributeKey = Value(attributeKey);
+  static Insertable<Raid> custom({
+    Expression<int>? id,
+    Expression<String>? title,
+    Expression<String>? attributeKey,
+    Expression<bool>? isCompleted,
+    Expression<DateTime>? completedAt,
+    Expression<DateTime>? createdAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (title != null) 'title': title,
+      if (attributeKey != null) 'attribute_key': attributeKey,
+      if (isCompleted != null) 'is_completed': isCompleted,
+      if (completedAt != null) 'completed_at': completedAt,
+      if (createdAt != null) 'created_at': createdAt,
+    });
+  }
+
+  RaidsCompanion copyWith({
+    Value<int>? id,
+    Value<String>? title,
+    Value<String>? attributeKey,
+    Value<bool>? isCompleted,
+    Value<DateTime?>? completedAt,
+    Value<DateTime>? createdAt,
+  }) {
+    return RaidsCompanion(
+      id: id ?? this.id,
+      title: title ?? this.title,
+      attributeKey: attributeKey ?? this.attributeKey,
+      isCompleted: isCompleted ?? this.isCompleted,
+      completedAt: completedAt ?? this.completedAt,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (attributeKey.present) {
+      map['attribute_key'] = Variable<String>(attributeKey.value);
+    }
+    if (isCompleted.present) {
+      map['is_completed'] = Variable<bool>(isCompleted.value);
+    }
+    if (completedAt.present) {
+      map['completed_at'] = Variable<DateTime>(completedAt.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('RaidsCompanion(')
+          ..write('id: $id, ')
+          ..write('title: $title, ')
+          ..write('attributeKey: $attributeKey, ')
+          ..write('isCompleted: $isCompleted, ')
+          ..write('completedAt: $completedAt, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $RaidEnemiesTable extends RaidEnemies
+    with TableInfo<$RaidEnemiesTable, RaidEnemy> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $RaidEnemiesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _raidIdMeta = const VerificationMeta('raidId');
+  @override
+  late final GeneratedColumn<int> raidId = GeneratedColumn<int>(
+    'raid_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES raids (id) ON DELETE CASCADE',
+    ),
+  );
+  static const VerificationMeta _titleMeta = const VerificationMeta('title');
+  @override
+  late final GeneratedColumn<String> title = GeneratedColumn<String>(
+    'title',
+    aliasedName,
+    false,
+    additionalChecks: GeneratedColumn.checkTextLength(
+      minTextLength: 1,
+      maxTextLength: 140,
+    ),
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _enemyTypeMeta = const VerificationMeta(
+    'enemyType',
+  );
+  @override
+  late final GeneratedColumn<String> enemyType = GeneratedColumn<String>(
+    'enemy_type',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('slime'),
+  );
+  static const VerificationMeta _sortOrderMeta = const VerificationMeta(
+    'sortOrder',
+  );
+  @override
+  late final GeneratedColumn<int> sortOrder = GeneratedColumn<int>(
+    'sort_order',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _isDefeatedMeta = const VerificationMeta(
+    'isDefeated',
+  );
+  @override
+  late final GeneratedColumn<bool> isDefeated = GeneratedColumn<bool>(
+    'is_defeated',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_defeated" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _defeatedAtMeta = const VerificationMeta(
+    'defeatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> defeatedAt = GeneratedColumn<DateTime>(
+    'defeated_at',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    raidId,
+    title,
+    enemyType,
+    sortOrder,
+    isDefeated,
+    defeatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'raid_enemies';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<RaidEnemy> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('raid_id')) {
+      context.handle(
+        _raidIdMeta,
+        raidId.isAcceptableOrUnknown(data['raid_id']!, _raidIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_raidIdMeta);
+    }
+    if (data.containsKey('title')) {
+      context.handle(
+        _titleMeta,
+        title.isAcceptableOrUnknown(data['title']!, _titleMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_titleMeta);
+    }
+    if (data.containsKey('enemy_type')) {
+      context.handle(
+        _enemyTypeMeta,
+        enemyType.isAcceptableOrUnknown(data['enemy_type']!, _enemyTypeMeta),
+      );
+    }
+    if (data.containsKey('sort_order')) {
+      context.handle(
+        _sortOrderMeta,
+        sortOrder.isAcceptableOrUnknown(data['sort_order']!, _sortOrderMeta),
+      );
+    }
+    if (data.containsKey('is_defeated')) {
+      context.handle(
+        _isDefeatedMeta,
+        isDefeated.isAcceptableOrUnknown(data['is_defeated']!, _isDefeatedMeta),
+      );
+    }
+    if (data.containsKey('defeated_at')) {
+      context.handle(
+        _defeatedAtMeta,
+        defeatedAt.isAcceptableOrUnknown(data['defeated_at']!, _defeatedAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  RaidEnemy map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return RaidEnemy(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      raidId: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}raid_id'],
+      )!,
+      title: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}title'],
+      )!,
+      enemyType: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}enemy_type'],
+      )!,
+      sortOrder: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}sort_order'],
+      )!,
+      isDefeated: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_defeated'],
+      )!,
+      defeatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}defeated_at'],
+      ),
+    );
+  }
+
+  @override
+  $RaidEnemiesTable createAlias(String alias) {
+    return $RaidEnemiesTable(attachedDatabase, alias);
+  }
+}
+
+class RaidEnemy extends DataClass implements Insertable<RaidEnemy> {
+  final int id;
+  final int raidId;
+  final String title;
+  final String enemyType;
+  final int sortOrder;
+  final bool isDefeated;
+  final DateTime? defeatedAt;
+  const RaidEnemy({
+    required this.id,
+    required this.raidId,
+    required this.title,
+    required this.enemyType,
+    required this.sortOrder,
+    required this.isDefeated,
+    this.defeatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['raid_id'] = Variable<int>(raidId);
+    map['title'] = Variable<String>(title);
+    map['enemy_type'] = Variable<String>(enemyType);
+    map['sort_order'] = Variable<int>(sortOrder);
+    map['is_defeated'] = Variable<bool>(isDefeated);
+    if (!nullToAbsent || defeatedAt != null) {
+      map['defeated_at'] = Variable<DateTime>(defeatedAt);
+    }
+    return map;
+  }
+
+  RaidEnemiesCompanion toCompanion(bool nullToAbsent) {
+    return RaidEnemiesCompanion(
+      id: Value(id),
+      raidId: Value(raidId),
+      title: Value(title),
+      enemyType: Value(enemyType),
+      sortOrder: Value(sortOrder),
+      isDefeated: Value(isDefeated),
+      defeatedAt: defeatedAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(defeatedAt),
+    );
+  }
+
+  factory RaidEnemy.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return RaidEnemy(
+      id: serializer.fromJson<int>(json['id']),
+      raidId: serializer.fromJson<int>(json['raidId']),
+      title: serializer.fromJson<String>(json['title']),
+      enemyType: serializer.fromJson<String>(json['enemyType']),
+      sortOrder: serializer.fromJson<int>(json['sortOrder']),
+      isDefeated: serializer.fromJson<bool>(json['isDefeated']),
+      defeatedAt: serializer.fromJson<DateTime?>(json['defeatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'raidId': serializer.toJson<int>(raidId),
+      'title': serializer.toJson<String>(title),
+      'enemyType': serializer.toJson<String>(enemyType),
+      'sortOrder': serializer.toJson<int>(sortOrder),
+      'isDefeated': serializer.toJson<bool>(isDefeated),
+      'defeatedAt': serializer.toJson<DateTime?>(defeatedAt),
+    };
+  }
+
+  RaidEnemy copyWith({
+    int? id,
+    int? raidId,
+    String? title,
+    String? enemyType,
+    int? sortOrder,
+    bool? isDefeated,
+    Value<DateTime?> defeatedAt = const Value.absent(),
+  }) => RaidEnemy(
+    id: id ?? this.id,
+    raidId: raidId ?? this.raidId,
+    title: title ?? this.title,
+    enemyType: enemyType ?? this.enemyType,
+    sortOrder: sortOrder ?? this.sortOrder,
+    isDefeated: isDefeated ?? this.isDefeated,
+    defeatedAt: defeatedAt.present ? defeatedAt.value : this.defeatedAt,
+  );
+  RaidEnemy copyWithCompanion(RaidEnemiesCompanion data) {
+    return RaidEnemy(
+      id: data.id.present ? data.id.value : this.id,
+      raidId: data.raidId.present ? data.raidId.value : this.raidId,
+      title: data.title.present ? data.title.value : this.title,
+      enemyType: data.enemyType.present ? data.enemyType.value : this.enemyType,
+      sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
+      isDefeated: data.isDefeated.present
+          ? data.isDefeated.value
+          : this.isDefeated,
+      defeatedAt: data.defeatedAt.present
+          ? data.defeatedAt.value
+          : this.defeatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('RaidEnemy(')
+          ..write('id: $id, ')
+          ..write('raidId: $raidId, ')
+          ..write('title: $title, ')
+          ..write('enemyType: $enemyType, ')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('isDefeated: $isDefeated, ')
+          ..write('defeatedAt: $defeatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    id,
+    raidId,
+    title,
+    enemyType,
+    sortOrder,
+    isDefeated,
+    defeatedAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is RaidEnemy &&
+          other.id == this.id &&
+          other.raidId == this.raidId &&
+          other.title == this.title &&
+          other.enemyType == this.enemyType &&
+          other.sortOrder == this.sortOrder &&
+          other.isDefeated == this.isDefeated &&
+          other.defeatedAt == this.defeatedAt);
+}
+
+class RaidEnemiesCompanion extends UpdateCompanion<RaidEnemy> {
+  final Value<int> id;
+  final Value<int> raidId;
+  final Value<String> title;
+  final Value<String> enemyType;
+  final Value<int> sortOrder;
+  final Value<bool> isDefeated;
+  final Value<DateTime?> defeatedAt;
+  const RaidEnemiesCompanion({
+    this.id = const Value.absent(),
+    this.raidId = const Value.absent(),
+    this.title = const Value.absent(),
+    this.enemyType = const Value.absent(),
+    this.sortOrder = const Value.absent(),
+    this.isDefeated = const Value.absent(),
+    this.defeatedAt = const Value.absent(),
+  });
+  RaidEnemiesCompanion.insert({
+    this.id = const Value.absent(),
+    required int raidId,
+    required String title,
+    this.enemyType = const Value.absent(),
+    this.sortOrder = const Value.absent(),
+    this.isDefeated = const Value.absent(),
+    this.defeatedAt = const Value.absent(),
+  }) : raidId = Value(raidId),
+       title = Value(title);
+  static Insertable<RaidEnemy> custom({
+    Expression<int>? id,
+    Expression<int>? raidId,
+    Expression<String>? title,
+    Expression<String>? enemyType,
+    Expression<int>? sortOrder,
+    Expression<bool>? isDefeated,
+    Expression<DateTime>? defeatedAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (raidId != null) 'raid_id': raidId,
+      if (title != null) 'title': title,
+      if (enemyType != null) 'enemy_type': enemyType,
+      if (sortOrder != null) 'sort_order': sortOrder,
+      if (isDefeated != null) 'is_defeated': isDefeated,
+      if (defeatedAt != null) 'defeated_at': defeatedAt,
+    });
+  }
+
+  RaidEnemiesCompanion copyWith({
+    Value<int>? id,
+    Value<int>? raidId,
+    Value<String>? title,
+    Value<String>? enemyType,
+    Value<int>? sortOrder,
+    Value<bool>? isDefeated,
+    Value<DateTime?>? defeatedAt,
+  }) {
+    return RaidEnemiesCompanion(
+      id: id ?? this.id,
+      raidId: raidId ?? this.raidId,
+      title: title ?? this.title,
+      enemyType: enemyType ?? this.enemyType,
+      sortOrder: sortOrder ?? this.sortOrder,
+      isDefeated: isDefeated ?? this.isDefeated,
+      defeatedAt: defeatedAt ?? this.defeatedAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (raidId.present) {
+      map['raid_id'] = Variable<int>(raidId.value);
+    }
+    if (title.present) {
+      map['title'] = Variable<String>(title.value);
+    }
+    if (enemyType.present) {
+      map['enemy_type'] = Variable<String>(enemyType.value);
+    }
+    if (sortOrder.present) {
+      map['sort_order'] = Variable<int>(sortOrder.value);
+    }
+    if (isDefeated.present) {
+      map['is_defeated'] = Variable<bool>(isDefeated.value);
+    }
+    if (defeatedAt.present) {
+      map['defeated_at'] = Variable<DateTime>(defeatedAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('RaidEnemiesCompanion(')
+          ..write('id: $id, ')
+          ..write('raidId: $raidId, ')
+          ..write('title: $title, ')
+          ..write('enemyType: $enemyType, ')
+          ..write('sortOrder: $sortOrder, ')
+          ..write('isDefeated: $isDefeated, ')
+          ..write('defeatedAt: $defeatedAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $MysteryChestsTable extends MysteryChests
+    with TableInfo<$MysteryChestsTable, MysteryChest> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $MysteryChestsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<int> id = GeneratedColumn<int>(
+    'id',
+    aliasedName,
+    false,
+    hasAutoIncrement: true,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'PRIMARY KEY AUTOINCREMENT',
+    ),
+  );
+  static const VerificationMeta _rarityMeta = const VerificationMeta('rarity');
+  @override
+  late final GeneratedColumn<String> rarity = GeneratedColumn<String>(
+    'rarity',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _sourceMeta = const VerificationMeta('source');
+  @override
+  late final GeneratedColumn<String> source = GeneratedColumn<String>(
+    'source',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _isOpenedMeta = const VerificationMeta(
+    'isOpened',
+  );
+  @override
+  late final GeneratedColumn<bool> isOpened = GeneratedColumn<bool>(
+    'is_opened',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_opened" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _rewardSummaryMeta = const VerificationMeta(
+    'rewardSummary',
+  );
+  @override
+  late final GeneratedColumn<String> rewardSummary = GeneratedColumn<String>(
+    'reward_summary',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    id,
+    rarity,
+    source,
+    isOpened,
+    rewardSummary,
+    createdAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'mystery_chests';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<MysteryChest> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    }
+    if (data.containsKey('rarity')) {
+      context.handle(
+        _rarityMeta,
+        rarity.isAcceptableOrUnknown(data['rarity']!, _rarityMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_rarityMeta);
+    }
+    if (data.containsKey('source')) {
+      context.handle(
+        _sourceMeta,
+        source.isAcceptableOrUnknown(data['source']!, _sourceMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_sourceMeta);
+    }
+    if (data.containsKey('is_opened')) {
+      context.handle(
+        _isOpenedMeta,
+        isOpened.isAcceptableOrUnknown(data['is_opened']!, _isOpenedMeta),
+      );
+    }
+    if (data.containsKey('reward_summary')) {
+      context.handle(
+        _rewardSummaryMeta,
+        rewardSummary.isAcceptableOrUnknown(
+          data['reward_summary']!,
+          _rewardSummaryMeta,
+        ),
+      );
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  MysteryChest map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return MysteryChest(
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}id'],
+      )!,
+      rarity: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}rarity'],
+      )!,
+      source: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}source'],
+      )!,
+      isOpened: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_opened'],
+      )!,
+      rewardSummary: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}reward_summary'],
+      ),
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+    );
+  }
+
+  @override
+  $MysteryChestsTable createAlias(String alias) {
+    return $MysteryChestsTable(attachedDatabase, alias);
+  }
+}
+
+class MysteryChest extends DataClass implements Insertable<MysteryChest> {
+  final int id;
+  final String rarity;
+  final String source;
+  final bool isOpened;
+  final String? rewardSummary;
+  final DateTime createdAt;
+  const MysteryChest({
+    required this.id,
+    required this.rarity,
+    required this.source,
+    required this.isOpened,
+    this.rewardSummary,
+    required this.createdAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['id'] = Variable<int>(id);
+    map['rarity'] = Variable<String>(rarity);
+    map['source'] = Variable<String>(source);
+    map['is_opened'] = Variable<bool>(isOpened);
+    if (!nullToAbsent || rewardSummary != null) {
+      map['reward_summary'] = Variable<String>(rewardSummary);
+    }
+    map['created_at'] = Variable<DateTime>(createdAt);
+    return map;
+  }
+
+  MysteryChestsCompanion toCompanion(bool nullToAbsent) {
+    return MysteryChestsCompanion(
+      id: Value(id),
+      rarity: Value(rarity),
+      source: Value(source),
+      isOpened: Value(isOpened),
+      rewardSummary: rewardSummary == null && nullToAbsent
+          ? const Value.absent()
+          : Value(rewardSummary),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory MysteryChest.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return MysteryChest(
+      id: serializer.fromJson<int>(json['id']),
+      rarity: serializer.fromJson<String>(json['rarity']),
+      source: serializer.fromJson<String>(json['source']),
+      isOpened: serializer.fromJson<bool>(json['isOpened']),
+      rewardSummary: serializer.fromJson<String?>(json['rewardSummary']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'id': serializer.toJson<int>(id),
+      'rarity': serializer.toJson<String>(rarity),
+      'source': serializer.toJson<String>(source),
+      'isOpened': serializer.toJson<bool>(isOpened),
+      'rewardSummary': serializer.toJson<String?>(rewardSummary),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
+
+  MysteryChest copyWith({
+    int? id,
+    String? rarity,
+    String? source,
+    bool? isOpened,
+    Value<String?> rewardSummary = const Value.absent(),
+    DateTime? createdAt,
+  }) => MysteryChest(
+    id: id ?? this.id,
+    rarity: rarity ?? this.rarity,
+    source: source ?? this.source,
+    isOpened: isOpened ?? this.isOpened,
+    rewardSummary: rewardSummary.present
+        ? rewardSummary.value
+        : this.rewardSummary,
+    createdAt: createdAt ?? this.createdAt,
+  );
+  MysteryChest copyWithCompanion(MysteryChestsCompanion data) {
+    return MysteryChest(
+      id: data.id.present ? data.id.value : this.id,
+      rarity: data.rarity.present ? data.rarity.value : this.rarity,
+      source: data.source.present ? data.source.value : this.source,
+      isOpened: data.isOpened.present ? data.isOpened.value : this.isOpened,
+      rewardSummary: data.rewardSummary.present
+          ? data.rewardSummary.value
+          : this.rewardSummary,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MysteryChest(')
+          ..write('id: $id, ')
+          ..write('rarity: $rarity, ')
+          ..write('source: $source, ')
+          ..write('isOpened: $isOpened, ')
+          ..write('rewardSummary: $rewardSummary, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(id, rarity, source, isOpened, rewardSummary, createdAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is MysteryChest &&
+          other.id == this.id &&
+          other.rarity == this.rarity &&
+          other.source == this.source &&
+          other.isOpened == this.isOpened &&
+          other.rewardSummary == this.rewardSummary &&
+          other.createdAt == this.createdAt);
+}
+
+class MysteryChestsCompanion extends UpdateCompanion<MysteryChest> {
+  final Value<int> id;
+  final Value<String> rarity;
+  final Value<String> source;
+  final Value<bool> isOpened;
+  final Value<String?> rewardSummary;
+  final Value<DateTime> createdAt;
+  const MysteryChestsCompanion({
+    this.id = const Value.absent(),
+    this.rarity = const Value.absent(),
+    this.source = const Value.absent(),
+    this.isOpened = const Value.absent(),
+    this.rewardSummary = const Value.absent(),
+    this.createdAt = const Value.absent(),
+  });
+  MysteryChestsCompanion.insert({
+    this.id = const Value.absent(),
+    required String rarity,
+    required String source,
+    this.isOpened = const Value.absent(),
+    this.rewardSummary = const Value.absent(),
+    this.createdAt = const Value.absent(),
+  }) : rarity = Value(rarity),
+       source = Value(source);
+  static Insertable<MysteryChest> custom({
+    Expression<int>? id,
+    Expression<String>? rarity,
+    Expression<String>? source,
+    Expression<bool>? isOpened,
+    Expression<String>? rewardSummary,
+    Expression<DateTime>? createdAt,
+  }) {
+    return RawValuesInsertable({
+      if (id != null) 'id': id,
+      if (rarity != null) 'rarity': rarity,
+      if (source != null) 'source': source,
+      if (isOpened != null) 'is_opened': isOpened,
+      if (rewardSummary != null) 'reward_summary': rewardSummary,
+      if (createdAt != null) 'created_at': createdAt,
+    });
+  }
+
+  MysteryChestsCompanion copyWith({
+    Value<int>? id,
+    Value<String>? rarity,
+    Value<String>? source,
+    Value<bool>? isOpened,
+    Value<String?>? rewardSummary,
+    Value<DateTime>? createdAt,
+  }) {
+    return MysteryChestsCompanion(
+      id: id ?? this.id,
+      rarity: rarity ?? this.rarity,
+      source: source ?? this.source,
+      isOpened: isOpened ?? this.isOpened,
+      rewardSummary: rewardSummary ?? this.rewardSummary,
+      createdAt: createdAt ?? this.createdAt,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (id.present) {
+      map['id'] = Variable<int>(id.value);
+    }
+    if (rarity.present) {
+      map['rarity'] = Variable<String>(rarity.value);
+    }
+    if (source.present) {
+      map['source'] = Variable<String>(source.value);
+    }
+    if (isOpened.present) {
+      map['is_opened'] = Variable<bool>(isOpened.value);
+    }
+    if (rewardSummary.present) {
+      map['reward_summary'] = Variable<String>(rewardSummary.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('MysteryChestsCompanion(')
+          ..write('id: $id, ')
+          ..write('rarity: $rarity, ')
+          ..write('source: $source, ')
+          ..write('isOpened: $isOpened, ')
+          ..write('rewardSummary: $rewardSummary, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
   late final $HeroProfilesTable heroProfiles = $HeroProfilesTable(this);
   late final $AttributeStatsTable attributeStats = $AttributeStatsTable(this);
   late final $TasksTable tasks = $TasksTable(this);
+  late final $RaidsTable raids = $RaidsTable(this);
+  late final $RaidEnemiesTable raidEnemies = $RaidEnemiesTable(this);
+  late final $MysteryChestsTable mysteryChests = $MysteryChestsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -1309,7 +2716,20 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     heroProfiles,
     attributeStats,
     tasks,
+    raids,
+    raidEnemies,
+    mysteryChests,
   ];
+  @override
+  StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
+    WritePropagation(
+      on: TableUpdateQuery.onTableName(
+        'raids',
+        limitUpdateKind: UpdateKind.delete,
+      ),
+      result: [TableUpdate('raid_enemies', kind: UpdateKind.delete)],
+    ),
+  ]);
 }
 
 typedef $$HeroProfilesTableCreateCompanionBuilder =
@@ -1321,6 +2741,8 @@ typedef $$HeroProfilesTableCreateCompanionBuilder =
       Value<int> currentXp,
       Value<int> gold,
       Value<DateTime?> lastEnergyModeAt,
+      Value<DateTime?> energyModeActiveUntil,
+      Value<bool> bardInspirationActive,
       Value<DateTime> createdAt,
     });
 typedef $$HeroProfilesTableUpdateCompanionBuilder =
@@ -1332,6 +2754,8 @@ typedef $$HeroProfilesTableUpdateCompanionBuilder =
       Value<int> currentXp,
       Value<int> gold,
       Value<DateTime?> lastEnergyModeAt,
+      Value<DateTime?> energyModeActiveUntil,
+      Value<bool> bardInspirationActive,
       Value<DateTime> createdAt,
     });
 
@@ -1376,6 +2800,16 @@ class $$HeroProfilesTableFilterComposer
 
   ColumnFilters<DateTime> get lastEnergyModeAt => $composableBuilder(
     column: $table.lastEnergyModeAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get energyModeActiveUntil => $composableBuilder(
+    column: $table.energyModeActiveUntil,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get bardInspirationActive => $composableBuilder(
+    column: $table.bardInspirationActive,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -1429,6 +2863,16 @@ class $$HeroProfilesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<DateTime> get energyModeActiveUntil => $composableBuilder(
+    column: $table.energyModeActiveUntil,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get bardInspirationActive => $composableBuilder(
+    column: $table.bardInspirationActive,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
@@ -1464,6 +2908,16 @@ class $$HeroProfilesTableAnnotationComposer
 
   GeneratedColumn<DateTime> get lastEnergyModeAt => $composableBuilder(
     column: $table.lastEnergyModeAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get energyModeActiveUntil => $composableBuilder(
+    column: $table.energyModeActiveUntil,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get bardInspirationActive => $composableBuilder(
+    column: $table.bardInspirationActive,
     builder: (column) => column,
   );
 
@@ -1509,6 +2963,8 @@ class $$HeroProfilesTableTableManager
                 Value<int> currentXp = const Value.absent(),
                 Value<int> gold = const Value.absent(),
                 Value<DateTime?> lastEnergyModeAt = const Value.absent(),
+                Value<DateTime?> energyModeActiveUntil = const Value.absent(),
+                Value<bool> bardInspirationActive = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
               }) => HeroProfilesCompanion(
                 id: id,
@@ -1518,6 +2974,8 @@ class $$HeroProfilesTableTableManager
                 currentXp: currentXp,
                 gold: gold,
                 lastEnergyModeAt: lastEnergyModeAt,
+                energyModeActiveUntil: energyModeActiveUntil,
+                bardInspirationActive: bardInspirationActive,
                 createdAt: createdAt,
               ),
           createCompanionCallback:
@@ -1529,6 +2987,8 @@ class $$HeroProfilesTableTableManager
                 Value<int> currentXp = const Value.absent(),
                 Value<int> gold = const Value.absent(),
                 Value<DateTime?> lastEnergyModeAt = const Value.absent(),
+                Value<DateTime?> energyModeActiveUntil = const Value.absent(),
+                Value<bool> bardInspirationActive = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
               }) => HeroProfilesCompanion.insert(
                 id: id,
@@ -1538,6 +2998,8 @@ class $$HeroProfilesTableTableManager
                 currentXp: currentXp,
                 gold: gold,
                 lastEnergyModeAt: lastEnergyModeAt,
+                energyModeActiveUntil: energyModeActiveUntil,
+                bardInspirationActive: bardInspirationActive,
                 createdAt: createdAt,
               ),
           withReferenceMapper: (p0) => p0
@@ -2010,6 +3472,895 @@ typedef $$TasksTableProcessedTableManager =
       Task,
       PrefetchHooks Function()
     >;
+typedef $$RaidsTableCreateCompanionBuilder = RaidsCompanion Function({
+  Value<int> id,
+  required String title,
+  required String attributeKey,
+  Value<bool> isCompleted,
+  Value<DateTime?> completedAt,
+  Value<DateTime> createdAt,
+});
+typedef $$RaidsTableUpdateCompanionBuilder = RaidsCompanion Function({
+  Value<int> id,
+  Value<String> title,
+  Value<String> attributeKey,
+  Value<bool> isCompleted,
+  Value<DateTime?> completedAt,
+  Value<DateTime> createdAt,
+});
+
+final class $$RaidsTableReferences
+    extends BaseReferences<_$AppDatabase, $RaidsTable, Raid> {
+  $$RaidsTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static MultiTypedResultKey<$RaidEnemiesTable, List<RaidEnemy>>
+  _raidEnemiesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.raidEnemies,
+    aliasName: 'raids__id__raid_enemies__raid_id',
+  );
+
+  $$RaidEnemiesTableProcessedTableManager get raidEnemiesRefs {
+    final manager = $$RaidEnemiesTableTableManager(
+      $_db,
+      $_db.raidEnemies,
+    ).filter((f) => f.raidId.id.sqlEquals($_itemColumn<int>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_raidEnemiesRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+}
+
+class $$RaidsTableFilterComposer extends Composer<_$AppDatabase, $RaidsTable> {
+  $$RaidsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get attributeKey => $composableBuilder(
+    column: $table.attributeKey,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isCompleted => $composableBuilder(
+    column: $table.isCompleted,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get completedAt => $composableBuilder(
+    column: $table.completedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  Expression<bool> raidEnemiesRefs(
+    Expression<bool> Function($$RaidEnemiesTableFilterComposer f) f,
+  ) {
+    final $$RaidEnemiesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.raidEnemies,
+      getReferencedColumn: (t) => t.raidId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$RaidEnemiesTableFilterComposer(
+            $db: $db,
+            $table: $db.raidEnemies,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$RaidsTableOrderingComposer
+    extends Composer<_$AppDatabase, $RaidsTable> {
+  $$RaidsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get attributeKey => $composableBuilder(
+    column: $table.attributeKey,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isCompleted => $composableBuilder(
+    column: $table.isCompleted,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get completedAt => $composableBuilder(
+    column: $table.completedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$RaidsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $RaidsTable> {
+  $$RaidsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get attributeKey => $composableBuilder(
+    column: $table.attributeKey,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get isCompleted => $composableBuilder(
+    column: $table.isCompleted,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get completedAt => $composableBuilder(
+    column: $table.completedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+
+  Expression<T> raidEnemiesRefs<T extends Object>(
+    Expression<T> Function($$RaidEnemiesTableAnnotationComposer a) f,
+  ) {
+    final $$RaidEnemiesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.raidEnemies,
+      getReferencedColumn: (t) => t.raidId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$RaidEnemiesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.raidEnemies,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+}
+
+class $$RaidsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $RaidsTable,
+          Raid,
+          $$RaidsTableFilterComposer,
+          $$RaidsTableOrderingComposer,
+          $$RaidsTableAnnotationComposer,
+          $$RaidsTableCreateCompanionBuilder,
+          $$RaidsTableUpdateCompanionBuilder,
+          (Raid, $$RaidsTableReferences),
+          Raid,
+          PrefetchHooks Function({bool raidEnemiesRefs})
+        > {
+  $$RaidsTableTableManager(_$AppDatabase db, $RaidsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$RaidsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$RaidsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$RaidsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> title = const Value.absent(),
+                Value<String> attributeKey = const Value.absent(),
+                Value<bool> isCompleted = const Value.absent(),
+                Value<DateTime?> completedAt = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+              }) => RaidsCompanion(
+                id: id,
+                title: title,
+                attributeKey: attributeKey,
+                isCompleted: isCompleted,
+                completedAt: completedAt,
+                createdAt: createdAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String title,
+                required String attributeKey,
+                Value<bool> isCompleted = const Value.absent(),
+                Value<DateTime?> completedAt = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+              }) => RaidsCompanion.insert(
+                id: id,
+                title: title,
+                attributeKey: attributeKey,
+                isCompleted: isCompleted,
+                completedAt: completedAt,
+                createdAt: createdAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$RaidsTable, Raid>(table),
+                  $$RaidsTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({raidEnemiesRefs = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [if (raidEnemiesRefs) db.raidEnemies],
+              addJoins: null,
+              getPrefetchedDataCallback: (items) async {
+                return [
+                  if (raidEnemiesRefs)
+                    await $_getPrefetchedDataByColumns<
+                      Raid,
+                      $RaidsTable,
+                      RaidEnemy,
+                      $RaidEnemiesTable
+                    >(
+                      currentTable: table,
+                      referencedTable: $$RaidsTableReferences
+                          ._raidEnemiesRefsTable(db),
+                      managerFromTypedResult: (p0) =>
+                          $$RaidsTableReferences(db, table, p0).raidEnemiesRefs,
+                      currentColumn: 'id',
+                      referencedColumn: 'raid_id',
+                      typedResults: items,
+                    ),
+                ];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$RaidsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $RaidsTable,
+      Raid,
+      $$RaidsTableFilterComposer,
+      $$RaidsTableOrderingComposer,
+      $$RaidsTableAnnotationComposer,
+      $$RaidsTableCreateCompanionBuilder,
+      $$RaidsTableUpdateCompanionBuilder,
+      (Raid, $$RaidsTableReferences),
+      Raid,
+      PrefetchHooks Function({bool raidEnemiesRefs})
+    >;
+typedef $$RaidEnemiesTableCreateCompanionBuilder =
+    RaidEnemiesCompanion Function({
+      Value<int> id,
+      required int raidId,
+      required String title,
+      Value<String> enemyType,
+      Value<int> sortOrder,
+      Value<bool> isDefeated,
+      Value<DateTime?> defeatedAt,
+    });
+typedef $$RaidEnemiesTableUpdateCompanionBuilder =
+    RaidEnemiesCompanion Function({
+      Value<int> id,
+      Value<int> raidId,
+      Value<String> title,
+      Value<String> enemyType,
+      Value<int> sortOrder,
+      Value<bool> isDefeated,
+      Value<DateTime?> defeatedAt,
+    });
+
+final class $$RaidEnemiesTableReferences
+    extends BaseReferences<_$AppDatabase, $RaidEnemiesTable, RaidEnemy> {
+  $$RaidEnemiesTableReferences(super.$_db, super.$_table, super.$_typedResult);
+
+  static $RaidsTable _raidIdTable(_$AppDatabase db) =>
+      db.raids.createAlias('raid_enemies__raid_id__raids__id');
+
+  $$RaidsTableProcessedTableManager get raidId {
+    final $_column = $_itemColumn<int>('raid_id')!;
+
+    final manager = $$RaidsTableTableManager(
+      $_db,
+      $_db.raids,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_raidIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$RaidEnemiesTableFilterComposer
+    extends Composer<_$AppDatabase, $RaidEnemiesTable> {
+  $$RaidEnemiesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get enemyType => $composableBuilder(
+    column: $table.enemyType,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get sortOrder => $composableBuilder(
+    column: $table.sortOrder,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isDefeated => $composableBuilder(
+    column: $table.isDefeated,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get defeatedAt => $composableBuilder(
+    column: $table.defeatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$RaidsTableFilterComposer get raidId {
+    final $$RaidsTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.raidId,
+      referencedTable: $db.raids,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$RaidsTableFilterComposer(
+            $db: $db,
+            $table: $db.raids,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$RaidEnemiesTableOrderingComposer
+    extends Composer<_$AppDatabase, $RaidEnemiesTable> {
+  $$RaidEnemiesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get title => $composableBuilder(
+    column: $table.title,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get enemyType => $composableBuilder(
+    column: $table.enemyType,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get sortOrder => $composableBuilder(
+    column: $table.sortOrder,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isDefeated => $composableBuilder(
+    column: $table.isDefeated,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get defeatedAt => $composableBuilder(
+    column: $table.defeatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$RaidsTableOrderingComposer get raidId {
+    final $$RaidsTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.raidId,
+      referencedTable: $db.raids,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$RaidsTableOrderingComposer(
+            $db: $db,
+            $table: $db.raids,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$RaidEnemiesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $RaidEnemiesTable> {
+  $$RaidEnemiesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get title =>
+      $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get enemyType =>
+      $composableBuilder(column: $table.enemyType, builder: (column) => column);
+
+  GeneratedColumn<int> get sortOrder =>
+      $composableBuilder(column: $table.sortOrder, builder: (column) => column);
+
+  GeneratedColumn<bool> get isDefeated => $composableBuilder(
+    column: $table.isDefeated,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get defeatedAt => $composableBuilder(
+    column: $table.defeatedAt,
+    builder: (column) => column,
+  );
+
+  $$RaidsTableAnnotationComposer get raidId {
+    final $$RaidsTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.raidId,
+      referencedTable: $db.raids,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$RaidsTableAnnotationComposer(
+            $db: $db,
+            $table: $db.raids,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$RaidEnemiesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $RaidEnemiesTable,
+          RaidEnemy,
+          $$RaidEnemiesTableFilterComposer,
+          $$RaidEnemiesTableOrderingComposer,
+          $$RaidEnemiesTableAnnotationComposer,
+          $$RaidEnemiesTableCreateCompanionBuilder,
+          $$RaidEnemiesTableUpdateCompanionBuilder,
+          (RaidEnemy, $$RaidEnemiesTableReferences),
+          RaidEnemy,
+          PrefetchHooks Function({bool raidId})
+        > {
+  $$RaidEnemiesTableTableManager(_$AppDatabase db, $RaidEnemiesTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$RaidEnemiesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$RaidEnemiesTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$RaidEnemiesTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<int> raidId = const Value.absent(),
+                Value<String> title = const Value.absent(),
+                Value<String> enemyType = const Value.absent(),
+                Value<int> sortOrder = const Value.absent(),
+                Value<bool> isDefeated = const Value.absent(),
+                Value<DateTime?> defeatedAt = const Value.absent(),
+              }) => RaidEnemiesCompanion(
+                id: id,
+                raidId: raidId,
+                title: title,
+                enemyType: enemyType,
+                sortOrder: sortOrder,
+                isDefeated: isDefeated,
+                defeatedAt: defeatedAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required int raidId,
+                required String title,
+                Value<String> enemyType = const Value.absent(),
+                Value<int> sortOrder = const Value.absent(),
+                Value<bool> isDefeated = const Value.absent(),
+                Value<DateTime?> defeatedAt = const Value.absent(),
+              }) => RaidEnemiesCompanion.insert(
+                id: id,
+                raidId: raidId,
+                title: title,
+                enemyType: enemyType,
+                sortOrder: sortOrder,
+                isDefeated: isDefeated,
+                defeatedAt: defeatedAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$RaidEnemiesTable, RaidEnemy>(table),
+                  $$RaidEnemiesTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({raidId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (raidId) {
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.raidId,
+                        referencedTable: $$RaidEnemiesTableReferences
+                            ._raidIdTable(db),
+                        referencedColumn: $$RaidEnemiesTableReferences
+                            ._raidIdTable(db)
+                            .id,
+                      ) as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$RaidEnemiesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $RaidEnemiesTable,
+      RaidEnemy,
+      $$RaidEnemiesTableFilterComposer,
+      $$RaidEnemiesTableOrderingComposer,
+      $$RaidEnemiesTableAnnotationComposer,
+      $$RaidEnemiesTableCreateCompanionBuilder,
+      $$RaidEnemiesTableUpdateCompanionBuilder,
+      (RaidEnemy, $$RaidEnemiesTableReferences),
+      RaidEnemy,
+      PrefetchHooks Function({bool raidId})
+    >;
+typedef $$MysteryChestsTableCreateCompanionBuilder =
+    MysteryChestsCompanion Function({
+      Value<int> id,
+      required String rarity,
+      required String source,
+      Value<bool> isOpened,
+      Value<String?> rewardSummary,
+      Value<DateTime> createdAt,
+    });
+typedef $$MysteryChestsTableUpdateCompanionBuilder =
+    MysteryChestsCompanion Function({
+      Value<int> id,
+      Value<String> rarity,
+      Value<String> source,
+      Value<bool> isOpened,
+      Value<String?> rewardSummary,
+      Value<DateTime> createdAt,
+    });
+
+class $$MysteryChestsTableFilterComposer
+    extends Composer<_$AppDatabase, $MysteryChestsTable> {
+  $$MysteryChestsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get rarity => $composableBuilder(
+    column: $table.rarity,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get source => $composableBuilder(
+    column: $table.source,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isOpened => $composableBuilder(
+    column: $table.isOpened,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get rewardSummary => $composableBuilder(
+    column: $table.rewardSummary,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$MysteryChestsTableOrderingComposer
+    extends Composer<_$AppDatabase, $MysteryChestsTable> {
+  $$MysteryChestsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<int> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get rarity => $composableBuilder(
+    column: $table.rarity,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get source => $composableBuilder(
+    column: $table.source,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isOpened => $composableBuilder(
+    column: $table.isOpened,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get rewardSummary => $composableBuilder(
+    column: $table.rewardSummary,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$MysteryChestsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $MysteryChestsTable> {
+  $$MysteryChestsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<int> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<String> get rarity =>
+      $composableBuilder(column: $table.rarity, builder: (column) => column);
+
+  GeneratedColumn<String> get source =>
+      $composableBuilder(column: $table.source, builder: (column) => column);
+
+  GeneratedColumn<bool> get isOpened =>
+      $composableBuilder(column: $table.isOpened, builder: (column) => column);
+
+  GeneratedColumn<String> get rewardSummary => $composableBuilder(
+    column: $table.rewardSummary,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+}
+
+class $$MysteryChestsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $MysteryChestsTable,
+          MysteryChest,
+          $$MysteryChestsTableFilterComposer,
+          $$MysteryChestsTableOrderingComposer,
+          $$MysteryChestsTableAnnotationComposer,
+          $$MysteryChestsTableCreateCompanionBuilder,
+          $$MysteryChestsTableUpdateCompanionBuilder,
+          (
+            MysteryChest,
+            BaseReferences<_$AppDatabase, $MysteryChestsTable, MysteryChest>,
+          ),
+          MysteryChest,
+          PrefetchHooks Function()
+        > {
+  $$MysteryChestsTableTableManager(_$AppDatabase db, $MysteryChestsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$MysteryChestsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$MysteryChestsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$MysteryChestsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                Value<String> rarity = const Value.absent(),
+                Value<String> source = const Value.absent(),
+                Value<bool> isOpened = const Value.absent(),
+                Value<String?> rewardSummary = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+              }) => MysteryChestsCompanion(
+                id: id,
+                rarity: rarity,
+                source: source,
+                isOpened: isOpened,
+                rewardSummary: rewardSummary,
+                createdAt: createdAt,
+              ),
+          createCompanionCallback:
+              ({
+                Value<int> id = const Value.absent(),
+                required String rarity,
+                required String source,
+                Value<bool> isOpened = const Value.absent(),
+                Value<String?> rewardSummary = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+              }) => MysteryChestsCompanion.insert(
+                id: id,
+                rarity: rarity,
+                source: source,
+                isOpened: isOpened,
+                rewardSummary: rewardSummary,
+                createdAt: createdAt,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$MysteryChestsTable, MysteryChest>(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $MysteryChestsTable,
+                    MysteryChest
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$MysteryChestsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $MysteryChestsTable,
+      MysteryChest,
+      $$MysteryChestsTableFilterComposer,
+      $$MysteryChestsTableOrderingComposer,
+      $$MysteryChestsTableAnnotationComposer,
+      $$MysteryChestsTableCreateCompanionBuilder,
+      $$MysteryChestsTableUpdateCompanionBuilder,
+      (
+        MysteryChest,
+        BaseReferences<_$AppDatabase, $MysteryChestsTable, MysteryChest>,
+      ),
+      MysteryChest,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -2020,4 +4371,10 @@ class $AppDatabaseManager {
       $$AttributeStatsTableTableManager(_db, _db.attributeStats);
   $$TasksTableTableManager get tasks =>
       $$TasksTableTableManager(_db, _db.tasks);
+  $$RaidsTableTableManager get raids =>
+      $$RaidsTableTableManager(_db, _db.raids);
+  $$RaidEnemiesTableTableManager get raidEnemies =>
+      $$RaidEnemiesTableTableManager(_db, _db.raidEnemies);
+  $$MysteryChestsTableTableManager get mysteryChests =>
+      $$MysteryChestsTableTableManager(_db, _db.mysteryChests);
 }

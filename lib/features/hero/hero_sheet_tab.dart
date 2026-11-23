@@ -1,22 +1,87 @@
 import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/rpg/reward_engine.dart';
 import '../../core/rpg/rpg_models.dart';
 import '../../core/theme/lifeos_theme.dart';
+import '../../core/widgets/hero_sprite_widget.dart';
 import '../../core/widgets/pixel_panel.dart';
 import '../../data/database/app_database.dart';
 import '../../providers/app_providers.dart';
 
-/// Aba "Herói": Ficha RPG completa com Nível Geral e os 5 Atributos persistidos no SQLite.
+/// Aba "Herói": Ficha RPG completa com Nível Geral, Baús Misteriosos e os 5 Atributos.
 class HeroSheetTab extends ConsumerWidget {
   const HeroSheetTab({super.key, required this.hero});
 
   final HeroProfile hero;
 
+  Future<void> _openChest(
+    BuildContext context,
+    WidgetRef ref,
+    MysteryChest chest,
+  ) async {
+    final result = await ref.read(heroRepositoryProvider).openChest(chest.id);
+    if (result == null || !context.mounted) return;
+
+    showDialog<void>(
+      context: context,
+      builder: (ctx) => Dialog(
+        backgroundColor: Colors.transparent,
+        child: PixelPanel(
+          borderColor: LifeOsColors.gold,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              const Icon(
+                Icons.inventory_2_rounded,
+                size: 46,
+                color: LifeOsColors.gold,
+              ),
+              const SizedBox(height: 10),
+              Text(
+                '${result.rarity.label.toUpperCase()} ABERTO!',
+                textAlign: TextAlign.center,
+                style: LifeOsTheme.pixelTitle(
+                  size: 11,
+                  color: LifeOsColors.gold,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Text(
+                '+${result.gold} Ouro   •   +${result.xp} XP Geral',
+                style: const TextStyle(
+                  fontSize: 15,
+                  fontWeight: FontWeight.w800,
+                  color: LifeOsColors.xpBar,
+                ),
+              ),
+              if (result.heroLeveledUp) ...[
+                const SizedBox(height: 8),
+                const Text(
+                  '★ LEVEL UP! +50 Ouro extra!',
+                  style: TextStyle(
+                    fontWeight: FontWeight.w800,
+                    color: LifeOsColors.gold,
+                  ),
+                ),
+              ],
+              const SizedBox(height: 16),
+              PixelButton(
+                label: 'COLETAR',
+                onPressed: () => Navigator.of(ctx).pop(),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final heroClass = HeroClass.fromKey(hero.heroClass);
     final attributesAsync = ref.watch(attributeStatsProvider);
+    final chestsAsync = ref.watch(unopenedChestsProvider);
     final nextHeroXp = RpgProgression.xpForNextHeroLevel(hero.level);
 
     return ListView(
@@ -38,11 +103,9 @@ class HeroSheetTab extends ConsumerWidget {
                         width: 2,
                       ),
                     ),
-                    child: Image.asset(
-                      heroClass.spriteAsset,
-                      width: 74,
-                      height: 74,
-                      filterQuality: FilterQuality.none,
+                    child: HeroSpriteWidget(
+                      assetPath: heroClass.spriteAsset,
+                      size: 74,
                     ),
                   ),
                   const SizedBox(width: 14),
@@ -119,6 +182,90 @@ class HeroSheetTab extends ConsumerWidget {
           ),
         ),
         const SizedBox(height: 16),
+
+        // Baús Misteriosos aguardando abertura
+        chestsAsync.when(
+          data: (chests) {
+            if (chests.isEmpty) return const SizedBox.shrink();
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 16),
+              child: PixelPanel(
+                borderColor: LifeOsColors.gold,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'BAÚS MISTERIOSOS (${chests.length})',
+                      style: LifeOsTheme.pixelTitle(
+                        size: 10,
+                        color: LifeOsColors.gold,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    ...chests.map((chest) {
+                      final rarity = ChestRarity.fromKey(chest.rarity);
+                      final color = switch (rarity) {
+                        ChestRarity.epic => const Color(0xFFD97BFF),
+                        ChestRarity.rare => LifeOsColors.xpBar,
+                        ChestRarity.common => LifeOsColors.gold,
+                      };
+                      return Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: Row(
+                          children: [
+                            Icon(Icons.inventory_2_rounded, color: color),
+                            const SizedBox(width: 10),
+                            Expanded(
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    rarity.label,
+                                    style: TextStyle(
+                                      fontWeight: FontWeight.w800,
+                                      color: color,
+                                    ),
+                                  ),
+                                  Text(
+                                    chest.source,
+                                    style: const TextStyle(
+                                      fontSize: 12,
+                                      color: LifeOsColors.textSecondary,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            TextButton(
+                              onPressed: () => _openChest(context, ref, chest),
+                              style: TextButton.styleFrom(
+                                backgroundColor: color.withValues(alpha: 0.18),
+                                foregroundColor: color,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.zero,
+                                  side: BorderSide(color: color, width: 1.5),
+                                ),
+                              ),
+                              child: const Text(
+                                'ABRIR',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.w800,
+                                  fontSize: 12,
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      );
+                    }),
+                  ],
+                ),
+              ),
+            );
+          },
+          loading: () => const SizedBox.shrink(),
+          error: (_, _) => const SizedBox.shrink(),
+        ),
 
         // Passiva e Habilidade da Classe
         PixelPanel(

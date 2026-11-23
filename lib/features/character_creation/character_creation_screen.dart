@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/rpg/rpg_models.dart';
 import '../../core/theme/lifeos_theme.dart';
+import '../../core/widgets/hero_sprite_widget.dart';
 import '../../core/widgets/pixel_panel.dart';
 import '../../providers/app_providers.dart';
 
@@ -186,11 +187,9 @@ class _CharacterCreationScreenState
                               width: 2,
                             ),
                           ),
-                          child: Image.asset(
-                            _selectedClass.spriteAsset,
-                            width: 72,
-                            height: 72,
-                            filterQuality: FilterQuality.none,
+                          child: HeroSpriteWidget(
+                            assetPath: _selectedClass.spriteAsset,
+                            size: 72,
                           ),
                         ),
                         const SizedBox(width: 14),

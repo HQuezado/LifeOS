@@ -12,6 +12,9 @@ class HeroProfiles extends Table {
   IntColumn get currentXp => integer().withDefault(const Constant(0))();
   IntColumn get gold => integer().withDefault(const Constant(50))();
   DateTimeColumn get lastEnergyModeAt => dateTime().nullable()();
+  DateTimeColumn get energyModeActiveUntil => dateTime().nullable()();
+  BoolColumn get bardInspirationActive =>
+      boolean().withDefault(const Constant(false))();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 }
 
@@ -25,7 +28,7 @@ class AttributeStats extends Table {
   Set<Column> get primaryKey => {attributeKey};
 }
 
-/// Tarefas e atividades locais (pronto para a Fase 2 e sincronização Google Tasks).
+/// Tarefas e atividades locais vinculadas a um atributo.
 class Tasks extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get title => text().withLength(min: 1, max: 140)();
@@ -37,15 +40,70 @@ class Tasks extends Table {
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 }
 
-@DriftDatabase(tables: [HeroProfiles, AttributeStats, Tasks])
+/// Raids: tarefas maiores quebradas em vários inimigos/ondas.
+class Raids extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get title => text().withLength(min: 1, max: 140)();
+  TextColumn get attributeKey => text()(); // VIG, INT, DES, SAB, CAR
+  BoolColumn get isCompleted => boolean().withDefault(const Constant(false))();
+  DateTimeColumn get completedAt => dateTime().nullable()();
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+}
+
+/// Inimigos (micro-passos de 2 a 15 min) dentro de uma Raid.
+class RaidEnemies extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  IntColumn get raidId => integer().references(Raids, #id, onDelete: KeyAction.cascade)();
+  TextColumn get title => text().withLength(min: 1, max: 140)();
+  TextColumn get enemyType => text().withDefault(const Constant('slime'))();
+  IntColumn get sortOrder => integer().withDefault(const Constant(0))();
+  BoolColumn get isDefeated => boolean().withDefault(const Constant(false))();
+  DateTimeColumn get defeatedAt => dateTime().nullable()();
+}
+
+/// Baús Misteriosos (Comum, Raro, Épico) ganhos em Raids, Level Up e sorte.
+class MysteryChests extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get rarity => text()(); // common, rare, epic
+  TextColumn get source => text()();
+  BoolColumn get isOpened => boolean().withDefault(const Constant(false))();
+  TextColumn get rewardSummary => text().nullable()();
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+}
+
+@DriftDatabase(
+  tables: [
+    HeroProfiles,
+    AttributeStats,
+    Tasks,
+    Raids,
+    RaidEnemies,
+    MysteryChests,
+  ],
+)
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 1;
+  int get schemaVersion => 2;
+
+  @override
+  MigrationStrategy get migration => MigrationStrategy(
+        onCreate: (m) async {
+          await m.createAll();
+        },
+        onUpgrade: (m, from, to) async {
+          if (from < 2) {
+            await m.addColumn(heroProfiles, heroProfiles.energyModeActiveUntil);
+            await m.addColumn(heroProfiles, heroProfiles.bardInspirationActive);
+            await m.createTable(raids);
+            await m.createTable(raidEnemies);
+            await m.createTable(mysteryChests);
+          }
+        },
+      );
 
   static QueryExecutor _openConnection() {
     return driftDatabase(name: 'lifeos_local_db');
   }
 }
-

@@ -128,5 +128,6 @@ O Ouro ganho nas vitórias é gasto na loja interna (3 categorias):
 2. **Fase 2 — Loop Core TDAH:** Tarefas locais, **Sistema de Raids**, **Dopamina Variável** (Críticos, Baús, Missões Relâmpago) e **Modo Energia (1x/semana)**.
 3. **Fase 3 — Progressão & Casa Viva:** Loja interna, equipamentos/visuais do personagem e **Casa/Santuário em Pixel Art** com bônus passivos.
 4. **Fase 4 — Google Sync & Mapa do Dia:** Login Google OAuth no Android, sincronização com Google Agenda + Google Tasks e tela do **Mapa do Dia**.
-5. **Fase 5 — Polimento:** Assets Pixel Art completos, sons 8-bit/16-bit opcionais, exportação/importação de save local e widgets Android.
+5. **Fase 5 — Polimento:** Assets Pixel Art completos (sprites *cozy* 16-bit com animação *idle* e suporte a sprite sheets), sons 8-bit/16-bit opcionais, exportação/importação de save local e widgets Android.
+6. **Visão Futura — Modo RPG por Turnos:** Expandir os atributos, equipamentos e classes do herói para batalhas táticas por turnos (usando o mesmo sistema de sprites animados *idle* / ataque / vitória).
 
