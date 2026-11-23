@@ -5,6 +5,7 @@ import '../data/repositories/hero_repository.dart';
 import '../data/repositories/raid_repository.dart';
 import '../data/repositories/shop_repository.dart';
 import '../data/repositories/task_repository.dart';
+import '../data/services/google_sync_service.dart';
 
 final appDatabaseProvider = Provider<AppDatabase>((ref) {
   final db = AppDatabase();
@@ -61,4 +62,12 @@ final raidsProvider = StreamProvider<List<RaidWithEnemies>>((ref) {
 
 final ownedItemsProvider = StreamProvider<List<OwnedItem>>((ref) {
   return ref.watch(shopRepositoryProvider).watchOwnedItems();
+});
+
+final googleSyncServiceProvider = Provider<GoogleSyncService>((ref) {
+  return GoogleSyncService(ref.watch(appDatabaseProvider));
+});
+
+final todayEventsProvider = StreamProvider<List<CalendarEvent>>((ref) {
+  return ref.watch(googleSyncServiceProvider).watchTodayEvents();
 });

@@ -1,5 +1,6 @@
-import 'package:material_ui/material_ui.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:material_ui/material_ui.dart';
 
 import '../../core/rpg/reward_engine.dart';
 import '../../core/rpg/rpg_models.dart';
@@ -386,7 +387,140 @@ class HeroSheetTab extends ConsumerWidget {
           loading: () => const Center(child: CircularProgressIndicator()),
           error: (e, _) => Text('Erro ao carregar atributos: $e'),
         ),
+        const SizedBox(height: 18),
+
+        // Sincronização Google & Backup Local (.json)
+        PixelPanel(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'GOOGLE SYNC & BACKUP LOCAL',
+                style: LifeOsTheme.pixelTitle(
+                  size: 10,
+                  color: LifeOsColors.xpBar,
+                ),
+              ),
+              const SizedBox(height: 10),
+              const Text(
+                'Todo o seu progresso fica salvo 100% no aparelho. Use o Google apenas para puxar sua Agenda e Tasks, ou exporte um backup em JSON quando quiser.',
+                style: TextStyle(
+                  fontSize: 12.5,
+                  color: LifeOsColors.textSecondary,
+                  height: 1.35,
+                ),
+              ),
+              const SizedBox(height: 12),
+              Row(
+                children: [
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () async {
+                        final res = await ref
+                            .read(googleSyncServiceProvider)
+                            .connectAndSyncToday();
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            SnackBar(content: Text(res.message)),
+                          );
+                        }
+                      },
+                      icon: const Icon(Icons.sync_rounded, size: 17),
+                      label: const Text('Sync Google'),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: OutlinedButton.icon(
+                      onPressed: () async {
+                        final jsonStr = await ref
+                            .read(googleSyncServiceProvider)
+                            .exportSaveJson();
+                        await Clipboard.setData(ClipboardData(text: jsonStr));
+                        if (context.mounted) {
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text(
+                                'Backup JSON copiado para a área de transferência!',
+                              ),
+                            ),
+                          );
+                        }
+                      },
+                      icon: const Icon(Icons.download_rounded, size: 17),
+                      label: const Text('Exportar JSON'),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 8),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: () => _openImportDialog(context, ref),
+                  icon: const Icon(Icons.upload_rounded, size: 17),
+                  label: const Text('Restaurar Save (Importar JSON)'),
+                ),
+              ),
+            ],
+          ),
+        ),
       ],
+    );
+  }
+
+  void _openImportDialog(BuildContext context, WidgetRef ref) {
+    final ctrl = TextEditingController();
+    showDialog<void>(
+      context: context,
+      builder: (ctx) => Dialog(
+        backgroundColor: Colors.transparent,
+        child: PixelPanel(
+          borderColor: LifeOsColors.xpBar,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'RESTAURAR BACKUP JSON',
+                style: LifeOsTheme.pixelTitle(
+                  size: 10,
+                  color: LifeOsColors.xpBar,
+                ),
+              ),
+              const SizedBox(height: 10),
+              TextField(
+                controller: ctrl,
+                maxLines: 5,
+                decoration: const InputDecoration(
+                  hintText: 'Cole aqui o JSON exportado do LifeOS...',
+                ),
+              ),
+              const SizedBox(height: 14),
+              PixelButton(
+                label: 'RESTAURAR SAVE',
+                onPressed: () async {
+                  final ok = await ref
+                      .read(googleSyncServiceProvider)
+                      .importSaveJson(ctrl.text);
+                  if (ctx.mounted) Navigator.of(ctx).pop();
+                  if (context.mounted) {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                          ok
+                              ? 'Save restaurado com sucesso!'
+                              : 'JSON inválido. Verifique o conteúdo colado.',
+                        ),
+                      ),
+                    );
+                  }
+                },
+              ),
+            ],
+          ),
+        ),
+      ),
     );
   }
 }

@@ -29,7 +29,7 @@ class AttributeStats extends Table {
   Set<Column> get primaryKey => {attributeKey};
 }
 
-/// Tarefas e atividades locais vinculadas a um atributo.
+/// Tarefas e atividades locais (ou sincronizadas do Google Tasks).
 class Tasks extends Table {
   IntColumn get id => integer().autoIncrement()();
   TextColumn get title => text().withLength(min: 1, max: 140)();
@@ -85,6 +85,18 @@ class OwnedItems extends Table {
   Set<Column> get primaryKey => {itemId};
 }
 
+/// Cache local dos compromissos do Mapa do Dia (Google Agenda ou locais).
+class CalendarEvents extends Table {
+  IntColumn get id => integer().autoIncrement()();
+  TextColumn get googleEventId => text().nullable()();
+  TextColumn get title => text().withLength(min: 1, max: 160)();
+  DateTimeColumn get startTime => dateTime()();
+  DateTimeColumn get endTime => dateTime()();
+  BoolColumn get isAllDay => boolean().withDefault(const Constant(false))();
+  TextColumn get location => text().nullable()();
+  DateTimeColumn get syncedAt => dateTime().withDefault(currentDateAndTime)();
+}
+
 @DriftDatabase(
   tables: [
     HeroProfiles,
@@ -94,13 +106,14 @@ class OwnedItems extends Table {
     RaidEnemies,
     MysteryChests,
     OwnedItems,
+    CalendarEvents,
   ],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -118,6 +131,9 @@ class AppDatabase extends _$AppDatabase {
           if (from < 3) {
             await m.addColumn(heroProfiles, heroProfiles.focusPotionUntil);
             await m.createTable(ownedItems);
+          }
+          if (from < 4) {
+            await m.createTable(calendarEvents);
           }
         },
       );

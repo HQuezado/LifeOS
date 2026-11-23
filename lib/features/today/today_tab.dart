@@ -10,6 +10,7 @@ import '../../core/widgets/reward_feedback.dart';
 import '../../data/database/app_database.dart';
 import '../../data/repositories/hero_repository.dart';
 import '../../providers/app_providers.dart';
+import 'day_map_widget.dart';
 
 class TodayTab extends ConsumerStatefulWidget {
   const TodayTab({super.key, required this.hero});
@@ -245,6 +246,10 @@ class _TodayTabState extends ConsumerState<TodayTab> {
       body: ListView(
         padding: const EdgeInsets.fromLTRB(16, 12, 16, 92),
         children: [
+          // 0. Mapa do Dia (Google Agenda + Zonas de Exploração)
+          const DayMapWidget(),
+          const SizedBox(height: 12),
+
           // 1. Modo Energia / Dia Sem Culpa (1x por semana)
           PixelPanel(
             borderColor: energyActive
