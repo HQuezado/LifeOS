@@ -15,6 +15,7 @@ class HeroProfiles extends Table {
   DateTimeColumn get energyModeActiveUntil => dateTime().nullable()();
   BoolColumn get bardInspirationActive =>
       boolean().withDefault(const Constant(false))();
+  DateTimeColumn get focusPotionUntil => dateTime().nullable()();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 }
 
@@ -53,7 +54,8 @@ class Raids extends Table {
 /// Inimigos (micro-passos de 2 a 15 min) dentro de uma Raid.
 class RaidEnemies extends Table {
   IntColumn get id => integer().autoIncrement()();
-  IntColumn get raidId => integer().references(Raids, #id, onDelete: KeyAction.cascade)();
+  IntColumn get raidId =>
+      integer().references(Raids, #id, onDelete: KeyAction.cascade)();
   TextColumn get title => text().withLength(min: 1, max: 140)();
   TextColumn get enemyType => text().withDefault(const Constant('slime'))();
   IntColumn get sortOrder => integer().withDefault(const Constant(0))();
@@ -71,6 +73,18 @@ class MysteryChests extends Table {
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 }
 
+/// Itens permanentes comprados na Loja (Móveis da Casa, Equipamentos e Pets).
+class OwnedItems extends Table {
+  TextColumn get itemId => text()();
+  TextColumn get category => text()(); // furniture, equipment
+  BoolColumn get isEquipped => boolean().withDefault(const Constant(true))();
+  DateTimeColumn get purchasedAt =>
+      dateTime().withDefault(currentDateAndTime)();
+
+  @override
+  Set<Column> get primaryKey => {itemId};
+}
+
 @DriftDatabase(
   tables: [
     HeroProfiles,
@@ -79,13 +93,14 @@ class MysteryChests extends Table {
     Raids,
     RaidEnemies,
     MysteryChests,
+    OwnedItems,
   ],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -99,6 +114,10 @@ class AppDatabase extends _$AppDatabase {
             await m.createTable(raids);
             await m.createTable(raidEnemies);
             await m.createTable(mysteryChests);
+          }
+          if (from < 3) {
+            await m.addColumn(heroProfiles, heroProfiles.focusPotionUntil);
+            await m.createTable(ownedItems);
           }
         },
       );

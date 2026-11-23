@@ -4,6 +4,7 @@ import '../../core/rpg/reward_engine.dart';
 import '../../core/rpg/rpg_models.dart';
 import '../database/app_database.dart';
 import 'hero_repository.dart';
+import 'shop_repository.dart';
 
 class RaidWithEnemies {
   const RaidWithEnemies({
@@ -26,11 +27,16 @@ class RaidWithEnemies {
 }
 
 class RaidRepository {
-  RaidRepository(this._db, this._heroRepository, [RewardEngine? rewardEngine])
-      : _rewardEngine = rewardEngine ?? RewardEngine();
+  RaidRepository(
+    this._db,
+    this._heroRepository,
+    this._shopRepository, [
+    RewardEngine? rewardEngine,
+  ]) : _rewardEngine = rewardEngine ?? RewardEngine();
 
   final AppDatabase _db;
   final HeroRepository _heroRepository;
+  final ShopRepository _shopRepository;
   final RewardEngine _rewardEngine;
 
   static const _enemyPool = ['slime', 'goblin', 'skeleton', 'orc', 'golem'];
@@ -158,11 +164,15 @@ class RaidRepository {
     final heroClass = HeroClass.fromKey(hero.heroClass);
     final attrLevels = await _heroRepository.getAttributeLevelsMap();
     final attribute = RpgAttribute.fromKey(raid.attributeKey);
+    final focusPotionActive = ShopRepository.isFocusPotionActive(hero);
+    final furnitureIds = await _shopRepository.getOwnedFurnitureIds();
 
     final outcome = _rewardEngine.calculateRaidEnemyReward(
       isFinalEnemy: isFinalEnemy,
       heroClass: heroClass,
       attributeLevels: attrLevels,
+      focusPotionActive: focusPotionActive,
+      ownedFurnitureIds: furnitureIds,
     );
 
     final progress = await _heroRepository.awardProgress(

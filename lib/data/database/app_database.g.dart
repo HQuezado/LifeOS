@@ -116,6 +116,18 @@ class $HeroProfilesTable extends HeroProfiles
         ),
         defaultValue: const Constant(false),
       );
+  static const VerificationMeta _focusPotionUntilMeta = const VerificationMeta(
+    'focusPotionUntil',
+  );
+  @override
+  late final GeneratedColumn<DateTime> focusPotionUntil =
+      GeneratedColumn<DateTime>(
+        'focus_potion_until',
+        aliasedName,
+        true,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: false,
+      );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -139,6 +151,7 @@ class $HeroProfilesTable extends HeroProfiles
     lastEnergyModeAt,
     energyModeActiveUntil,
     bardInspirationActive,
+    focusPotionUntil,
     createdAt,
   ];
   @override
@@ -217,6 +230,15 @@ class $HeroProfilesTable extends HeroProfiles
         ),
       );
     }
+    if (data.containsKey('focus_potion_until')) {
+      context.handle(
+        _focusPotionUntilMeta,
+        focusPotionUntil.isAcceptableOrUnknown(
+          data['focus_potion_until']!,
+          _focusPotionUntilMeta,
+        ),
+      );
+    }
     if (data.containsKey('created_at')) {
       context.handle(
         _createdAtMeta,
@@ -268,6 +290,10 @@ class $HeroProfilesTable extends HeroProfiles
         DriftSqlType.bool,
         data['${effectivePrefix}bard_inspiration_active'],
       )!,
+      focusPotionUntil: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}focus_potion_until'],
+      ),
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
@@ -291,6 +317,7 @@ class HeroProfile extends DataClass implements Insertable<HeroProfile> {
   final DateTime? lastEnergyModeAt;
   final DateTime? energyModeActiveUntil;
   final bool bardInspirationActive;
+  final DateTime? focusPotionUntil;
   final DateTime createdAt;
   const HeroProfile({
     required this.id,
@@ -302,6 +329,7 @@ class HeroProfile extends DataClass implements Insertable<HeroProfile> {
     this.lastEnergyModeAt,
     this.energyModeActiveUntil,
     required this.bardInspirationActive,
+    this.focusPotionUntil,
     required this.createdAt,
   });
   @override
@@ -322,6 +350,9 @@ class HeroProfile extends DataClass implements Insertable<HeroProfile> {
       );
     }
     map['bard_inspiration_active'] = Variable<bool>(bardInspirationActive);
+    if (!nullToAbsent || focusPotionUntil != null) {
+      map['focus_potion_until'] = Variable<DateTime>(focusPotionUntil);
+    }
     map['created_at'] = Variable<DateTime>(createdAt);
     return map;
   }
@@ -341,6 +372,9 @@ class HeroProfile extends DataClass implements Insertable<HeroProfile> {
           ? const Value.absent()
           : Value(energyModeActiveUntil),
       bardInspirationActive: Value(bardInspirationActive),
+      focusPotionUntil: focusPotionUntil == null && nullToAbsent
+          ? const Value.absent()
+          : Value(focusPotionUntil),
       createdAt: Value(createdAt),
     );
   }
@@ -366,6 +400,9 @@ class HeroProfile extends DataClass implements Insertable<HeroProfile> {
       bardInspirationActive: serializer.fromJson<bool>(
         json['bardInspirationActive'],
       ),
+      focusPotionUntil: serializer.fromJson<DateTime?>(
+        json['focusPotionUntil'],
+      ),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
     );
   }
@@ -384,6 +421,7 @@ class HeroProfile extends DataClass implements Insertable<HeroProfile> {
         energyModeActiveUntil,
       ),
       'bardInspirationActive': serializer.toJson<bool>(bardInspirationActive),
+      'focusPotionUntil': serializer.toJson<DateTime?>(focusPotionUntil),
       'createdAt': serializer.toJson<DateTime>(createdAt),
     };
   }
@@ -398,6 +436,7 @@ class HeroProfile extends DataClass implements Insertable<HeroProfile> {
     Value<DateTime?> lastEnergyModeAt = const Value.absent(),
     Value<DateTime?> energyModeActiveUntil = const Value.absent(),
     bool? bardInspirationActive,
+    Value<DateTime?> focusPotionUntil = const Value.absent(),
     DateTime? createdAt,
   }) => HeroProfile(
     id: id ?? this.id,
@@ -413,6 +452,9 @@ class HeroProfile extends DataClass implements Insertable<HeroProfile> {
         ? energyModeActiveUntil.value
         : this.energyModeActiveUntil,
     bardInspirationActive: bardInspirationActive ?? this.bardInspirationActive,
+    focusPotionUntil: focusPotionUntil.present
+        ? focusPotionUntil.value
+        : this.focusPotionUntil,
     createdAt: createdAt ?? this.createdAt,
   );
   HeroProfile copyWithCompanion(HeroProfilesCompanion data) {
@@ -432,6 +474,9 @@ class HeroProfile extends DataClass implements Insertable<HeroProfile> {
       bardInspirationActive: data.bardInspirationActive.present
           ? data.bardInspirationActive.value
           : this.bardInspirationActive,
+      focusPotionUntil: data.focusPotionUntil.present
+          ? data.focusPotionUntil.value
+          : this.focusPotionUntil,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
     );
   }
@@ -448,6 +493,7 @@ class HeroProfile extends DataClass implements Insertable<HeroProfile> {
           ..write('lastEnergyModeAt: $lastEnergyModeAt, ')
           ..write('energyModeActiveUntil: $energyModeActiveUntil, ')
           ..write('bardInspirationActive: $bardInspirationActive, ')
+          ..write('focusPotionUntil: $focusPotionUntil, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
         .toString();
@@ -464,6 +510,7 @@ class HeroProfile extends DataClass implements Insertable<HeroProfile> {
     lastEnergyModeAt,
     energyModeActiveUntil,
     bardInspirationActive,
+    focusPotionUntil,
     createdAt,
   );
   @override
@@ -479,6 +526,7 @@ class HeroProfile extends DataClass implements Insertable<HeroProfile> {
           other.lastEnergyModeAt == this.lastEnergyModeAt &&
           other.energyModeActiveUntil == this.energyModeActiveUntil &&
           other.bardInspirationActive == this.bardInspirationActive &&
+          other.focusPotionUntil == this.focusPotionUntil &&
           other.createdAt == this.createdAt);
 }
 
@@ -492,6 +540,7 @@ class HeroProfilesCompanion extends UpdateCompanion<HeroProfile> {
   final Value<DateTime?> lastEnergyModeAt;
   final Value<DateTime?> energyModeActiveUntil;
   final Value<bool> bardInspirationActive;
+  final Value<DateTime?> focusPotionUntil;
   final Value<DateTime> createdAt;
   const HeroProfilesCompanion({
     this.id = const Value.absent(),
@@ -503,6 +552,7 @@ class HeroProfilesCompanion extends UpdateCompanion<HeroProfile> {
     this.lastEnergyModeAt = const Value.absent(),
     this.energyModeActiveUntil = const Value.absent(),
     this.bardInspirationActive = const Value.absent(),
+    this.focusPotionUntil = const Value.absent(),
     this.createdAt = const Value.absent(),
   });
   HeroProfilesCompanion.insert({
@@ -515,6 +565,7 @@ class HeroProfilesCompanion extends UpdateCompanion<HeroProfile> {
     this.lastEnergyModeAt = const Value.absent(),
     this.energyModeActiveUntil = const Value.absent(),
     this.bardInspirationActive = const Value.absent(),
+    this.focusPotionUntil = const Value.absent(),
     this.createdAt = const Value.absent(),
   }) : name = Value(name),
        heroClass = Value(heroClass);
@@ -528,6 +579,7 @@ class HeroProfilesCompanion extends UpdateCompanion<HeroProfile> {
     Expression<DateTime>? lastEnergyModeAt,
     Expression<DateTime>? energyModeActiveUntil,
     Expression<bool>? bardInspirationActive,
+    Expression<DateTime>? focusPotionUntil,
     Expression<DateTime>? createdAt,
   }) {
     return RawValuesInsertable({
@@ -542,6 +594,7 @@ class HeroProfilesCompanion extends UpdateCompanion<HeroProfile> {
         'energy_mode_active_until': energyModeActiveUntil,
       if (bardInspirationActive != null)
         'bard_inspiration_active': bardInspirationActive,
+      if (focusPotionUntil != null) 'focus_potion_until': focusPotionUntil,
       if (createdAt != null) 'created_at': createdAt,
     });
   }
@@ -556,6 +609,7 @@ class HeroProfilesCompanion extends UpdateCompanion<HeroProfile> {
     Value<DateTime?>? lastEnergyModeAt,
     Value<DateTime?>? energyModeActiveUntil,
     Value<bool>? bardInspirationActive,
+    Value<DateTime?>? focusPotionUntil,
     Value<DateTime>? createdAt,
   }) {
     return HeroProfilesCompanion(
@@ -570,6 +624,7 @@ class HeroProfilesCompanion extends UpdateCompanion<HeroProfile> {
           energyModeActiveUntil ?? this.energyModeActiveUntil,
       bardInspirationActive:
           bardInspirationActive ?? this.bardInspirationActive,
+      focusPotionUntil: focusPotionUntil ?? this.focusPotionUntil,
       createdAt: createdAt ?? this.createdAt,
     );
   }
@@ -608,6 +663,9 @@ class HeroProfilesCompanion extends UpdateCompanion<HeroProfile> {
         bardInspirationActive.value,
       );
     }
+    if (focusPotionUntil.present) {
+      map['focus_potion_until'] = Variable<DateTime>(focusPotionUntil.value);
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -626,6 +684,7 @@ class HeroProfilesCompanion extends UpdateCompanion<HeroProfile> {
           ..write('lastEnergyModeAt: $lastEnergyModeAt, ')
           ..write('energyModeActiveUntil: $energyModeActiveUntil, ')
           ..write('bardInspirationActive: $bardInspirationActive, ')
+          ..write('focusPotionUntil: $focusPotionUntil, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
         .toString();
@@ -2699,6 +2758,330 @@ class MysteryChestsCompanion extends UpdateCompanion<MysteryChest> {
   }
 }
 
+class $OwnedItemsTable extends OwnedItems
+    with TableInfo<$OwnedItemsTable, OwnedItem> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $OwnedItemsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _itemIdMeta = const VerificationMeta('itemId');
+  @override
+  late final GeneratedColumn<String> itemId = GeneratedColumn<String>(
+    'item_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _categoryMeta = const VerificationMeta(
+    'category',
+  );
+  @override
+  late final GeneratedColumn<String> category = GeneratedColumn<String>(
+    'category',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _isEquippedMeta = const VerificationMeta(
+    'isEquipped',
+  );
+  @override
+  late final GeneratedColumn<bool> isEquipped = GeneratedColumn<bool>(
+    'is_equipped',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_equipped" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
+  static const VerificationMeta _purchasedAtMeta = const VerificationMeta(
+    'purchasedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> purchasedAt = GeneratedColumn<DateTime>(
+    'purchased_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    itemId,
+    category,
+    isEquipped,
+    purchasedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'owned_items';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<OwnedItem> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('item_id')) {
+      context.handle(
+        _itemIdMeta,
+        itemId.isAcceptableOrUnknown(data['item_id']!, _itemIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_itemIdMeta);
+    }
+    if (data.containsKey('category')) {
+      context.handle(
+        _categoryMeta,
+        category.isAcceptableOrUnknown(data['category']!, _categoryMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_categoryMeta);
+    }
+    if (data.containsKey('is_equipped')) {
+      context.handle(
+        _isEquippedMeta,
+        isEquipped.isAcceptableOrUnknown(data['is_equipped']!, _isEquippedMeta),
+      );
+    }
+    if (data.containsKey('purchased_at')) {
+      context.handle(
+        _purchasedAtMeta,
+        purchasedAt.isAcceptableOrUnknown(
+          data['purchased_at']!,
+          _purchasedAtMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {itemId};
+  @override
+  OwnedItem map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return OwnedItem(
+      itemId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}item_id'],
+      )!,
+      category: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}category'],
+      )!,
+      isEquipped: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_equipped'],
+      )!,
+      purchasedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}purchased_at'],
+      )!,
+    );
+  }
+
+  @override
+  $OwnedItemsTable createAlias(String alias) {
+    return $OwnedItemsTable(attachedDatabase, alias);
+  }
+}
+
+class OwnedItem extends DataClass implements Insertable<OwnedItem> {
+  final String itemId;
+  final String category;
+  final bool isEquipped;
+  final DateTime purchasedAt;
+  const OwnedItem({
+    required this.itemId,
+    required this.category,
+    required this.isEquipped,
+    required this.purchasedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['item_id'] = Variable<String>(itemId);
+    map['category'] = Variable<String>(category);
+    map['is_equipped'] = Variable<bool>(isEquipped);
+    map['purchased_at'] = Variable<DateTime>(purchasedAt);
+    return map;
+  }
+
+  OwnedItemsCompanion toCompanion(bool nullToAbsent) {
+    return OwnedItemsCompanion(
+      itemId: Value(itemId),
+      category: Value(category),
+      isEquipped: Value(isEquipped),
+      purchasedAt: Value(purchasedAt),
+    );
+  }
+
+  factory OwnedItem.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return OwnedItem(
+      itemId: serializer.fromJson<String>(json['itemId']),
+      category: serializer.fromJson<String>(json['category']),
+      isEquipped: serializer.fromJson<bool>(json['isEquipped']),
+      purchasedAt: serializer.fromJson<DateTime>(json['purchasedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'itemId': serializer.toJson<String>(itemId),
+      'category': serializer.toJson<String>(category),
+      'isEquipped': serializer.toJson<bool>(isEquipped),
+      'purchasedAt': serializer.toJson<DateTime>(purchasedAt),
+    };
+  }
+
+  OwnedItem copyWith({
+    String? itemId,
+    String? category,
+    bool? isEquipped,
+    DateTime? purchasedAt,
+  }) => OwnedItem(
+    itemId: itemId ?? this.itemId,
+    category: category ?? this.category,
+    isEquipped: isEquipped ?? this.isEquipped,
+    purchasedAt: purchasedAt ?? this.purchasedAt,
+  );
+  OwnedItem copyWithCompanion(OwnedItemsCompanion data) {
+    return OwnedItem(
+      itemId: data.itemId.present ? data.itemId.value : this.itemId,
+      category: data.category.present ? data.category.value : this.category,
+      isEquipped: data.isEquipped.present
+          ? data.isEquipped.value
+          : this.isEquipped,
+      purchasedAt: data.purchasedAt.present
+          ? data.purchasedAt.value
+          : this.purchasedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('OwnedItem(')
+          ..write('itemId: $itemId, ')
+          ..write('category: $category, ')
+          ..write('isEquipped: $isEquipped, ')
+          ..write('purchasedAt: $purchasedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(itemId, category, isEquipped, purchasedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is OwnedItem &&
+          other.itemId == this.itemId &&
+          other.category == this.category &&
+          other.isEquipped == this.isEquipped &&
+          other.purchasedAt == this.purchasedAt);
+}
+
+class OwnedItemsCompanion extends UpdateCompanion<OwnedItem> {
+  final Value<String> itemId;
+  final Value<String> category;
+  final Value<bool> isEquipped;
+  final Value<DateTime> purchasedAt;
+  final Value<int> rowid;
+  const OwnedItemsCompanion({
+    this.itemId = const Value.absent(),
+    this.category = const Value.absent(),
+    this.isEquipped = const Value.absent(),
+    this.purchasedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  OwnedItemsCompanion.insert({
+    required String itemId,
+    required String category,
+    this.isEquipped = const Value.absent(),
+    this.purchasedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : itemId = Value(itemId),
+       category = Value(category);
+  static Insertable<OwnedItem> custom({
+    Expression<String>? itemId,
+    Expression<String>? category,
+    Expression<bool>? isEquipped,
+    Expression<DateTime>? purchasedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (itemId != null) 'item_id': itemId,
+      if (category != null) 'category': category,
+      if (isEquipped != null) 'is_equipped': isEquipped,
+      if (purchasedAt != null) 'purchased_at': purchasedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  OwnedItemsCompanion copyWith({
+    Value<String>? itemId,
+    Value<String>? category,
+    Value<bool>? isEquipped,
+    Value<DateTime>? purchasedAt,
+    Value<int>? rowid,
+  }) {
+    return OwnedItemsCompanion(
+      itemId: itemId ?? this.itemId,
+      category: category ?? this.category,
+      isEquipped: isEquipped ?? this.isEquipped,
+      purchasedAt: purchasedAt ?? this.purchasedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (itemId.present) {
+      map['item_id'] = Variable<String>(itemId.value);
+    }
+    if (category.present) {
+      map['category'] = Variable<String>(category.value);
+    }
+    if (isEquipped.present) {
+      map['is_equipped'] = Variable<bool>(isEquipped.value);
+    }
+    if (purchasedAt.present) {
+      map['purchased_at'] = Variable<DateTime>(purchasedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('OwnedItemsCompanion(')
+          ..write('itemId: $itemId, ')
+          ..write('category: $category, ')
+          ..write('isEquipped: $isEquipped, ')
+          ..write('purchasedAt: $purchasedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -2708,6 +3091,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $RaidsTable raids = $RaidsTable(this);
   late final $RaidEnemiesTable raidEnemies = $RaidEnemiesTable(this);
   late final $MysteryChestsTable mysteryChests = $MysteryChestsTable(this);
+  late final $OwnedItemsTable ownedItems = $OwnedItemsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -2719,6 +3103,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     raids,
     raidEnemies,
     mysteryChests,
+    ownedItems,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -2743,6 +3128,7 @@ typedef $$HeroProfilesTableCreateCompanionBuilder =
       Value<DateTime?> lastEnergyModeAt,
       Value<DateTime?> energyModeActiveUntil,
       Value<bool> bardInspirationActive,
+      Value<DateTime?> focusPotionUntil,
       Value<DateTime> createdAt,
     });
 typedef $$HeroProfilesTableUpdateCompanionBuilder =
@@ -2756,6 +3142,7 @@ typedef $$HeroProfilesTableUpdateCompanionBuilder =
       Value<DateTime?> lastEnergyModeAt,
       Value<DateTime?> energyModeActiveUntil,
       Value<bool> bardInspirationActive,
+      Value<DateTime?> focusPotionUntil,
       Value<DateTime> createdAt,
     });
 
@@ -2810,6 +3197,11 @@ class $$HeroProfilesTableFilterComposer
 
   ColumnFilters<bool> get bardInspirationActive => $composableBuilder(
     column: $table.bardInspirationActive,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get focusPotionUntil => $composableBuilder(
+    column: $table.focusPotionUntil,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -2873,6 +3265,11 @@ class $$HeroProfilesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<DateTime> get focusPotionUntil => $composableBuilder(
+    column: $table.focusPotionUntil,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
@@ -2921,6 +3318,11 @@ class $$HeroProfilesTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<DateTime> get focusPotionUntil => $composableBuilder(
+    column: $table.focusPotionUntil,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
 }
@@ -2965,6 +3367,7 @@ class $$HeroProfilesTableTableManager
                 Value<DateTime?> lastEnergyModeAt = const Value.absent(),
                 Value<DateTime?> energyModeActiveUntil = const Value.absent(),
                 Value<bool> bardInspirationActive = const Value.absent(),
+                Value<DateTime?> focusPotionUntil = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
               }) => HeroProfilesCompanion(
                 id: id,
@@ -2976,6 +3379,7 @@ class $$HeroProfilesTableTableManager
                 lastEnergyModeAt: lastEnergyModeAt,
                 energyModeActiveUntil: energyModeActiveUntil,
                 bardInspirationActive: bardInspirationActive,
+                focusPotionUntil: focusPotionUntil,
                 createdAt: createdAt,
               ),
           createCompanionCallback:
@@ -2989,6 +3393,7 @@ class $$HeroProfilesTableTableManager
                 Value<DateTime?> lastEnergyModeAt = const Value.absent(),
                 Value<DateTime?> energyModeActiveUntil = const Value.absent(),
                 Value<bool> bardInspirationActive = const Value.absent(),
+                Value<DateTime?> focusPotionUntil = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
               }) => HeroProfilesCompanion.insert(
                 id: id,
@@ -3000,6 +3405,7 @@ class $$HeroProfilesTableTableManager
                 lastEnergyModeAt: lastEnergyModeAt,
                 energyModeActiveUntil: energyModeActiveUntil,
                 bardInspirationActive: bardInspirationActive,
+                focusPotionUntil: focusPotionUntil,
                 createdAt: createdAt,
               ),
           withReferenceMapper: (p0) => p0
@@ -4361,6 +4767,195 @@ typedef $$MysteryChestsTableProcessedTableManager =
       MysteryChest,
       PrefetchHooks Function()
     >;
+typedef $$OwnedItemsTableCreateCompanionBuilder = OwnedItemsCompanion Function({
+  required String itemId,
+  required String category,
+  Value<bool> isEquipped,
+  Value<DateTime> purchasedAt,
+  Value<int> rowid,
+});
+typedef $$OwnedItemsTableUpdateCompanionBuilder = OwnedItemsCompanion Function({
+  Value<String> itemId,
+  Value<String> category,
+  Value<bool> isEquipped,
+  Value<DateTime> purchasedAt,
+  Value<int> rowid,
+});
+
+class $$OwnedItemsTableFilterComposer
+    extends Composer<_$AppDatabase, $OwnedItemsTable> {
+  $$OwnedItemsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get itemId => $composableBuilder(
+    column: $table.itemId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get category => $composableBuilder(
+    column: $table.category,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isEquipped => $composableBuilder(
+    column: $table.isEquipped,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get purchasedAt => $composableBuilder(
+    column: $table.purchasedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$OwnedItemsTableOrderingComposer
+    extends Composer<_$AppDatabase, $OwnedItemsTable> {
+  $$OwnedItemsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get itemId => $composableBuilder(
+    column: $table.itemId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get category => $composableBuilder(
+    column: $table.category,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isEquipped => $composableBuilder(
+    column: $table.isEquipped,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get purchasedAt => $composableBuilder(
+    column: $table.purchasedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$OwnedItemsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $OwnedItemsTable> {
+  $$OwnedItemsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get itemId =>
+      $composableBuilder(column: $table.itemId, builder: (column) => column);
+
+  GeneratedColumn<String> get category =>
+      $composableBuilder(column: $table.category, builder: (column) => column);
+
+  GeneratedColumn<bool> get isEquipped => $composableBuilder(
+    column: $table.isEquipped,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get purchasedAt => $composableBuilder(
+    column: $table.purchasedAt,
+    builder: (column) => column,
+  );
+}
+
+class $$OwnedItemsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $OwnedItemsTable,
+          OwnedItem,
+          $$OwnedItemsTableFilterComposer,
+          $$OwnedItemsTableOrderingComposer,
+          $$OwnedItemsTableAnnotationComposer,
+          $$OwnedItemsTableCreateCompanionBuilder,
+          $$OwnedItemsTableUpdateCompanionBuilder,
+          (
+            OwnedItem,
+            BaseReferences<_$AppDatabase, $OwnedItemsTable, OwnedItem>,
+          ),
+          OwnedItem,
+          PrefetchHooks Function()
+        > {
+  $$OwnedItemsTableTableManager(_$AppDatabase db, $OwnedItemsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$OwnedItemsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$OwnedItemsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$OwnedItemsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> itemId = const Value.absent(),
+                Value<String> category = const Value.absent(),
+                Value<bool> isEquipped = const Value.absent(),
+                Value<DateTime> purchasedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => OwnedItemsCompanion(
+                itemId: itemId,
+                category: category,
+                isEquipped: isEquipped,
+                purchasedAt: purchasedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String itemId,
+                required String category,
+                Value<bool> isEquipped = const Value.absent(),
+                Value<DateTime> purchasedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => OwnedItemsCompanion.insert(
+                itemId: itemId,
+                category: category,
+                isEquipped: isEquipped,
+                purchasedAt: purchasedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$OwnedItemsTable, OwnedItem>(table),
+                  BaseReferences<_$AppDatabase, $OwnedItemsTable, OwnedItem>(
+                    db,
+                    table,
+                    e,
+                  ),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$OwnedItemsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $OwnedItemsTable,
+      OwnedItem,
+      $$OwnedItemsTableFilterComposer,
+      $$OwnedItemsTableOrderingComposer,
+      $$OwnedItemsTableAnnotationComposer,
+      $$OwnedItemsTableCreateCompanionBuilder,
+      $$OwnedItemsTableUpdateCompanionBuilder,
+      (OwnedItem, BaseReferences<_$AppDatabase, $OwnedItemsTable, OwnedItem>),
+      OwnedItem,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -4377,4 +4972,6 @@ class $AppDatabaseManager {
       $$RaidEnemiesTableTableManager(_db, _db.raidEnemies);
   $$MysteryChestsTableTableManager get mysteryChests =>
       $$MysteryChestsTableTableManager(_db, _db.mysteryChests);
+  $$OwnedItemsTableTableManager get ownedItems =>
+      $$OwnedItemsTableTableManager(_db, _db.ownedItems);
 }

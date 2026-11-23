@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../data/database/app_database.dart';
 import '../data/repositories/hero_repository.dart';
 import '../data/repositories/raid_repository.dart';
+import '../data/repositories/shop_repository.dart';
 import '../data/repositories/task_repository.dart';
 
 final appDatabaseProvider = Provider<AppDatabase>((ref) {
@@ -15,10 +16,18 @@ final heroRepositoryProvider = Provider<HeroRepository>((ref) {
   return HeroRepository(ref.watch(appDatabaseProvider));
 });
 
+final shopRepositoryProvider = Provider<ShopRepository>((ref) {
+  return ShopRepository(
+    ref.watch(appDatabaseProvider),
+    ref.watch(heroRepositoryProvider),
+  );
+});
+
 final taskRepositoryProvider = Provider<TaskRepository>((ref) {
   return TaskRepository(
     ref.watch(appDatabaseProvider),
     ref.watch(heroRepositoryProvider),
+    ref.watch(shopRepositoryProvider),
   );
 });
 
@@ -26,6 +35,7 @@ final raidRepositoryProvider = Provider<RaidRepository>((ref) {
   return RaidRepository(
     ref.watch(appDatabaseProvider),
     ref.watch(heroRepositoryProvider),
+    ref.watch(shopRepositoryProvider),
   );
 });
 
@@ -47,4 +57,8 @@ final tasksProvider = StreamProvider<List<Task>>((ref) {
 
 final raidsProvider = StreamProvider<List<RaidWithEnemies>>((ref) {
   return ref.watch(raidRepositoryProvider).watchRaids();
+});
+
+final ownedItemsProvider = StreamProvider<List<OwnedItem>>((ref) {
+  return ref.watch(shopRepositoryProvider).watchOwnedItems();
 });

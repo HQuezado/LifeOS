@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lifeos/core/rpg/reward_engine.dart';
 import 'package:lifeos/core/rpg/rpg_models.dart';
+import 'package:lifeos/core/rpg/shop_catalog.dart';
 
 void main() {
   group('LifeOS RPG Progression', () {
@@ -52,7 +53,6 @@ void main() {
       );
 
       expect(outcome.showMicroTaskGentleReminder, isTrue);
-      // Base micro XP is 15 -> 50% = 7.5 -> 8 (or 12/15 if crit)
       if (!outcome.isCritical) {
         expect(outcome.xpGained, 8);
       }
@@ -86,6 +86,46 @@ void main() {
       expect(outcome.droppedChest, isNotNull);
       expect(outcome.xpGained, greaterThanOrEqualTo(105));
       expect(outcome.goldGained, greaterThanOrEqualTo(78));
+    });
+  });
+
+  group('Phase 3 Shop & House Passives', () {
+    test('Bard and Charisma combine for shop discount capped at 25%', () {
+      expect(
+        ShopCatalog.discountedPrice(
+          basePrice: 100,
+          heroClass: HeroClass.bard,
+          charismaLevel: 1,
+        ),
+        90,
+      );
+      expect(
+        ShopCatalog.discountedPrice(
+          basePrice: 100,
+          heroClass: HeroClass.bard,
+          charismaLevel: 20,
+        ),
+        75, // Capped at 25% OFF
+      );
+    });
+
+    test('House furniture and Focus Potion stack real XP/Gold bonuses', () {
+      final engine = RewardEngine(Random(99));
+      final outcome = engine.calculateTaskReward(
+        difficulty: TaskDifficulty.medium, // 60 XP / 40 Gold
+        attribute: RpgAttribute.intellect,
+        heroClass: HeroClass.alchemist, // +20% furniture boost!
+        attributeLevels: {for (final a in RpgAttribute.values) a: 1},
+        energyModeActive: false,
+        microTasksCompletedTodayBeforeThis: 0,
+        totalTasksCompletedTodayBeforeThis: 0,
+        bardInspirationActive: false,
+        focusPotionActive: true,
+        ownedFurnitureIds: {'furn_arcane_desk', 'furn_star_library'},
+      );
+
+      // 60 * 1.12 (arcane desk +20% alch) * 1.12 (star library +20% alch) * 1.25 (potion) = 94+
+      expect(outcome.xpGained, greaterThanOrEqualTo(94));
     });
   });
 }
