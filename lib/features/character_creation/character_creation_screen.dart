@@ -142,11 +142,10 @@ class _CharacterCreationScreenState
                         child: Column(
                           mainAxisAlignment: MainAxisAlignment.center,
                           children: [
-                            Image.asset(
-                              heroClass.spriteAsset,
-                              width: 54,
-                              height: 54,
-                              filterQuality: FilterQuality.none,
+                            HeroSpriteWidget(
+                              assetPath: heroClass.spriteAsset,
+                              size: 54,
+                              animate: isSelected,
                             ),
                             const SizedBox(height: 6),
                             Text(
