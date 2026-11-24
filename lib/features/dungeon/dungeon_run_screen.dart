@@ -1023,10 +1023,16 @@ class _DungeonRunScreenState extends ConsumerState<DungeonRunScreen> {
           }
         }
 
-        return Container(
-          color: const Color(0xFF100B0A),
-          clipBehavior: Clip.hardEdge,
-          child: Stack(children: mapWidgets),
+        return SizedBox.expand(
+          child: ClipRect(
+            child: ColoredBox(
+              color: const Color(0xFF100B0A),
+              child: Stack(
+                fit: StackFit.expand,
+                children: mapWidgets,
+              ),
+            ),
+          ),
         );
       },
     );
@@ -1159,6 +1165,29 @@ class _DungeonRunScreenState extends ConsumerState<DungeonRunScreen> {
     );
   }
 
+  String _shortConsumableLabel(DungeonItem item) {
+    final eff = item.consumableEffect;
+    if (eff == null) return item.name;
+    switch (eff.kind) {
+      case 'heal_hp':
+        return 'Vida +${eff.value}';
+      case 'heal_mana':
+        return 'Mana +${eff.value}';
+      case 'cure_status':
+        return 'Antídoto';
+      case 'teleport':
+        return 'Teleporte';
+      case 'reveal_map':
+        return 'Mapa';
+      case 'aoe_damage':
+        return 'Área ${eff.value}';
+      case 'buff_attack':
+        return '+${eff.value} ATQ';
+      default:
+        return item.name;
+    }
+  }
+
   Widget _buildBottomControls(
     ClassDungeonSkill skill,
     List<({DungeonItem item, int qty})> consumables,
@@ -1200,7 +1229,7 @@ class _DungeonRunScreenState extends ConsumerState<DungeonRunScreen> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(
-                                entry.item.name.split(' ').take(2).join(' '),
+                                _shortConsumableLabel(entry.item),
                                 style: const TextStyle(
                                   fontSize: 10,
                                   fontWeight: FontWeight.w800,

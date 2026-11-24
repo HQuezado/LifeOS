@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 import 'dart:math';
 
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lifeos/core/dungeon/dungeon_catalog.dart';
 import 'package:lifeos/core/dungeon/dungeon_combat.dart';
@@ -10,7 +11,11 @@ import 'package:lifeos/core/dungeon/dungeon_models.dart';
 import 'package:lifeos/core/rpg/reward_engine.dart';
 import 'package:lifeos/core/rpg/rpg_models.dart';
 import 'package:lifeos/core/rpg/shop_catalog.dart';
+import 'package:lifeos/data/database/app_database.dart';
 import 'package:lifeos/data/services/step_encounter_service.dart';
+import 'package:lifeos/features/dungeon/dungeon_run_screen.dart';
+import 'package:lifeos/providers/app_providers.dart';
+import 'package:material_ui/material_ui.dart';
 
 void main() {
   group('LifeOS RPG Progression', () {
@@ -251,6 +256,47 @@ void main() {
 
       expect(lv10Floor5.maxHp, greaterThan(lv1Floor1.maxHp * 2));
       expect(bossLv10.maxHp, greaterThan(lv10Floor5.maxHp * 2));
+    });
+
+    testWidgets('DungeonRunScreen renders viewport cleanly without FlutterError', (tester) async {
+      final hero = HeroProfile(
+        id: 1,
+        name: 'Teste',
+        heroClass: HeroClass.warrior.key,
+        level: 3,
+        currentXp: 0,
+        gold: 100,
+        bardInspirationActive: false,
+        armorTint: ArmorTint.original.key,
+        soundEnabled: true,
+        stepsToday: 0,
+        lastEncounterStepMilestone: 0,
+        expeditionKeys: 3,
+        createdAt: DateTime(2026),
+      );
+
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            dungeonInventoryProvider.overrideWith(
+              (ref) => Stream.value(const <DungeonInventoryData>[]),
+            ),
+          ],
+          child: MaterialApp(
+            home: DungeonRunScreen(
+              hero: hero,
+              attributes: {for (final a in RpgAttribute.values) a: 2},
+              equippedItems: const [],
+              catalog: catalog,
+              biome: DungeonBiome.forest,
+              seed: 404481,
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+      expect(tester.takeException(), isNull);
+      expect(find.textContaining('BOSQUE SUSSURRANTE'), findsOneWidget);
     });
   });
 }
