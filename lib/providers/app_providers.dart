@@ -1,6 +1,8 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../core/dungeon/dungeon_catalog.dart';
 import '../data/database/app_database.dart';
+import '../data/repositories/dungeon_repository.dart';
 import '../data/repositories/hero_repository.dart';
 import '../data/repositories/raid_repository.dart';
 import '../data/repositories/shop_repository.dart';
@@ -85,4 +87,23 @@ final stepEncounterServiceProvider = Provider<StepEncounterService>((ref) {
 
 final activeStepEncounterProvider = StreamProvider<StepSidequest?>((ref) {
   return ref.watch(stepEncounterServiceProvider).activeEncounterStream;
+});
+
+final dungeonCatalogProvider = FutureProvider<DungeonCatalog>((ref) {
+  return DungeonCatalog.loadFromAssets();
+});
+
+final dungeonRepositoryProvider = Provider<DungeonRepository>((ref) {
+  return DungeonRepository(
+    ref.watch(appDatabaseProvider),
+    ref.watch(heroRepositoryProvider),
+  );
+});
+
+final dungeonInventoryProvider = StreamProvider<List<DungeonInventoryData>>((ref) {
+  return ref.watch(dungeonRepositoryProvider).watchInventory();
+});
+
+final dungeonProgressProvider = StreamProvider<List<DungeonProgressData>>((ref) {
+  return ref.watch(dungeonRepositoryProvider).watchProgress();
 });

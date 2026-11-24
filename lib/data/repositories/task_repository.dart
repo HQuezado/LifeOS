@@ -149,6 +149,7 @@ class TaskRepository {
       chestSource: 'Tarefa: ${task.title}',
       setBardInspiration: nextBardInspiration,
     );
+    await _heroRepository.awardExpeditionKey();
 
     return outcome.copyWith(
       heroLeveledUp: progress.heroLeveledUp,

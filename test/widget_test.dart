@@ -3,6 +3,10 @@ import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:lifeos/core/dungeon/dungeon_catalog.dart';
+import 'package:lifeos/core/dungeon/dungeon_combat.dart';
+import 'package:lifeos/core/dungeon/dungeon_generator.dart';
+import 'package:lifeos/core/dungeon/dungeon_models.dart';
 import 'package:lifeos/core/rpg/reward_engine.dart';
 import 'package:lifeos/core/rpg/rpg_models.dart';
 import 'package:lifeos/core/rpg/shop_catalog.dart';
@@ -144,6 +148,109 @@ void main() {
       for (final attr in RpgAttribute.values) {
         expect(quests.where((q) => q.attribute == attr).length, 25);
       }
+    });
+  });
+
+  group('Phase 6 Procedural Dungeons & Combat', () {
+    late DungeonCatalog catalog;
+
+    setUpAll(() {
+      catalog = DungeonCatalog.fromRawJson(
+        bestiaryJson: File('assets/data/bestiary.json').readAsStringSync(),
+        itemsJson: File('assets/data/dungeon_items.json').readAsStringSync(),
+      );
+    });
+
+    test('Bestiary has 30 monsters (5 bosses) and Items has 40 equips + 15 consumables with valid PNG assets', () {
+      expect(catalog.monsters.length, 30);
+      expect(catalog.monsters.where((m) => m.isBoss).length, 5);
+      expect(catalog.equipment.length, 40);
+      expect(catalog.consumables.length, 15);
+
+      for (final m in catalog.monsters) {
+        expect(File(m.spriteAsset).existsSync(), isTrue, reason: 'Missing ${m.spriteAsset}');
+      }
+      for (final item in catalog.allItems) {
+        expect(File(item.iconAsset).existsSync(), isTrue, reason: 'Missing ${item.iconAsset}');
+      }
+      for (final tile in DungeonTileType.values) {
+        if (tile.asset != null) {
+          expect(File(tile.asset!).existsSync(), isTrue, reason: 'Missing ${tile.asset}');
+        }
+      }
+    });
+
+    test('Seeded generator is deterministic and guarantees reachable stairs across all 5 biomes', () {
+      for (final biome in DungeonBiome.values) {
+        final floorA = DungeonGenerator.generateFloor(
+          biome: biome,
+          seed: 424242,
+          floorNumber: biome.maxFloors,
+          heroLevel: 6,
+          catalog: catalog,
+        );
+        final floorB = DungeonGenerator.generateFloor(
+          biome: biome,
+          seed: 424242,
+          floorNumber: biome.maxFloors,
+          heroLevel: 6,
+          catalog: catalog,
+        );
+
+        expect(floorA.startPos, floorB.startPos);
+        expect(floorA.stairsPos, floorB.stairsPos);
+        expect(floorA.enemies.length, floorB.enemies.length);
+        expect(floorA.enemies.any((e) => e.isBoss), isTrue);
+
+        // BFS check from startPos to stairsPos
+        final visited = <GridPos>{floorA.startPos};
+        final queue = <GridPos>[floorA.startPos];
+        while (queue.isNotEmpty) {
+          final cur = queue.removeAt(0);
+          for (final d in const [GridPos(1, 0), GridPos(-1, 0), GridPos(0, 1), GridPos(0, -1)]) {
+            final next = GridPos(cur.x + d.x, cur.y + d.y);
+            if (!floorA.inBounds(next.x, next.y) || visited.contains(next)) continue;
+            if (floorA.tileAt(next.x, next.y).walkable) {
+              visited.add(next);
+              queue.add(next);
+            }
+          }
+        }
+        expect(visited.contains(floorA.stairsPos), isTrue, reason: 'Unreachable stairs in ${biome.key}');
+      }
+    });
+
+    test('Monster attributes scale with hero level, floor depth and boss multiplier', () {
+      final slime = catalog.monsterById('mob_forest_slime')!;
+      final treant = catalog.bossForBiome(DungeonBiome.forest);
+
+      final lv1Floor1 = DungeonCombatEngine.instantiateEnemy(
+        uid: 1,
+        template: slime,
+        x: 0,
+        y: 0,
+        heroLevel: 1,
+        floorNumber: 1,
+      );
+      final lv10Floor5 = DungeonCombatEngine.instantiateEnemy(
+        uid: 2,
+        template: slime,
+        x: 0,
+        y: 0,
+        heroLevel: 10,
+        floorNumber: 5,
+      );
+      final bossLv10 = DungeonCombatEngine.instantiateEnemy(
+        uid: 3,
+        template: treant,
+        x: 0,
+        y: 0,
+        heroLevel: 10,
+        floorNumber: 5,
+      );
+
+      expect(lv10Floor5.maxHp, greaterThan(lv1Floor1.maxHp * 2));
+      expect(bossLv10.maxHp, greaterThan(lv10Floor5.maxHp * 2));
     });
   });
 }

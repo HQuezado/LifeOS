@@ -1,0 +1,557 @@
+{
+  "equipment": [
+    {
+      "id": "wpn_wood_club",
+      "name": "Clava de Madeira",
+      "slot": "weapon",
+      "material": "Madeira",
+      "rarity": "common",
+      "price": 35,
+      "description": "Porrete rústico de carvalho, simples mas eficaz contra slimes.",
+      "bonuses": { "attack": 4 }
+    },
+    {
+      "id": "wpn_bone_dagger",
+      "name": "Adaga de Osso",
+      "slot": "weapon",
+      "material": "Osso",
+      "rarity": "common",
+      "price": 45,
+      "description": "Lâmina leve talhada em fêmur, ideal para golpes rápidos.",
+      "bonuses": { "attack": 3, "critChance": 0.04 }
+    },
+    {
+      "id": "wpn_wood_staff",
+      "name": "Cajado de Madeira",
+      "slot": "weapon",
+      "material": "Madeira",
+      "rarity": "common",
+      "price": 50,
+      "description": "Bastão nodoso que canaliza faíscas arcanas básicas.",
+      "bonuses": { "magic": 5, "maxMana": 10 }
+    },
+    {
+      "id": "wpn_iron_sword",
+      "name": "Espada de Ferro",
+      "slot": "weapon",
+      "material": "Ferro",
+      "rarity": "uncommon",
+      "price": 120,
+      "description": "Lâmina bem balanceada, confiável nas primeiras catacumbas.",
+      "bonuses": { "attack": 8, "critChance": 0.03 }
+    },
+    {
+      "id": "wpn_bronze_spear",
+      "name": "Lança de Bronze",
+      "slot": "weapon",
+      "material": "Bronze",
+      "rarity": "uncommon",
+      "price": 135,
+      "description": "Haste longa com ponta afiada que mantém inimigos distantes.",
+      "bonuses": { "attack": 9, "dodgeChance": 0.02 }
+    },
+    {
+      "id": "wpn_linen_wand",
+      "name": "Varinha de Linho Encantado",
+      "slot": "weapon",
+      "material": "Linho Encantado",
+      "rarity": "uncommon",
+      "price": 140,
+      "description": "Núcleo envolto em fitas rúnicas que amplificam feitiços.",
+      "bonuses": { "magic": 10, "maxMana": 20 }
+    },
+    {
+      "id": "wpn_steel_longsword",
+      "name": "Espada Longa de Aço",
+      "slot": "weapon",
+      "material": "Aço Temperado",
+      "rarity": "rare",
+      "price": 280,
+      "description": "Forjada em alta temperatura para cortar armaduras pesadas.",
+      "bonuses": { "attack": 14, "critChance": 0.05 }
+    },
+    {
+      "id": "wpn_silver_rapier",
+      "name": "Rapieira de Prata",
+      "slot": "weapon",
+      "material": "Prata",
+      "rarity": "rare",
+      "price": 310,
+      "description": "Estocada precisa e letal, temida por criaturas das sombras.",
+      "bonuses": { "attack": 12, "critChance": 0.09, "dodgeChance": 0.04 }
+    },
+    {
+      "id": "wpn_crystal_staff",
+      "name": "Cajado de Cristal Arcano",
+      "slot": "weapon",
+      "material": "Cristal Arcano",
+      "rarity": "rare",
+      "price": 320,
+      "description": "Gema pulsante no topo que dispara rajadas de energia pura.",
+      "bonuses": { "magic": 17, "maxMana": 35, "critChance": 0.04 }
+    },
+    {
+      "id": "wpn_steel_greataxe",
+      "name": "Machado de Aço Temperado",
+      "slot": "weapon",
+      "material": "Aço Temperado",
+      "rarity": "rare",
+      "price": 300,
+      "description": "Pesado e brutal, capaz de partir escudos com um único golpe.",
+      "bonuses": { "attack": 17, "critChance": 0.03 }
+    },
+    {
+      "id": "wpn_mithril_scimitar",
+      "name": "Cimitarra de Mithril",
+      "slot": "weapon",
+      "material": "Mithril",
+      "rarity": "epic",
+      "price": 560,
+      "description": "Lâmina curva prateada, leve como pluma e afiada como navalha.",
+      "bonuses": { "attack": 22, "critChance": 0.1, "dodgeChance": 0.06 }
+    },
+    {
+      "id": "wpn_obsidian_blade",
+      "name": "Lâmina de Obsidiana",
+      "slot": "weapon",
+      "material": "Obsidiana",
+      "rarity": "epic",
+      "price": 590,
+      "description": "Vidro vulcânico negro que inflige cortes profundos e letais.",
+      "bonuses": { "attack": 26, "critChance": 0.12 }
+    },
+    {
+      "id": "wpn_dragon_scepter",
+      "name": "Cetro de Escama de Dragão",
+      "slot": "weapon",
+      "material": "Escama de Dragão",
+      "rarity": "epic",
+      "price": 620,
+      "description": "Irradia calor ancestral, potencializando magias destrutivas.",
+      "bonuses": { "magic": 28, "maxMana": 50, "critChance": 0.06 }
+    },
+    {
+      "id": "wpn_orichalcum_greatsword",
+      "name": "Montante de Oricalco",
+      "slot": "weapon",
+      "material": "Oricalco",
+      "rarity": "legendary",
+      "price": 1100,
+      "description": "Relíquia dourada de peso perfeito que esmaga qualquer defesa.",
+      "bonuses": { "attack": 36, "defense": 4, "critChance": 0.11 }
+    },
+    {
+      "id": "wpn_star_iron_katana",
+      "name": "Katana de Ferro Estelar",
+      "slot": "weapon",
+      "material": "Ferro Estelar",
+      "rarity": "legendary",
+      "price": 1200,
+      "description": "Forjada de um meteoro, corta o ar em velocidade sobre-humana.",
+      "bonuses": { "attack": 32, "critChance": 0.15, "dodgeChance": 0.08 }
+    },
+    {
+      "id": "wpn_solar_ether_staff",
+      "name": "Cajado de Éter Solar",
+      "slot": "weapon",
+      "material": "Éter Solar",
+      "rarity": "legendary",
+      "price": 1250,
+      "description": "Condensa a luz de uma estrela em feitiços de poder absoluto.",
+      "bonuses": { "magic": 40, "maxMana": 80, "critChance": 0.1 }
+    },
+    {
+      "id": "arm_leather_jerkin",
+      "name": "Gibão de Couro",
+      "slot": "armor",
+      "material": "Couro",
+      "rarity": "common",
+      "price": 40,
+      "description": "Proteção leve e flexível que não atrapalha a movimentação.",
+      "bonuses": { "defense": 3, "dodgeChance": 0.03 }
+    },
+    {
+      "id": "arm_wood_buckler",
+      "name": "Peitoral de Madeira",
+      "slot": "armor",
+      "material": "Madeira",
+      "rarity": "common",
+      "price": 45,
+      "description": "Placas de madeira endurecida presas por tiras de corda.",
+      "bonuses": { "defense": 4, "maxHp": 10 }
+    },
+    {
+      "id": "arm_copper_mail",
+      "name": "Cota de Cobre",
+      "slot": "armor",
+      "material": "Cobre",
+      "rarity": "common",
+      "price": 60,
+      "description": "Malha simples de anéis de cobre contra golpes superficiais.",
+      "bonuses": { "defense": 5, "maxHp": 15 }
+    },
+    {
+      "id": "arm_iron_breastplate",
+      "name": "Peitoral de Ferro",
+      "slot": "armor",
+      "material": "Ferro",
+      "rarity": "uncommon",
+      "price": 130,
+      "description": "Armadura sólida de infantaria para aguentar combates longos.",
+      "bonuses": { "defense": 9, "maxHp": 25 }
+    },
+    {
+      "id": "arm_linen_robe",
+      "name": "Manto de Linho Encantado",
+      "slot": "armor",
+      "material": "Linho Encantado",
+      "rarity": "uncommon",
+      "price": 135,
+      "description": "Tecido leve bordado com runas que protegem e ampliam a mana.",
+      "bonuses": { "defense": 5, "magic": 4, "maxMana": 25, "dodgeChance": 0.04 }
+    },
+    {
+      "id": "arm_bronze_cuirass",
+      "name": "Couraça de Bronze",
+      "slot": "armor",
+      "material": "Bronze",
+      "rarity": "uncommon",
+      "price": 145,
+      "description": "Peça polida e resistente, muito usada por guardas de templos.",
+      "bonuses": { "defense": 10, "maxHp": 30 }
+    },
+    {
+      "id": "arm_steel_plate",
+      "name": "Placas de Aço Temperado",
+      "slot": "armor",
+      "material": "Aço Temperado",
+      "rarity": "rare",
+      "price": 290,
+      "description": "Armadura completa capaz de desviar lâminas e flechas.",
+      "bonuses": { "defense": 15, "maxHp": 50 }
+    },
+    {
+      "id": "arm_crystal_vestment",
+      "name": "Manto de Cristal Arcano",
+      "slot": "armor",
+      "material": "Cristal Arcano",
+      "rarity": "rare",
+      "price": 310,
+      "description": "Revestido de microcristais que criam uma barreira mágica.",
+      "bonuses": { "defense": 10, "magic": 8, "maxMana": 45, "dodgeChance": 0.05 }
+    },
+    {
+      "id": "arm_silver_hauberk",
+      "name": "Cota de Prata",
+      "slot": "armor",
+      "material": "Prata",
+      "rarity": "rare",
+      "price": 300,
+      "description": "Malha reluzente que combina alta proteção com mobilidade.",
+      "bonuses": { "defense": 13, "maxHp": 35, "dodgeChance": 0.06 }
+    },
+    {
+      "id": "arm_mithril_chain",
+      "name": "Malha de Mithril",
+      "slot": "armor",
+      "material": "Mithril",
+      "rarity": "epic",
+      "price": 580,
+      "description": "Quase sem peso, oferece defesa superior sem reduzir a esquiva.",
+      "bonuses": { "defense": 20, "maxHp": 65, "dodgeChance": 0.09 }
+    },
+    {
+      "id": "arm_dragon_scale",
+      "name": "Armadura de Escama de Dragão",
+      "slot": "armor",
+      "material": "Escama de Dragão",
+      "rarity": "epic",
+      "price": 640,
+      "description": "Escamas impenetráveis que resistem ao fogo e a impactos brutos.",
+      "bonuses": { "defense": 25, "maxHp": 90 }
+    },
+    {
+      "id": "arm_obsidian_plate",
+      "name": "Couraça de Obsidiana",
+      "slot": "armor",
+      "material": "Obsidiana",
+      "rarity": "epic",
+      "price": 600,
+      "description": "Armadura negra e afiada que intimida qualquer atacante.",
+      "bonuses": { "defense": 23, "attack": 5, "maxHp": 75 }
+    },
+    {
+      "id": "arm_orichalcum_aegis",
+      "name": "Armadura de Oricalco",
+      "slot": "armor",
+      "material": "Oricalco",
+      "rarity": "legendary",
+      "price": 1150,
+      "description": "Bastião dourado quase indestrutível forjado por antigos mestres.",
+      "bonuses": { "defense": 34, "maxHp": 130, "dodgeChance": 0.04 }
+    },
+    {
+      "id": "arm_solar_ether_mantle",
+      "name": "Manto de Éter Solar",
+      "slot": "armor",
+      "material": "Éter Solar",
+      "rarity": "legendary",
+      "price": 1200,
+      "description": "Tecido de luz pura que distorce ataques e renova o poder arcano.",
+      "bonuses": { "defense": 22, "magic": 16, "maxMana": 90, "dodgeChance": 0.12 }
+    },
+    {
+      "id": "rng_copper_band",
+      "name": "Anel de Cobre",
+      "slot": "ring",
+      "material": "Cobre",
+      "rarity": "common",
+      "price": 45,
+      "description": "Aro simples que concede um leve vigor ao portador.",
+      "bonuses": { "maxHp": 15, "defense": 1 }
+    },
+    {
+      "id": "rng_bone_amulet",
+      "name": "Amuleto de Osso",
+      "slot": "ring",
+      "material": "Osso",
+      "rarity": "common",
+      "price": 50,
+      "description": "Pingente tribal que aguça o instinto de sobrevivência.",
+      "bonuses": { "attack": 2, "critChance": 0.02 }
+    },
+    {
+      "id": "rng_bronze_signet",
+      "name": "Anel de Bronze",
+      "slot": "ring",
+      "material": "Bronze",
+      "rarity": "uncommon",
+      "price": 115,
+      "description": "Sinete antigo que firma o braço durante o combate.",
+      "bonuses": { "attack": 4, "defense": 2, "maxHp": 20 }
+    },
+    {
+      "id": "rng_linen_talisman",
+      "name": "Talismã de Linho Encantado",
+      "slot": "ring",
+      "material": "Linho Encantado",
+      "rarity": "uncommon",
+      "price": 125,
+      "description": "Amuleto trançado que acelera o fluxo de energia mágica.",
+      "bonuses": { "magic": 5, "maxMana": 25, "dodgeChance": 0.03 }
+    },
+    {
+      "id": "rng_silver_ring",
+      "name": "Anel de Prata",
+      "slot": "ring",
+      "material": "Prata",
+      "rarity": "rare",
+      "price": 260,
+      "description": "Joia refinada que melhora reflexos e precisão nos golpes.",
+      "bonuses": { "critChance": 0.07, "dodgeChance": 0.06 }
+    },
+    {
+      "id": "rng_crystal_amulet",
+      "name": "Amuleto de Cristal Arcano",
+      "slot": "ring",
+      "material": "Cristal Arcano",
+      "rarity": "rare",
+      "price": 280,
+      "description": "Fragmento luminoso que expande drasticamente a reserva de mana.",
+      "bonuses": { "magic": 10, "maxMana": 45 }
+    },
+    {
+      "id": "rng_mithril_band",
+      "name": "Anel de Mithril",
+      "slot": "ring",
+      "material": "Mithril",
+      "rarity": "epic",
+      "price": 520,
+      "description": "Aliança élfica que concede agilidade e resistência excepcionais.",
+      "bonuses": { "defense": 6, "maxHp": 45, "dodgeChance": 0.09 }
+    },
+    {
+      "id": "rng_obsidian_pendant",
+      "name": "Amuleto de Obsidiana",
+      "slot": "ring",
+      "material": "Obsidiana",
+      "rarity": "epic",
+      "price": 550,
+      "description": "Pedra vulcânica que transforma fúria em acertos críticos.",
+      "bonuses": { "attack": 10, "magic": 8, "critChance": 0.11 }
+    },
+    {
+      "id": "rng_star_iron_ring",
+      "name": "Anel de Ferro Estelar",
+      "slot": "ring",
+      "material": "Ferro Estelar",
+      "rarity": "legendary",
+      "price": 1050,
+      "description": "Vibra com energia cósmica, elevando ataque e precisão ao extremo.",
+      "bonuses": { "attack": 14, "critChance": 0.14, "dodgeChance": 0.08 }
+    },
+    {
+      "id": "rng_solar_ether_amulet",
+      "name": "Amuleto de Éter Solar",
+      "slot": "ring",
+      "material": "Éter Solar",
+      "rarity": "legendary",
+      "price": 1100,
+      "description": "Coração solar em miniatura que fortalece corpo e mente.",
+      "bonuses": { "magic": 16, "maxHp": 80, "maxMana": 70, "critChance": 0.08 }
+    }
+  ],
+  "consumables": [
+    {
+      "id": "cons_hp_small",
+      "name": "Poção de Vida Menor",
+      "slot": "consumable",
+      "material": "Vidro",
+      "rarity": "common",
+      "price": 35,
+      "description": "Restaura 40 pontos de vida imediatamente na masmorra.",
+      "consumableEffect": { "kind": "heal_hp", "value": 40 }
+    },
+    {
+      "id": "cons_hp_medium",
+      "name": "Poção de Vida Média",
+      "slot": "consumable",
+      "material": "Vidro",
+      "rarity": "uncommon",
+      "price": 80,
+      "description": "Elixir concentrado que recupera 90 pontos de vida.",
+      "consumableEffect": { "kind": "heal_hp", "value": 90 }
+    },
+    {
+      "id": "cons_hp_large",
+      "name": "Poção de Vida Suprema",
+      "slot": "consumable",
+      "material": "Cristal Arcano",
+      "rarity": "rare",
+      "price": 170,
+      "description": "Frasco rubi que restaura 180 pontos de vida na hora.",
+      "consumableEffect": { "kind": "heal_hp", "value": 180 }
+    },
+    {
+      "id": "cons_mana_small",
+      "name": "Poção de Mana Menor",
+      "slot": "consumable",
+      "material": "Vidro",
+      "rarity": "common",
+      "price": 35,
+      "description": "Recupera 30 pontos de mana para conjurar novos feitiços.",
+      "consumableEffect": { "kind": "heal_mana", "value": 30 }
+    },
+    {
+      "id": "cons_mana_medium",
+      "name": "Poção de Mana Média",
+      "slot": "consumable",
+      "material": "Vidro",
+      "rarity": "uncommon",
+      "price": 85,
+      "description": "Líquido azul cintilante que restaura 75 pontos de mana.",
+      "consumableEffect": { "kind": "heal_mana", "value": 75 }
+    },
+    {
+      "id": "cons_mana_large",
+      "name": "Poção de Mana Suprema",
+      "slot": "consumable",
+      "material": "Cristal Arcano",
+      "rarity": "rare",
+      "price": 175,
+      "description": "Essência pura que recarrega 150 pontos de mana imediatamente.",
+      "consumableEffect": { "kind": "heal_mana", "value": 150 }
+    },
+    {
+      "id": "cons_antidote",
+      "name": "Antídoto Herbal",
+      "slot": "consumable",
+      "material": "Madeira",
+      "rarity": "common",
+      "price": 40,
+      "description": "Neutraliza veneno, sangramento e outros efeitos negativos.",
+      "consumableEffect": { "kind": "cure_status", "value": 1 }
+    },
+    {
+      "id": "cons_panacea",
+      "name": "Panaceia Purificadora",
+      "slot": "consumable",
+      "material": "Prata",
+      "rarity": "rare",
+      "price": 130,
+      "description": "Purifica todas as maldições e estados negativos ativos.",
+      "consumableEffect": { "kind": "cure_status", "value": 3 }
+    },
+    {
+      "id": "cons_scroll_teleport",
+      "name": "Pergaminho de Teleporte",
+      "slot": "consumable",
+      "material": "Linho Encantado",
+      "rarity": "uncommon",
+      "price": 90,
+      "description": "Transporta o herói para um local aleatório seguro do andar.",
+      "consumableEffect": { "kind": "teleport", "value": 1 }
+    },
+    {
+      "id": "cons_scroll_map",
+      "name": "Pergaminho de Cartografia",
+      "slot": "consumable",
+      "material": "Linho Encantado",
+      "rarity": "uncommon",
+      "price": 95,
+      "description": "Revela todas as salas, portas secretas e armadilhas do andar.",
+      "consumableEffect": { "kind": "reveal_map", "value": 1 }
+    },
+    {
+      "id": "cons_scroll_fireball",
+      "name": "Pergaminho de Bola de Fogo",
+      "slot": "consumable",
+      "material": "Cristal Arcano",
+      "rarity": "rare",
+      "price": 150,
+      "description": "Invoca uma explosão flamejante que atinge todos os inimigos.",
+      "consumableEffect": { "kind": "aoe_damage", "value": 65 }
+    },
+    {
+      "id": "cons_bomb_blackpowder",
+      "name": "Bomba de Pólvora",
+      "slot": "consumable",
+      "material": "Ferro",
+      "rarity": "common",
+      "price": 60,
+      "description": "Explosivo portátil que causa dano em área ao detonar.",
+      "consumableEffect": { "kind": "aoe_damage", "value": 45 }
+    },
+    {
+      "id": "cons_bomb_obsidian",
+      "name": "Bomba de Obsidiana",
+      "slot": "consumable",
+      "material": "Obsidiana",
+      "rarity": "epic",
+      "price": 260,
+      "description": "Estilhaça vidro vulcânico em alta velocidade por toda a sala.",
+      "consumableEffect": { "kind": "aoe_damage", "value": 120 }
+    },
+    {
+      "id": "cons_elixir_fury",
+      "name": "Elixir de Fúria",
+      "slot": "consumable",
+      "material": "Bronze",
+      "rarity": "uncommon",
+      "price": 100,
+      "description": "Aumenta temporariamente o poder de ataque em combate.",
+      "consumableEffect": { "kind": "buff_attack", "value": 8 }
+    },
+    {
+      "id": "cons_elixir_solar",
+      "name": "Elixir do Éter Solar",
+      "slot": "consumable",
+      "material": "Éter Solar",
+      "rarity": "legendary",
+      "price": 380,
+      "description": "Concede força lendária temporária para derrotar chefes.",
+      "consumableEffect": { "kind": "buff_attack", "value": 20 }
+    }
+  ]
+}
+

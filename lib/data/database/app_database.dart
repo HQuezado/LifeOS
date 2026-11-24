@@ -22,6 +22,8 @@ class HeroProfiles extends Table {
   IntColumn get lastEncounterStepMilestone =>
       integer().withDefault(const Constant(0))();
   DateTimeColumn get lastFlashMissionAt => dateTime().nullable()();
+  IntColumn get expeditionKeys => integer().withDefault(const Constant(3))();
+  TextColumn get lastDailyKeyDate => text().nullable()();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 }
 
@@ -106,6 +108,30 @@ class CalendarEvents extends Table {
   DateTimeColumn get syncedAt => dateTime().withDefault(currentDateAndTime)();
 }
 
+/// Inventário de equipamentos e consumíveis da Masmorra (Fase 6).
+class DungeonInventory extends Table {
+  TextColumn get itemId => text()();
+  TextColumn get slot => text()(); // weapon, armor, ring, consumable
+  IntColumn get quantity => integer().withDefault(const Constant(1))();
+  BoolColumn get isEquipped => boolean().withDefault(const Constant(false))();
+  DateTimeColumn get acquiredAt => dateTime().withDefault(currentDateAndTime)();
+
+  @override
+  Set<Column> get primaryKey => {itemId};
+}
+
+/// Progresso e recorde de andares em cada bioma de masmorra (Fase 6).
+class DungeonProgress extends Table {
+  TextColumn get biomeKey => text()(); // forest, catacombs, swamp, desert, volcano
+  IntColumn get bestFloor => integer().withDefault(const Constant(0))();
+  IntColumn get clearsCount => integer().withDefault(const Constant(0))();
+  IntColumn get lastSeed => integer().nullable()();
+  DateTimeColumn get updatedAt => dateTime().withDefault(currentDateAndTime)();
+
+  @override
+  Set<Column> get primaryKey => {biomeKey};
+}
+
 @DriftDatabase(
   tables: [
     HeroProfiles,
@@ -116,13 +142,15 @@ class CalendarEvents extends Table {
     MysteryChests,
     OwnedItems,
     CalendarEvents,
+    DungeonInventory,
+    DungeonProgress,
   ],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 8;
+  int get schemaVersion => 9;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -162,6 +190,12 @@ class AppDatabase extends _$AppDatabase {
           }
           if (from < 8) {
             await m.addColumn(heroProfiles, heroProfiles.lastFlashMissionAt);
+          }
+          if (from < 9) {
+            await m.addColumn(heroProfiles, heroProfiles.expeditionKeys);
+            await m.addColumn(heroProfiles, heroProfiles.lastDailyKeyDate);
+            await m.createTable(dungeonInventory);
+            await m.createTable(dungeonProgress);
           }
         },
       );

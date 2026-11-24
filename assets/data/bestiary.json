@@ -1,0 +1,462 @@
+[
+  {
+    "id": "mob_forest_slime",
+    "name": "Slime do Bosque",
+    "biome": "forest",
+    "isBoss": false,
+    "minFloor": 1,
+    "description": "Gelatinoso e saltitante, adora emboscar aventureiros distraídos nas trilhas úmidas.",
+    "stats": { "VIG": 3, "INT": 1, "DES": 2, "SAB": 1, "CAR": 2 },
+    "xpReward": 18,
+    "goldReward": 12,
+    "attacks": [
+      { "name": "Investida Gosmenta", "type": "physical", "multiplier": 0.9, "range": 1, "effect": null },
+      { "name": "Respingo Viscoso", "type": "magic", "multiplier": 1.05, "range": 2, "effect": "slow" }
+    ]
+  },
+  {
+    "id": "mob_forest_gnoll_scout",
+    "name": "Goblin Batedor",
+    "biome": "forest",
+    "isBoss": false,
+    "minFloor": 1,
+    "description": "Pequeno saqueador de sorriso travesso que patrulha clareiras empunhando uma clava de madeira.",
+    "stats": { "VIG": 3, "INT": 2, "DES": 4, "SAB": 2, "CAR": 3 },
+    "xpReward": 24,
+    "goldReward": 18,
+    "attacks": [
+      { "name": "Pancada de Clava", "type": "physical", "multiplier": 1.0, "range": 1, "effect": null },
+      { "name": "Pedrada Farpada", "type": "physical", "multiplier": 1.1, "range": 2, "effect": "bleed" }
+    ]
+  },
+  {
+    "id": "mob_forest_thorn_sprite",
+    "name": "Cogumelo Bravo",
+    "biome": "forest",
+    "isBoss": false,
+    "minFloor": 2,
+    "description": "Fungo baixinho de chapéu vermelho e pavio curto que dispara esporos tóxicos em quem chega perto.",
+    "stats": { "VIG": 2, "INT": 5, "DES": 5, "SAB": 4, "CAR": 4 },
+    "xpReward": 32,
+    "goldReward": 24,
+    "attacks": [
+      { "name": "Esporos Tóxicos", "type": "magic", "multiplier": 1.15, "range": 3, "effect": "poison" },
+      { "name": "Pólen Ofuscante", "type": "magic", "multiplier": 0.95, "range": 2, "effect": "slow" }
+    ]
+  },
+  {
+    "id": "mob_forest_dire_wolf",
+    "name": "Lobo Sombrio",
+    "biome": "forest",
+    "isBoss": false,
+    "minFloor": 3,
+    "description": "Predador silencioso de pelagem cinzenta capaz de dilacerar armaduras leves.",
+    "stats": { "VIG": 4, "INT": 1, "DES": 6, "SAB": 3, "CAR": 3 },
+    "xpReward": 40,
+    "goldReward": 28,
+    "attacks": [
+      { "name": "Mordida Dilacerante", "type": "physical", "multiplier": 1.25, "range": 1, "effect": "bleed" },
+      { "name": "Salto Feroz", "type": "physical", "multiplier": 1.1, "range": 2, "effect": null }
+    ]
+  },
+  {
+    "id": "mob_forest_moss_golem",
+    "name": "Aranha da Mata",
+    "biome": "forest",
+    "isBoss": false,
+    "minFloor": 4,
+    "description": "Aracnídeo gigante camuflado sob folhas e musgo que paralisa presas com teias espessas.",
+    "stats": { "VIG": 7, "INT": 2, "DES": 2, "SAB": 4, "CAR": 4 },
+    "xpReward": 50,
+    "goldReward": 38,
+    "attacks": [
+      { "name": "Picada Paralisante", "type": "physical", "multiplier": 1.4, "range": 1, "effect": "stun" },
+      { "name": "Teia Pegajosa", "type": "physical", "multiplier": 1.1, "range": 2, "effect": "slow" }
+    ]
+  },
+  {
+    "id": "boss_forest_elder_treant",
+    "name": "Ente Ancião Corrompido",
+    "biome": "forest",
+    "isBoss": true,
+    "minFloor": 5,
+    "description": "Guardião milenar do bosque de olhos incandescentes que controla cada raiz da floresta.",
+    "stats": { "VIG": 9, "INT": 6, "DES": 3, "SAB": 7, "CAR": 8 },
+    "xpReward": 95,
+    "goldReward": 80,
+    "attacks": [
+      { "name": "Esmagamento de Tronco", "type": "physical", "multiplier": 1.65, "range": 1, "effect": "stun" },
+      { "name": "Prisão de Raízes", "type": "magic", "multiplier": 1.35, "range": 3, "effect": "slow" },
+      { "name": "Seiva Parasitária", "type": "magic", "multiplier": 1.4, "range": 2, "effect": "drain" }
+    ]
+  },
+  {
+    "id": "mob_catacombs_skeleton",
+    "name": "Esqueleto Patrulheiro",
+    "biome": "catacombs",
+    "isBoss": false,
+    "minFloor": 2,
+    "description": "Restos reanimados de antigos guardas de elmo enferrujado que ainda defendem corredores esquecidos.",
+    "stats": { "VIG": 4, "INT": 2, "DES": 4, "SAB": 2, "CAR": 3 },
+    "xpReward": 35,
+    "goldReward": 26,
+    "attacks": [
+      { "name": "Espada Enferrujada", "type": "physical", "multiplier": 1.15, "range": 1, "effect": null },
+      { "name": "Arremesso de Costela", "type": "physical", "multiplier": 1.0, "range": 2, "effect": "bleed" }
+    ]
+  },
+  {
+    "id": "mob_catacombs_crypt_bat",
+    "name": "Morcego Vampiro",
+    "biome": "catacombs",
+    "isBoss": false,
+    "minFloor": 3,
+    "description": "Criatura ágil que desce do teto das criptas para sugar a vitalidade de intrusos.",
+    "stats": { "VIG": 3, "INT": 3, "DES": 7, "SAB": 4, "CAR": 4 },
+    "xpReward": 44,
+    "goldReward": 34,
+    "attacks": [
+      { "name": "Presas Sanguinárias", "type": "physical", "multiplier": 1.2, "range": 1, "effect": "drain" },
+      { "name": "Guincho Sônico", "type": "magic", "multiplier": 1.0, "range": 2, "effect": "stun" }
+    ]
+  },
+  {
+    "id": "mob_catacombs_necromancer",
+    "name": "Rato da Cripta",
+    "biome": "catacombs",
+    "isBoss": false,
+    "minFloor": 4,
+    "description": "Roedor enorme criado entre tumbas antigas cuja mordida drena o fôlego dos invasores.",
+    "stats": { "VIG": 4, "INT": 7, "DES": 4, "SAB": 6, "CAR": 6 },
+    "xpReward": 56,
+    "goldReward": 46,
+    "attacks": [
+      { "name": "Mordida Sombria", "type": "magic", "multiplier": 1.35, "range": 3, "effect": "drain" },
+      { "name": "Arranhão Gélido", "type": "magic", "multiplier": 1.2, "range": 2, "effect": "slow" }
+    ]
+  },
+  {
+    "id": "mob_catacombs_stone_gargoyle",
+    "name": "Gárgula de Basalto",
+    "biome": "catacombs",
+    "isBoss": false,
+    "minFloor": 5,
+    "description": "Estátua alada de olhos flamejantes que permanece imóvel até o momento exato de esmagar sua presa.",
+    "stats": { "VIG": 8, "INT": 3, "DES": 4, "SAB": 5, "CAR": 5 },
+    "xpReward": 68,
+    "goldReward": 54,
+    "attacks": [
+      { "name": "Garras de Pedra", "type": "physical", "multiplier": 1.45, "range": 1, "effect": "bleed" },
+      { "name": "Mergulho Sísmico", "type": "physical", "multiplier": 1.55, "range": 2, "effect": "stun" }
+    ]
+  },
+  {
+    "id": "mob_catacombs_wraith_knight",
+    "name": "Fantasma das Catacumbas",
+    "biome": "catacombs",
+    "isBoss": false,
+    "minFloor": 6,
+    "description": "Espírito pálido e silencioso que atravessa paredes e gela a espinha de qualquer aventureiro.",
+    "stats": { "VIG": 7, "INT": 6, "DES": 6, "SAB": 6, "CAR": 7 },
+    "xpReward": 80,
+    "goldReward": 64,
+    "attacks": [
+      { "name": "Toque Espectral", "type": "magic", "multiplier": 1.5, "range": 1, "effect": "drain" },
+      { "name": "Onda Sepulcral", "type": "magic", "multiplier": 1.3, "range": 2, "effect": "slow" },
+      { "name": "Sopro Maldito", "type": "physical", "multiplier": 1.4, "range": 1, "effect": "bleed" }
+    ]
+  },
+  {
+    "id": "boss_catacombs_lich_warden",
+    "name": "Lich Guardião das Tumbas",
+    "biome": "catacombs",
+    "isBoss": true,
+    "minFloor": 7,
+    "description": "Feiticeiro imortal de coroa dourada que selou sua alma nas catacumbas para governar os mortos.",
+    "stats": { "VIG": 8, "INT": 10, "DES": 5, "SAB": 9, "CAR": 9 },
+    "xpReward": 125,
+    "goldReward": 105,
+    "attacks": [
+      { "name": "Sifão de Almas", "type": "magic", "multiplier": 1.75, "range": 3, "effect": "drain" },
+      { "name": "Correntes de Osso", "type": "magic", "multiplier": 1.45, "range": 2, "effect": "slow" },
+      { "name": "Explosão Cadavérica", "type": "magic", "multiplier": 1.9, "range": 2, "effect": "stun" }
+    ]
+  },
+  {
+    "id": "mob_swamp_bog_toad",
+    "name": "Sapo Peçonhento",
+    "biome": "swamp",
+    "isBoss": false,
+    "minFloor": 3,
+    "description": "Anfíbio corpulento de dorso verrucoso que cospe muco tóxico a média distância.",
+    "stats": { "VIG": 5, "INT": 3, "DES": 4, "SAB": 3, "CAR": 3 },
+    "xpReward": 45,
+    "goldReward": 34,
+    "attacks": [
+      { "name": "Cuspe Venenoso", "type": "magic", "multiplier": 1.2, "range": 2, "effect": "poison" },
+      { "name": "Língua Pegajosa", "type": "physical", "multiplier": 1.05, "range": 2, "effect": "slow" }
+    ]
+  },
+  {
+    "id": "mob_swamp_leech_swarm",
+    "name": "Mosquito Tóxico",
+    "biome": "swamp",
+    "isBoss": false,
+    "minFloor": 4,
+    "description": "Inseto gigante de abdômen luminescente que mergulha zumbindo para sugar a energia da presa.",
+    "stats": { "VIG": 6, "INT": 2, "DES": 5, "SAB": 3, "CAR": 4 },
+    "xpReward": 54,
+    "goldReward": 40,
+    "attacks": [
+      { "name": "Sucção Voraz", "type": "physical", "multiplier": 1.3, "range": 1, "effect": "drain" },
+      { "name": "Ferrão Serrilhado", "type": "physical", "multiplier": 1.25, "range": 1, "effect": "bleed" }
+    ]
+  },
+  {
+    "id": "mob_swamp_spore_walker",
+    "name": "Slime de Lama",
+    "biome": "swamp",
+    "isBoss": false,
+    "minFloor": 5,
+    "description": "Massa lamacenta cheia de folhas caídas que parece simpática até disparar respingos tóxicos.",
+    "stats": { "VIG": 7, "INT": 6, "DES": 3, "SAB": 6, "CAR": 5 },
+    "xpReward": 66,
+    "goldReward": 50,
+    "attacks": [
+      { "name": "Jato de Lama", "type": "magic", "multiplier": 1.35, "range": 2, "effect": "poison" },
+      { "name": "Poça Paralisante", "type": "magic", "multiplier": 1.15, "range": 2, "effect": "stun" }
+    ]
+  },
+  {
+    "id": "mob_swamp_mire_lurker",
+    "name": "Troll do Lodo",
+    "biome": "swamp",
+    "isBoss": false,
+    "minFloor": 6,
+    "description": "Brutamontes coberto de musgo que guarda os atoleiros com um tronco pesado nas mãos.",
+    "stats": { "VIG": 7, "INT": 3, "DES": 8, "SAB": 5, "CAR": 6 },
+    "xpReward": 78,
+    "goldReward": 62,
+    "attacks": [
+      { "name": "Clavada do Pântano", "type": "physical", "multiplier": 1.5, "range": 1, "effect": "bleed" },
+      { "name": "Garra Envenenada", "type": "physical", "multiplier": 1.35, "range": 1, "effect": "poison" }
+    ]
+  },
+  {
+    "id": "mob_swamp_plague_witch",
+    "name": "Bruxa da Praga",
+    "biome": "swamp",
+    "isBoss": false,
+    "minFloor": 7,
+    "description": "Alquimista eremita que conjura chamas esmeraldas e maldições nas águas paradas.",
+    "stats": { "VIG": 5, "INT": 9, "DES": 5, "SAB": 8, "CAR": 8 },
+    "xpReward": 90,
+    "goldReward": 74,
+    "attacks": [
+      { "name": "Chama Corrosiva", "type": "magic", "multiplier": 1.55, "range": 3, "effect": "poison" },
+      { "name": "Maldição da Febre", "type": "magic", "multiplier": 1.4, "range": 3, "effect": "drain" },
+      { "name": "Névoa Pútrida", "type": "magic", "multiplier": 1.25, "range": 2, "effect": "slow" }
+    ]
+  },
+  {
+    "id": "boss_swamp_hydra",
+    "name": "Hidra do Brejo",
+    "biome": "swamp",
+    "isBoss": true,
+    "minFloor": 8,
+    "description": "Monstro colossal de quatro cabeças que domina o lago tóxico e regenera suas escamas.",
+    "stats": { "VIG": 11, "INT": 7, "DES": 6, "SAB": 7, "CAR": 10 },
+    "xpReward": 145,
+    "goldReward": 120,
+    "attacks": [
+      { "name": "Mordida Quádrupla", "type": "physical", "multiplier": 1.85, "range": 1, "effect": "bleed" },
+      { "name": "Jato de Peçonha", "type": "magic", "multiplier": 1.6, "range": 3, "effect": "poison" },
+      { "name": "Cauda Esmagadora", "type": "physical", "multiplier": 1.7, "range": 2, "effect": "stun" }
+    ]
+  },
+  {
+    "id": "mob_desert_dune_scorpion",
+    "name": "Escorpião das Dunas",
+    "biome": "desert",
+    "isBoss": false,
+    "minFloor": 3,
+    "description": "Aracnídeo dourado que se enterra na areia quente aguardando passos próximos.",
+    "stats": { "VIG": 5, "INT": 2, "DES": 6, "SAB": 3, "CAR": 4 },
+    "xpReward": 48,
+    "goldReward": 38,
+    "attacks": [
+      { "name": "Ferrão Letal", "type": "physical", "multiplier": 1.3, "range": 1, "effect": "poison" },
+      { "name": "Pinça Cortante", "type": "physical", "multiplier": 1.15, "range": 1, "effect": "bleed" }
+    ]
+  },
+  {
+    "id": "mob_desert_sand_bandit",
+    "name": "Chacal Saqueador",
+    "biome": "desert",
+    "isBoss": false,
+    "minFloor": 4,
+    "description": "Ladino nômade de capa vermelha e adaga afiada que embosca caravanas atrás de ouro.",
+    "stats": { "VIG": 5, "INT": 3, "DES": 7, "SAB": 4, "CAR": 8 },
+    "xpReward": 58,
+    "goldReward": 56,
+    "attacks": [
+      { "name": "Adaga Rápida", "type": "physical", "multiplier": 1.25, "range": 1, "effect": "bleed" },
+      { "name": "Areia nos Olhos", "type": "physical", "multiplier": 0.95, "range": 2, "effect": "slow" }
+    ]
+  },
+  {
+    "id": "mob_desert_mummy",
+    "name": "Múmia Enfaixada",
+    "biome": "desert",
+    "isBoss": false,
+    "minFloor": 5,
+    "description": "Cadáver preservado por rituais solares que espalha definhamento com seu toque.",
+    "stats": { "VIG": 8, "INT": 5, "DES": 3, "SAB": 6, "CAR": 6 },
+    "xpReward": 68,
+    "goldReward": 58,
+    "attacks": [
+      { "name": "Abraço Seco", "type": "physical", "multiplier": 1.4, "range": 1, "effect": "drain" },
+      { "name": "Faixas Constritoras", "type": "magic", "multiplier": 1.2, "range": 2, "effect": "slow" }
+    ]
+  },
+  {
+    "id": "mob_desert_mirage_djinn",
+    "name": "Escaravelho Arcano",
+    "biome": "desert",
+    "isBoss": false,
+    "minFloor": 6,
+    "description": "Besouro real adornado em ouro e turquesa que canaliza energia mística pelas dunas.",
+    "stats": { "VIG": 5, "INT": 9, "DES": 8, "SAB": 7, "CAR": 8 },
+    "xpReward": 82,
+    "goldReward": 72,
+    "attacks": [
+      { "name": "Raio Escaldante", "type": "magic", "multiplier": 1.5, "range": 3, "effect": "burn" },
+      { "name": "Pulso de Areia", "type": "magic", "multiplier": 1.35, "range": 2, "effect": "stun" }
+    ]
+  },
+  {
+    "id": "mob_desert_anubis_guard",
+    "name": "Golem de Arenito",
+    "biome": "desert",
+    "isBoss": false,
+    "minFloor": 7,
+    "description": "Colosso esculpido em blocos de pedra do deserto que guarda as câmaras reais sem descanso.",
+    "stats": { "VIG": 9, "INT": 5, "DES": 6, "SAB": 8, "CAR": 7 },
+    "xpReward": 94,
+    "goldReward": 80,
+    "attacks": [
+      { "name": "Soco de Arenito", "type": "physical", "multiplier": 1.6, "range": 2, "effect": "burn" },
+      { "name": "Impacto Sísmico", "type": "physical", "multiplier": 1.4, "range": 1, "effect": "stun" },
+      { "name": "Fúria do Templo", "type": "magic", "multiplier": 1.5, "range": 2, "effect": "drain" }
+    ]
+  },
+  {
+    "id": "boss_desert_pharaoh",
+    "name": "Faraó Escorpião",
+    "biome": "desert",
+    "isBoss": true,
+    "minFloor": 8,
+    "description": "Soberano desperto de sua pirâmide com pinças douradas e um ferrão de rubi incandescente.",
+    "stats": { "VIG": 10, "INT": 10, "DES": 7, "SAB": 9, "CAR": 11 },
+    "xpReward": 150,
+    "goldReward": 135,
+    "attacks": [
+      { "name": "Ferrão Solar", "type": "magic", "multiplier": 1.85, "range": 3, "effect": "burn" },
+      { "name": "Tempestade de Areia", "type": "magic", "multiplier": 1.55, "range": 3, "effect": "slow" },
+      { "name": "Maldição Real", "type": "magic", "multiplier": 1.7, "range": 2, "effect": "drain" }
+    ]
+  },
+  {
+    "id": "mob_volcano_ember_imp",
+    "name": "Diabrete de Brasa",
+    "biome": "volcano",
+    "isBoss": false,
+    "minFloor": 5,
+    "description": "Pequeno demônio alado que ri enquanto arremessa chamas vivas pelos corredores de pedra.",
+    "stats": { "VIG": 5, "INT": 7, "DES": 8, "SAB": 5, "CAR": 6 },
+    "xpReward": 72,
+    "goldReward": 58,
+    "attacks": [
+      { "name": "Bola de Brasa", "type": "magic", "multiplier": 1.35, "range": 3, "effect": "burn" },
+      { "name": "Arranhão Flamejante", "type": "physical", "multiplier": 1.2, "range": 1, "effect": "burn" }
+    ]
+  },
+  {
+    "id": "mob_volcano_magma_slime",
+    "name": "Magma Vivo",
+    "biome": "volcano",
+    "isBoss": false,
+    "minFloor": 6,
+    "description": "Slime incandescente cheio de rochas vulcânicas que deixa rastros de lava por onde desliza.",
+    "stats": { "VIG": 9, "INT": 6, "DES": 3, "SAB": 5, "CAR": 6 },
+    "xpReward": 84,
+    "goldReward": 68,
+    "attacks": [
+      { "name": "Onda de Lava", "type": "magic", "multiplier": 1.5, "range": 2, "effect": "burn" },
+      { "name": "Crosta Pesada", "type": "physical", "multiplier": 1.4, "range": 1, "effect": "slow" }
+    ]
+  },
+  {
+    "id": "mob_volcano_ash_hound",
+    "name": "Cão das Cinzas",
+    "biome": "volcano",
+    "isBoss": false,
+    "minFloor": 7,
+    "description": "Fera de juba flamejante e pele rachada em brasa que persegue presas sem descanso.",
+    "stats": { "VIG": 7, "INT": 5, "DES": 10, "SAB": 6, "CAR": 7 },
+    "xpReward": 96,
+    "goldReward": 78,
+    "attacks": [
+      { "name": "Presas em Brasa", "type": "physical", "multiplier": 1.6, "range": 1, "effect": "burn" },
+      { "name": "Investida Cortante", "type": "physical", "multiplier": 1.55, "range": 2, "effect": "bleed" }
+    ]
+  },
+  {
+    "id": "mob_volcano_pyromancer",
+    "name": "Elemental de Chamas",
+    "biome": "volcano",
+    "isBoss": false,
+    "minFloor": 8,
+    "description": "Espírito de fogo puro com núcleo de magma no peito e ombreiras de rocha vulcânica.",
+    "stats": { "VIG": 7, "INT": 11, "DES": 6, "SAB": 9, "CAR": 9 },
+    "xpReward": 112,
+    "goldReward": 92,
+    "attacks": [
+      { "name": "Lança de Fogo", "type": "magic", "multiplier": 1.75, "range": 3, "effect": "burn" },
+      { "name": "Detonação Vulcânica", "type": "magic", "multiplier": 1.65, "range": 2, "effect": "stun" },
+      { "name": "Sifão Térmico", "type": "magic", "multiplier": 1.5, "range": 2, "effect": "drain" }
+    ]
+  },
+  {
+    "id": "mob_volcano_obsidian_colossus",
+    "name": "Cavaleiro de Obsidiana",
+    "biome": "volcano",
+    "isBoss": false,
+    "minFloor": 9,
+    "description": "Guerreiro blindado em vidro vulcânico negro que guarda a câmara do dragão com espada e escudo.",
+    "stats": { "VIG": 12, "INT": 6, "DES": 4, "SAB": 8, "CAR": 9 },
+    "xpReward": 130,
+    "goldReward": 108,
+    "attacks": [
+      { "name": "Lâmina de Obsidiana", "type": "physical", "multiplier": 1.9, "range": 1, "effect": "stun" },
+      { "name": "Estilhaço Cortante", "type": "physical", "multiplier": 1.65, "range": 2, "effect": "bleed" },
+      { "name": "Pulso Magmático", "type": "magic", "multiplier": 1.7, "range": 2, "effect": "burn" }
+    ]
+  },
+  {
+    "id": "boss_volcano_ignis_lord",
+    "name": "Ignis, Dragão da Fornalha",
+    "biome": "volcano",
+    "isBoss": true,
+    "minFloor": 10,
+    "description": "Dragão primordial de escamas negras e asas flamejantes nascido no núcleo do vulcão.",
+    "stats": { "VIG": 12, "INT": 12, "DES": 8, "SAB": 10, "CAR": 12 },
+    "xpReward": 180,
+    "goldReward": 150,
+    "attacks": [
+      { "name": "Garras de Magma", "type": "physical", "multiplier": 2.1, "range": 1, "effect": "burn" },
+      { "name": "Sopro Cataclísmico", "type": "magic", "multiplier": 2.2, "range": 3, "effect": "burn" },
+      { "name": "Tremor da Caldeira", "type": "physical", "multiplier": 1.9, "range": 2, "effect": "stun" }
+    ]
+  }
+]

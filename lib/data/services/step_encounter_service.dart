@@ -238,6 +238,7 @@ class StepEncounterService {
       droppedChest: dropChest,
       chestSource: 'Sidequest: ${quest.enemyName}',
     );
+    await _heroRepository.awardExpeditionKey();
 
     return RewardOutcome(
       xpGained: quest.rewardXp,

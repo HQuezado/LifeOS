@@ -189,7 +189,55 @@ class HeroRepository {
       await _db.delete(_db.attributeStats).go();
       await _db.delete(_db.ownedItems).go();
       await _db.delete(_db.mysteryChests).go();
+      await _db.delete(_db.dungeonInventory).go();
+      await _db.delete(_db.dungeonProgress).go();
     });
+  }
+
+  static const int maxExpeditionKeys = 10;
+
+  static String _todayDateKey([DateTime? now]) {
+    final d = now ?? DateTime.now();
+    return '${d.year}-${d.month.toString().padLeft(2, '0')}-${d.day.toString().padLeft(2, '0')}';
+  }
+
+  /// Concede 1 Chave de Expedição gratuita por dia (até o limite máximo de 10).
+  Future<bool> claimDailyExpeditionKeyIfNeeded() async {
+    final hero = await getHero();
+    if (hero == null) return false;
+    final today = _todayDateKey();
+    if (hero.lastDailyKeyDate == today) return false;
+
+    final nextKeys = (hero.expeditionKeys + 1).clamp(0, maxExpeditionKeys);
+    await (_db.update(_db.heroProfiles)..where((t) => t.id.equals(hero.id)))
+        .write(
+      HeroProfilesCompanion(
+        expeditionKeys: Value(nextKeys),
+        lastDailyKeyDate: Value(today),
+      ),
+    );
+    return true;
+  }
+
+  /// Concede +1 Chave de Expedição ao concluir tarefas, compromissos ou sidequests na vida real.
+  Future<void> awardExpeditionKey({int amount = 1}) async {
+    final hero = await getHero();
+    if (hero == null) return;
+    final nextKeys = (hero.expeditionKeys + amount).clamp(0, maxExpeditionKeys);
+    if (nextKeys == hero.expeditionKeys) return;
+    await (_db.update(_db.heroProfiles)..where((t) => t.id.equals(hero.id)))
+        .write(HeroProfilesCompanion(expeditionKeys: Value(nextKeys)));
+  }
+
+  /// Consome 1 Chave de Expedição para entrar em uma masmorra.
+  Future<bool> spendExpeditionKey() async {
+    final hero = await getHero();
+    if (hero == null || hero.expeditionKeys <= 0) return false;
+    await (_db.update(_db.heroProfiles)..where((t) => t.id.equals(hero.id)))
+        .write(
+      HeroProfilesCompanion(expeditionKeys: Value(hero.expeditionKeys - 1)),
+    );
+    return true;
   }
 
   /// Concede XP Geral, XP no Atributo específico (opcional) e Ouro, calculando Level Ups.

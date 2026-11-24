@@ -221,6 +221,35 @@ class GuideScreen extends StatelessWidget {
               ],
             ),
           ),
+          const SizedBox(height: 14),
+
+          // Masmorras e Inventário (Aba Raids)
+          PixelPanel(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'RAIDS: MASMORRAS E INVENTÁRIO',
+                  style: LifeOsTheme.pixelTitle(
+                    size: 10,
+                    color: LifeOsColors.gold,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                const Text(
+                  'Na aba Raids você coloca o seu personagem para explorar cinco masmorras geradas por seed (Bosque, Catacumbas, Pântano, Deserto e Vulcão), com andares diferentes a cada entrada e um chefe final esperando no fundo.\n\n'
+                  '• Chaves de Expedição: cada entrada consome 1 chave. Você ganha 1 chave grátis por dia e recarrega mais concluindo tarefas, compromissos ou sidequests na aba Hoje.\n\n'
+                  '• Combate por turnos: seus 5 atributos da vida real definem sua vida, mana, ataque, magia, defesa, esquiva, visão na névoa e sorte nos baús. Os monstros acompanham o seu nível.\n\n'
+                  '• Inventário e Ferreiro: equipe armas, armaduras e anéis encontrados nos baús ou forjados com o seu Ouro, e leve poções, antídotos, bombas e pergaminhos para o combate.',
+                  style: TextStyle(
+                    fontSize: 13.2,
+                    color: LifeOsColors.textSecondary,
+                    height: 1.48,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );

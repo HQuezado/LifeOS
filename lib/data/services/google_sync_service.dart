@@ -162,6 +162,7 @@ class GoogleSyncService {
       droppedChest: outcome.droppedChest,
       chestSource: 'Compromisso: ${ev.title}',
     );
+    await _heroRepository.awardExpeditionKey();
 
     return outcome.copyWith(
       heroLeveledUp: progress.heroLeveledUp,

@@ -144,3 +144,11 @@ O Ouro ganho nas vitórias é gasto na loja interna (3 categorias):
      - **CAR** → Sorte de baús/itens raros e preços do Mercador da Masmorra
    - **Recompensa de volta para o LifeOS:** projetos exclusivos de móveis e cosméticos raros para a **Casa** e o personagem.
 
+---
+
+## Fase 7 — Futuro: Gratidão entre Aventureiros (Boas Ações na Vida Real)
+- **Conceito:** Permitir que usuários do LifeOS se conectem (ex.: código de amigo / QR Code assinado) para celebrar boas ações feitas um pelo outro na vida real.
+- **Recompensa de Gratidão:** Quem recebeu ajuda pode presentear quem ajudou com **XP** (gerado pelo sistema, sem descontar do personagem ajudado), **ouro** ou **itens**.
+- **Trava anti-abuso:** Pode ser usado **no máximo 1 vez por nível do herói**, com **limite total de até 5 usos** (garantindo que continue especial e sem farming artificial).
+
+

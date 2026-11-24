@@ -78,7 +78,12 @@ flutter:
     - assets/images/classes/
     - assets/images/ui/
     - assets/images/scenes/
+    - assets/images/dungeon/tiles/
+    - assets/images/dungeon/monsters/
+    - assets/images/dungeon/items/
     - assets/data/sidequests.json
+    - assets/data/bestiary.json
+    - assets/data/dungeon_items.json
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images
