@@ -6,8 +6,11 @@ import 'package:googleapis/calendar/v3.dart' as gcal;
 import 'package:googleapis/tasks/v1.dart' as gtasks;
 import 'package:http/http.dart' as http;
 
+import '../../core/rpg/reward_engine.dart';
 import '../../core/rpg/rpg_models.dart';
 import '../database/app_database.dart';
+import '../repositories/hero_repository.dart';
+import '../repositories/shop_repository.dart';
 
 class _BearerAuthClient extends http.BaseClient {
   _BearerAuthClient(this._accessToken, [http.Client? inner])
@@ -48,9 +51,17 @@ class SyncResult {
 /// Serviço 100% local-first de sincronização com Google Agenda e Google Tasks
 /// via OAuth direto no dispositivo (sem servidor próprio), além de Backup JSON.
 class GoogleSyncService {
-  GoogleSyncService(this._db);
+  GoogleSyncService(
+    this._db,
+    this._heroRepository,
+    this._shopRepository, [
+    RewardEngine? rewardEngine,
+  ]) : _rewardEngine = rewardEngine ?? RewardEngine();
 
   final AppDatabase _db;
+  final HeroRepository _heroRepository;
+  final ShopRepository _shopRepository;
+  final RewardEngine _rewardEngine;
   bool _initialized = false;
   GoogleSignInAccount? _currentAccount;
 
@@ -90,6 +101,7 @@ class GoogleSyncService {
     required String title,
     required DateTime startTime,
     required DateTime endTime,
+    RpgAttribute attribute = RpgAttribute.intellect,
     String? location,
   }) async {
     await _db.into(_db.calendarEvents).insert(
@@ -97,9 +109,64 @@ class GoogleSyncService {
             title: title.trim(),
             startTime: startTime,
             endTime: endTime,
+            attributeKey: Value(attribute.key),
             location: Value(location?.trim()),
           ),
         );
+  }
+
+  Future<void> updateEventAttribute(int id, RpgAttribute attribute) async {
+    await (_db.update(_db.calendarEvents)..where((e) => e.id.equals(id))).write(
+      CalendarEventsCompanion(attributeKey: Value(attribute.key)),
+    );
+  }
+
+  /// Marca manualmente um compromisso do Mapa do Dia como cumprido e concede XP/Ouro!
+  Future<RewardOutcome?> completeEvent(int id) async {
+    final ev = await (_db.select(_db.calendarEvents)
+          ..where((e) => e.id.equals(id)))
+        .getSingleOrNull();
+    if (ev == null || ev.isCompleted) return null;
+
+    final hero = await _heroRepository.getHero();
+    if (hero == null) return null;
+
+    final attribute = RpgAttribute.fromKey(ev.attributeKey);
+    final heroClass = HeroClass.fromKey(hero.heroClass);
+    final attrLevels = await _heroRepository.getAttributeLevelsMap();
+    final energyActive = HeroRepository.isEnergyModeActive(hero);
+    final focusActive = ShopRepository.isFocusPotionActive(hero);
+    final furnitureIds = await _shopRepository.getOwnedFurnitureIds();
+
+    final outcome = _rewardEngine.calculateTaskReward(
+      difficulty: TaskDifficulty.medium,
+      attribute: attribute,
+      heroClass: heroClass,
+      attributeLevels: attrLevels,
+      energyModeActive: energyActive,
+      microTasksCompletedTodayBeforeThis: 0,
+      totalTasksCompletedTodayBeforeThis: 0,
+      bardInspirationActive: hero.bardInspirationActive,
+      focusPotionActive: focusActive,
+      ownedFurnitureIds: furnitureIds,
+    );
+
+    await (_db.update(_db.calendarEvents)..where((e) => e.id.equals(id))).write(
+      const CalendarEventsCompanion(isCompleted: Value(true)),
+    );
+
+    final progress = await _heroRepository.awardProgress(
+      attribute: attribute,
+      xpGained: outcome.xpGained,
+      goldGained: outcome.goldGained,
+      droppedChest: outcome.droppedChest,
+      chestSource: 'Compromisso: ${ev.title}',
+    );
+
+    return outcome.copyWith(
+      heroLeveledUp: progress.heroLeveledUp,
+      attributeLeveledUp: progress.attributeLeveledUp,
+    );
   }
 
   Future<void> deleteEvent(int id) async {
@@ -173,14 +240,10 @@ class GoogleSyncService {
     final items = response.items ?? const [];
 
     await _db.transaction(() async {
-      // Limpa apenas eventos sincronizados anteriormente (mantém compromissos locais manuais)
-      await (_db.delete(_db.calendarEvents)
-            ..where((e) => e.googleEventId.isNotNull()))
-          .go();
-
       for (final ev in items) {
         final summary = ev.summary?.trim();
-        if (summary == null || summary.isEmpty) continue;
+        final gId = ev.id;
+        if (summary == null || summary.isEmpty || gId == null) continue;
 
         final start = ev.start?.dateTime?.toLocal() ??
             ev.start?.date?.toLocal() ??
@@ -190,16 +253,36 @@ class GoogleSyncService {
             start.add(const Duration(hours: 1));
         final isAllDay = ev.start?.dateTime == null;
 
-        await _db.into(_db.calendarEvents).insert(
-              CalendarEventsCompanion.insert(
-                googleEventId: Value(ev.id),
-                title: summary,
-                startTime: start,
-                endTime: end,
-                isAllDay: Value(isAllDay),
-                location: Value(ev.location),
-              ),
-            );
+        final existing = await (_db.select(_db.calendarEvents)
+              ..where((e) => e.googleEventId.equals(gId)))
+            .getSingleOrNull();
+
+        if (existing != null) {
+          // Atualiza título/horário preservando o atributo e o status manual de cumprimento!
+          await (_db.update(_db.calendarEvents)
+                ..where((e) => e.id.equals(existing.id)))
+              .write(
+            CalendarEventsCompanion(
+              title: Value(summary),
+              startTime: Value(start),
+              endTime: Value(end),
+              isAllDay: Value(isAllDay),
+              location: Value(ev.location),
+              syncedAt: Value(DateTime.now()),
+            ),
+          );
+        } else {
+          await _db.into(_db.calendarEvents).insert(
+                CalendarEventsCompanion.insert(
+                  googleEventId: Value(gId),
+                  title: summary,
+                  startTime: start,
+                  endTime: end,
+                  isAllDay: Value(isAllDay),
+                  location: Value(ev.location),
+                ),
+              );
+        }
       }
     });
 

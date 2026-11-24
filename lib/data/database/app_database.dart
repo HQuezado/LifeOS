@@ -95,6 +95,8 @@ class CalendarEvents extends Table {
   DateTimeColumn get endTime => dateTime()();
   BoolColumn get isAllDay => boolean().withDefault(const Constant(false))();
   TextColumn get location => text().nullable()();
+  TextColumn get attributeKey => text().withDefault(const Constant('INT'))();
+  BoolColumn get isCompleted => boolean().withDefault(const Constant(false))();
   DateTimeColumn get syncedAt => dateTime().withDefault(currentDateAndTime)();
 }
 
@@ -114,7 +116,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 5;
+  int get schemaVersion => 6;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -138,6 +140,10 @@ class AppDatabase extends _$AppDatabase {
           }
           if (from < 5) {
             await m.addColumn(raidEnemies, raidEnemies.attributeKey);
+          }
+          if (from < 6) {
+            await m.addColumn(calendarEvents, calendarEvents.attributeKey);
+            await m.addColumn(calendarEvents, calendarEvents.isCompleted);
           }
         },
       );

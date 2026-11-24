@@ -65,7 +65,11 @@ final ownedItemsProvider = StreamProvider<List<OwnedItem>>((ref) {
 });
 
 final googleSyncServiceProvider = Provider<GoogleSyncService>((ref) {
-  return GoogleSyncService(ref.watch(appDatabaseProvider));
+  return GoogleSyncService(
+    ref.watch(appDatabaseProvider),
+    ref.watch(heroRepositoryProvider),
+    ref.watch(shopRepositoryProvider),
+  );
 });
 
 final todayEventsProvider = StreamProvider<List<CalendarEvent>>((ref) {

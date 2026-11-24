@@ -3224,6 +3224,33 @@ class $CalendarEventsTable extends CalendarEvents
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _attributeKeyMeta = const VerificationMeta(
+    'attributeKey',
+  );
+  @override
+  late final GeneratedColumn<String> attributeKey = GeneratedColumn<String>(
+    'attribute_key',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('INT'),
+  );
+  static const VerificationMeta _isCompletedMeta = const VerificationMeta(
+    'isCompleted',
+  );
+  @override
+  late final GeneratedColumn<bool> isCompleted = GeneratedColumn<bool>(
+    'is_completed',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("is_completed" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
   static const VerificationMeta _syncedAtMeta = const VerificationMeta(
     'syncedAt',
   );
@@ -3245,6 +3272,8 @@ class $CalendarEventsTable extends CalendarEvents
     endTime,
     isAllDay,
     location,
+    attributeKey,
+    isCompleted,
     syncedAt,
   ];
   @override
@@ -3307,6 +3336,24 @@ class $CalendarEventsTable extends CalendarEvents
         location.isAcceptableOrUnknown(data['location']!, _locationMeta),
       );
     }
+    if (data.containsKey('attribute_key')) {
+      context.handle(
+        _attributeKeyMeta,
+        attributeKey.isAcceptableOrUnknown(
+          data['attribute_key']!,
+          _attributeKeyMeta,
+        ),
+      );
+    }
+    if (data.containsKey('is_completed')) {
+      context.handle(
+        _isCompletedMeta,
+        isCompleted.isAcceptableOrUnknown(
+          data['is_completed']!,
+          _isCompletedMeta,
+        ),
+      );
+    }
     if (data.containsKey('synced_at')) {
       context.handle(
         _syncedAtMeta,
@@ -3350,6 +3397,14 @@ class $CalendarEventsTable extends CalendarEvents
         DriftSqlType.string,
         data['${effectivePrefix}location'],
       ),
+      attributeKey: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}attribute_key'],
+      )!,
+      isCompleted: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}is_completed'],
+      )!,
       syncedAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}synced_at'],
@@ -3371,6 +3426,8 @@ class CalendarEvent extends DataClass implements Insertable<CalendarEvent> {
   final DateTime endTime;
   final bool isAllDay;
   final String? location;
+  final String attributeKey;
+  final bool isCompleted;
   final DateTime syncedAt;
   const CalendarEvent({
     required this.id,
@@ -3380,6 +3437,8 @@ class CalendarEvent extends DataClass implements Insertable<CalendarEvent> {
     required this.endTime,
     required this.isAllDay,
     this.location,
+    required this.attributeKey,
+    required this.isCompleted,
     required this.syncedAt,
   });
   @override
@@ -3396,6 +3455,8 @@ class CalendarEvent extends DataClass implements Insertable<CalendarEvent> {
     if (!nullToAbsent || location != null) {
       map['location'] = Variable<String>(location);
     }
+    map['attribute_key'] = Variable<String>(attributeKey);
+    map['is_completed'] = Variable<bool>(isCompleted);
     map['synced_at'] = Variable<DateTime>(syncedAt);
     return map;
   }
@@ -3413,6 +3474,8 @@ class CalendarEvent extends DataClass implements Insertable<CalendarEvent> {
       location: location == null && nullToAbsent
           ? const Value.absent()
           : Value(location),
+      attributeKey: Value(attributeKey),
+      isCompleted: Value(isCompleted),
       syncedAt: Value(syncedAt),
     );
   }
@@ -3430,6 +3493,8 @@ class CalendarEvent extends DataClass implements Insertable<CalendarEvent> {
       endTime: serializer.fromJson<DateTime>(json['endTime']),
       isAllDay: serializer.fromJson<bool>(json['isAllDay']),
       location: serializer.fromJson<String?>(json['location']),
+      attributeKey: serializer.fromJson<String>(json['attributeKey']),
+      isCompleted: serializer.fromJson<bool>(json['isCompleted']),
       syncedAt: serializer.fromJson<DateTime>(json['syncedAt']),
     );
   }
@@ -3444,6 +3509,8 @@ class CalendarEvent extends DataClass implements Insertable<CalendarEvent> {
       'endTime': serializer.toJson<DateTime>(endTime),
       'isAllDay': serializer.toJson<bool>(isAllDay),
       'location': serializer.toJson<String?>(location),
+      'attributeKey': serializer.toJson<String>(attributeKey),
+      'isCompleted': serializer.toJson<bool>(isCompleted),
       'syncedAt': serializer.toJson<DateTime>(syncedAt),
     };
   }
@@ -3456,6 +3523,8 @@ class CalendarEvent extends DataClass implements Insertable<CalendarEvent> {
     DateTime? endTime,
     bool? isAllDay,
     Value<String?> location = const Value.absent(),
+    String? attributeKey,
+    bool? isCompleted,
     DateTime? syncedAt,
   }) => CalendarEvent(
     id: id ?? this.id,
@@ -3467,6 +3536,8 @@ class CalendarEvent extends DataClass implements Insertable<CalendarEvent> {
     endTime: endTime ?? this.endTime,
     isAllDay: isAllDay ?? this.isAllDay,
     location: location.present ? location.value : this.location,
+    attributeKey: attributeKey ?? this.attributeKey,
+    isCompleted: isCompleted ?? this.isCompleted,
     syncedAt: syncedAt ?? this.syncedAt,
   );
   CalendarEvent copyWithCompanion(CalendarEventsCompanion data) {
@@ -3480,6 +3551,12 @@ class CalendarEvent extends DataClass implements Insertable<CalendarEvent> {
       endTime: data.endTime.present ? data.endTime.value : this.endTime,
       isAllDay: data.isAllDay.present ? data.isAllDay.value : this.isAllDay,
       location: data.location.present ? data.location.value : this.location,
+      attributeKey: data.attributeKey.present
+          ? data.attributeKey.value
+          : this.attributeKey,
+      isCompleted: data.isCompleted.present
+          ? data.isCompleted.value
+          : this.isCompleted,
       syncedAt: data.syncedAt.present ? data.syncedAt.value : this.syncedAt,
     );
   }
@@ -3494,6 +3571,8 @@ class CalendarEvent extends DataClass implements Insertable<CalendarEvent> {
           ..write('endTime: $endTime, ')
           ..write('isAllDay: $isAllDay, ')
           ..write('location: $location, ')
+          ..write('attributeKey: $attributeKey, ')
+          ..write('isCompleted: $isCompleted, ')
           ..write('syncedAt: $syncedAt')
           ..write(')'))
         .toString();
@@ -3508,6 +3587,8 @@ class CalendarEvent extends DataClass implements Insertable<CalendarEvent> {
     endTime,
     isAllDay,
     location,
+    attributeKey,
+    isCompleted,
     syncedAt,
   );
   @override
@@ -3521,6 +3602,8 @@ class CalendarEvent extends DataClass implements Insertable<CalendarEvent> {
           other.endTime == this.endTime &&
           other.isAllDay == this.isAllDay &&
           other.location == this.location &&
+          other.attributeKey == this.attributeKey &&
+          other.isCompleted == this.isCompleted &&
           other.syncedAt == this.syncedAt);
 }
 
@@ -3532,6 +3615,8 @@ class CalendarEventsCompanion extends UpdateCompanion<CalendarEvent> {
   final Value<DateTime> endTime;
   final Value<bool> isAllDay;
   final Value<String?> location;
+  final Value<String> attributeKey;
+  final Value<bool> isCompleted;
   final Value<DateTime> syncedAt;
   const CalendarEventsCompanion({
     this.id = const Value.absent(),
@@ -3541,6 +3626,8 @@ class CalendarEventsCompanion extends UpdateCompanion<CalendarEvent> {
     this.endTime = const Value.absent(),
     this.isAllDay = const Value.absent(),
     this.location = const Value.absent(),
+    this.attributeKey = const Value.absent(),
+    this.isCompleted = const Value.absent(),
     this.syncedAt = const Value.absent(),
   });
   CalendarEventsCompanion.insert({
@@ -3551,6 +3638,8 @@ class CalendarEventsCompanion extends UpdateCompanion<CalendarEvent> {
     required DateTime endTime,
     this.isAllDay = const Value.absent(),
     this.location = const Value.absent(),
+    this.attributeKey = const Value.absent(),
+    this.isCompleted = const Value.absent(),
     this.syncedAt = const Value.absent(),
   }) : title = Value(title),
        startTime = Value(startTime),
@@ -3563,6 +3652,8 @@ class CalendarEventsCompanion extends UpdateCompanion<CalendarEvent> {
     Expression<DateTime>? endTime,
     Expression<bool>? isAllDay,
     Expression<String>? location,
+    Expression<String>? attributeKey,
+    Expression<bool>? isCompleted,
     Expression<DateTime>? syncedAt,
   }) {
     return RawValuesInsertable({
@@ -3573,6 +3664,8 @@ class CalendarEventsCompanion extends UpdateCompanion<CalendarEvent> {
       if (endTime != null) 'end_time': endTime,
       if (isAllDay != null) 'is_all_day': isAllDay,
       if (location != null) 'location': location,
+      if (attributeKey != null) 'attribute_key': attributeKey,
+      if (isCompleted != null) 'is_completed': isCompleted,
       if (syncedAt != null) 'synced_at': syncedAt,
     });
   }
@@ -3585,6 +3678,8 @@ class CalendarEventsCompanion extends UpdateCompanion<CalendarEvent> {
     Value<DateTime>? endTime,
     Value<bool>? isAllDay,
     Value<String?>? location,
+    Value<String>? attributeKey,
+    Value<bool>? isCompleted,
     Value<DateTime>? syncedAt,
   }) {
     return CalendarEventsCompanion(
@@ -3595,6 +3690,8 @@ class CalendarEventsCompanion extends UpdateCompanion<CalendarEvent> {
       endTime: endTime ?? this.endTime,
       isAllDay: isAllDay ?? this.isAllDay,
       location: location ?? this.location,
+      attributeKey: attributeKey ?? this.attributeKey,
+      isCompleted: isCompleted ?? this.isCompleted,
       syncedAt: syncedAt ?? this.syncedAt,
     );
   }
@@ -3623,6 +3720,12 @@ class CalendarEventsCompanion extends UpdateCompanion<CalendarEvent> {
     if (location.present) {
       map['location'] = Variable<String>(location.value);
     }
+    if (attributeKey.present) {
+      map['attribute_key'] = Variable<String>(attributeKey.value);
+    }
+    if (isCompleted.present) {
+      map['is_completed'] = Variable<bool>(isCompleted.value);
+    }
     if (syncedAt.present) {
       map['synced_at'] = Variable<DateTime>(syncedAt.value);
     }
@@ -3639,6 +3742,8 @@ class CalendarEventsCompanion extends UpdateCompanion<CalendarEvent> {
           ..write('endTime: $endTime, ')
           ..write('isAllDay: $isAllDay, ')
           ..write('location: $location, ')
+          ..write('attributeKey: $attributeKey, ')
+          ..write('isCompleted: $isCompleted, ')
           ..write('syncedAt: $syncedAt')
           ..write(')'))
         .toString();
@@ -5551,6 +5656,8 @@ typedef $$CalendarEventsTableCreateCompanionBuilder =
       required DateTime endTime,
       Value<bool> isAllDay,
       Value<String?> location,
+      Value<String> attributeKey,
+      Value<bool> isCompleted,
       Value<DateTime> syncedAt,
     });
 typedef $$CalendarEventsTableUpdateCompanionBuilder =
@@ -5562,6 +5669,8 @@ typedef $$CalendarEventsTableUpdateCompanionBuilder =
       Value<DateTime> endTime,
       Value<bool> isAllDay,
       Value<String?> location,
+      Value<String> attributeKey,
+      Value<bool> isCompleted,
       Value<DateTime> syncedAt,
     });
 
@@ -5606,6 +5715,16 @@ class $$CalendarEventsTableFilterComposer
 
   ColumnFilters<String> get location => $composableBuilder(
     column: $table.location,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get attributeKey => $composableBuilder(
+    column: $table.attributeKey,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get isCompleted => $composableBuilder(
+    column: $table.isCompleted,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -5659,6 +5778,16 @@ class $$CalendarEventsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get attributeKey => $composableBuilder(
+    column: $table.attributeKey,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get isCompleted => $composableBuilder(
+    column: $table.isCompleted,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get syncedAt => $composableBuilder(
     column: $table.syncedAt,
     builder: (column) => ColumnOrderings(column),
@@ -5696,6 +5825,16 @@ class $$CalendarEventsTableAnnotationComposer
 
   GeneratedColumn<String> get location =>
       $composableBuilder(column: $table.location, builder: (column) => column);
+
+  GeneratedColumn<String> get attributeKey => $composableBuilder(
+    column: $table.attributeKey,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get isCompleted => $composableBuilder(
+    column: $table.isCompleted,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<DateTime> get syncedAt =>
       $composableBuilder(column: $table.syncedAt, builder: (column) => column);
@@ -5741,6 +5880,8 @@ class $$CalendarEventsTableTableManager
                 Value<DateTime> endTime = const Value.absent(),
                 Value<bool> isAllDay = const Value.absent(),
                 Value<String?> location = const Value.absent(),
+                Value<String> attributeKey = const Value.absent(),
+                Value<bool> isCompleted = const Value.absent(),
                 Value<DateTime> syncedAt = const Value.absent(),
               }) => CalendarEventsCompanion(
                 id: id,
@@ -5750,6 +5891,8 @@ class $$CalendarEventsTableTableManager
                 endTime: endTime,
                 isAllDay: isAllDay,
                 location: location,
+                attributeKey: attributeKey,
+                isCompleted: isCompleted,
                 syncedAt: syncedAt,
               ),
           createCompanionCallback:
@@ -5761,6 +5904,8 @@ class $$CalendarEventsTableTableManager
                 required DateTime endTime,
                 Value<bool> isAllDay = const Value.absent(),
                 Value<String?> location = const Value.absent(),
+                Value<String> attributeKey = const Value.absent(),
+                Value<bool> isCompleted = const Value.absent(),
                 Value<DateTime> syncedAt = const Value.absent(),
               }) => CalendarEventsCompanion.insert(
                 id: id,
@@ -5770,6 +5915,8 @@ class $$CalendarEventsTableTableManager
                 endTime: endTime,
                 isAllDay: isAllDay,
                 location: location,
+                attributeKey: attributeKey,
+                isCompleted: isCompleted,
                 syncedAt: syncedAt,
               ),
           withReferenceMapper: (p0) => p0

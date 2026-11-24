@@ -72,6 +72,20 @@ class TaskRepository {
     await (_db.delete(_db.tasks)..where((t) => t.id.equals(id))).go();
   }
 
+  /// Permite ao usuário editar o atributo de qualquer tarefa (local ou do Google Tasks).
+  Future<void> updateTaskAttribute(int id, RpgAttribute attribute) async {
+    await (_db.update(_db.tasks)..where((t) => t.id.equals(id))).write(
+      TasksCompanion(attributeKey: Value(attribute.key)),
+    );
+  }
+
+  /// Permite ao usuário editar a dificuldade de uma tarefa pendente.
+  Future<void> updateTaskDifficulty(int id, TaskDifficulty difficulty) async {
+    await (_db.update(_db.tasks)..where((t) => t.id.equals(id))).write(
+      TasksCompanion(difficulty: Value(difficulty.key)),
+    );
+  }
+
   /// Conclui uma tarefa, aplica todas as regras RPG/TDAH e retorna o resultado.
   Future<RewardOutcome?> completeTask(
     int taskId, {

@@ -1,8 +1,10 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../../core/rpg/rpg_models.dart';
 import '../../core/theme/lifeos_theme.dart';
 import '../../core/widgets/pixel_panel.dart';
+import '../../core/widgets/reward_feedback.dart';
 import '../../data/database/app_database.dart';
 import '../../providers/app_providers.dart';
 
@@ -250,9 +252,8 @@ class _DayMapWidgetState extends ConsumerState<DayMapWidget> {
                   ],
                   ...List.generate(events.length, (i) {
                     final ev = events[i];
-                    final isPast = ev.endTime.isBefore(now);
-                    final isNow =
-                        !ev.startTime.isAfter(now) && ev.endTime.isAfter(now);
+                    final isDone = ev.isCompleted;
+                    final attr = RpgAttribute.fromKey(ev.attributeKey);
 
                     // Calcula Zona de Exploração livre até o próximo compromisso (>= 30 min)
                     Duration? freeGap;
@@ -266,47 +267,121 @@ class _DayMapWidgetState extends ConsumerState<DayMapWidget> {
                       children: [
                         Row(
                           children: [
-                            Container(
-                              width: 10,
-                              height: 10,
-                              color: isNow
-                                  ? LifeOsColors.gold
-                                  : (isPast
-                                      ? LifeOsColors.textMuted
-                                      : LifeOsColors.xpBar),
-                            ),
-                            const SizedBox(width: 10),
-                            Text(
-                              ev.isAllDay
-                                  ? 'Dia todo'
-                                  : '${_fmtTime(ev.startTime)}–${_fmtTime(ev.endTime)}',
-                              style: TextStyle(
-                                fontSize: 12,
-                                fontWeight: FontWeight.w800,
-                                color: isPast
-                                    ? LifeOsColors.textMuted
-                                    : LifeOsColors.xpBar,
+                            // Cumprimento manual (concede XP e Ouro!)
+                            GestureDetector(
+                              onTap: isDone
+                                  ? null
+                                  : () async {
+                                      final outcome = await ref
+                                          .read(googleSyncServiceProvider)
+                                          .completeEvent(ev.id);
+                                      if (outcome != null && context.mounted) {
+                                        showRewardFeedback(
+                                          context,
+                                          outcome: outcome,
+                                          attribute: attr,
+                                        );
+                                      }
+                                    },
+                              child: Container(
+                                width: 22,
+                                height: 22,
+                                decoration: BoxDecoration(
+                                  color: isDone
+                                      ? LifeOsColors.success
+                                      : LifeOsColors.bgDark,
+                                  border: Border.all(
+                                    color: isDone
+                                        ? LifeOsColors.success
+                                        : attr.color,
+                                    width: 2,
+                                  ),
+                                ),
+                                child: isDone
+                                    ? const Icon(
+                                        Icons.check_rounded,
+                                        size: 15,
+                                        color: LifeOsColors.bgDark,
+                                      )
+                                    : null,
                               ),
                             ),
-                            const SizedBox(width: 10),
+                            const SizedBox(width: 8),
                             Expanded(
-                              child: Text(
-                                ev.title,
-                                maxLines: 1,
-                                overflow: TextOverflow.ellipsis,
-                                style: TextStyle(
-                                  fontSize: 13.5,
-                                  fontWeight: FontWeight.w700,
-                                  color: isPast
-                                      ? LifeOsColors.textMuted
-                                      : LifeOsColors.textPrimary,
-                                  decoration: isPast
-                                      ? TextDecoration.lineThrough
-                                      : null,
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    ev.title,
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    style: TextStyle(
+                                      fontSize: 13.5,
+                                      fontWeight: FontWeight.w700,
+                                      color: isDone
+                                          ? LifeOsColors.textMuted
+                                          : LifeOsColors.textPrimary,
+                                      decoration: isDone
+                                          ? TextDecoration.lineThrough
+                                          : null,
+                                    ),
+                                  ),
+                                  Text(
+                                    ev.isAllDay
+                                        ? 'Dia todo'
+                                        : '${_fmtTime(ev.startTime)}–${_fmtTime(ev.endTime)}',
+                                    style: TextStyle(
+                                      fontSize: 11.5,
+                                      fontWeight: FontWeight.w700,
+                                      color: isDone
+                                          ? LifeOsColors.textMuted
+                                          : LifeOsColors.xpBar,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            const SizedBox(width: 6),
+                            // Atributo editável com 1 toque
+                            GestureDetector(
+                              onTap: isDone
+                                  ? null
+                                  : () {
+                                      final nextIdx =
+                                          (RpgAttribute.values.indexOf(attr) +
+                                                  1) %
+                                              RpgAttribute.values.length;
+                                      ref
+                                          .read(googleSyncServiceProvider)
+                                          .updateEventAttribute(
+                                            ev.id,
+                                            RpgAttribute.values[nextIdx],
+                                          );
+                                    },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 6,
+                                  vertical: 3,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: attr.color.withValues(alpha: 0.2),
+                                  border: Border.all(
+                                    color: attr.color,
+                                    width: 1.2,
+                                  ),
+                                ),
+                                child: Text(
+                                  attr.shortName,
+                                  style: TextStyle(
+                                    fontSize: 10.5,
+                                    fontWeight: FontWeight.w900,
+                                    color: attr.color,
+                                  ),
                                 ),
                               ),
                             ),
-                            if (ev.googleEventId == null)
+                            if (ev.googleEventId == null) ...[
+                              const SizedBox(width: 4),
                               GestureDetector(
                                 onTap: () => ref
                                     .read(googleSyncServiceProvider)
@@ -317,14 +392,15 @@ class _DayMapWidgetState extends ConsumerState<DayMapWidget> {
                                   color: LifeOsColors.textMuted,
                                 ),
                               ),
+                            ],
                           ],
                         ),
                         if (freeGap != null)
                           Padding(
                             padding: const EdgeInsets.only(
-                              left: 4,
-                              top: 4,
-                              bottom: 6,
+                              left: 10,
+                              top: 6,
+                              bottom: 8,
                             ),
                             child: Container(
                               padding: const EdgeInsets.only(left: 12),
@@ -337,7 +413,7 @@ class _DayMapWidgetState extends ConsumerState<DayMapWidget> {
                                 ),
                               ),
                               child: Text(
-                                '🧭 Zona de Exploração: ${_fmtDuration(freeGap)} livre',
+                                '⏱ ${_fmtDuration(freeGap)} livre',
                                 style: const TextStyle(
                                   fontSize: 11.5,
                                   color: LifeOsColors.success,
@@ -347,7 +423,7 @@ class _DayMapWidgetState extends ConsumerState<DayMapWidget> {
                             ),
                           )
                         else
-                          const SizedBox(height: 6),
+                          const SizedBox(height: 8),
                       ],
                     );
                   }),

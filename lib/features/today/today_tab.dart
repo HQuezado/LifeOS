@@ -468,6 +468,27 @@ class _TodayTabState extends ConsumerState<TodayTab> {
                       (task) => _TaskCard(
                         task: task,
                         onComplete: () => _completeTask(task),
+                        onCycleAttribute: () {
+                          final current = RpgAttribute.fromKey(task.attributeKey);
+                          final next = RpgAttribute.values[
+                              (RpgAttribute.values.indexOf(current) + 1) %
+                                  RpgAttribute.values.length];
+                          ref
+                              .read(taskRepositoryProvider)
+                              .updateTaskAttribute(task.id, next);
+                        },
+                        onCycleDifficulty: () {
+                          final current = TaskDifficulty.values.firstWhere(
+                            (d) => d.key == task.difficulty,
+                            orElse: () => TaskDifficulty.easy,
+                          );
+                          final next = TaskDifficulty.values[
+                              (TaskDifficulty.values.indexOf(current) + 1) %
+                                  TaskDifficulty.values.length];
+                          ref
+                              .read(taskRepositoryProvider)
+                              .updateTaskDifficulty(task.id, next);
+                        },
                         onDelete: () =>
                             ref.read(taskRepositoryProvider).deleteTask(task.id),
                       ),
@@ -508,11 +529,15 @@ class _TaskCard extends StatelessWidget {
   const _TaskCard({
     required this.task,
     required this.onComplete,
+    this.onCycleAttribute,
+    this.onCycleDifficulty,
     required this.onDelete,
   });
 
   final Task task;
   final VoidCallback? onComplete;
+  final VoidCallback? onCycleAttribute;
+  final VoidCallback? onCycleDifficulty;
   final VoidCallback onDelete;
 
   @override
@@ -574,22 +599,44 @@ class _TaskCard extends StatelessWidget {
                   const SizedBox(height: 4),
                   Row(
                     children: [
-                      Icon(attr.icon, size: 13, color: attr.color),
-                      const SizedBox(width: 4),
-                      Text(
-                        attr.shortName,
-                        style: TextStyle(
-                          fontSize: 11.5,
-                          fontWeight: FontWeight.w800,
-                          color: attr.color,
+                      GestureDetector(
+                        onTap: onCycleAttribute,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(
+                            horizontal: 6,
+                            vertical: 2,
+                          ),
+                          decoration: BoxDecoration(
+                            color: attr.color.withValues(alpha: 0.18),
+                            border: Border.all(color: attr.color, width: 1.2),
+                          ),
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(attr.icon, size: 12, color: attr.color),
+                              const SizedBox(width: 4),
+                              Text(
+                                attr.shortName,
+                                style: TextStyle(
+                                  fontSize: 11,
+                                  fontWeight: FontWeight.w900,
+                                  color: attr.color,
+                                ),
+                              ),
+                            ],
+                          ),
                         ),
                       ),
-                      const SizedBox(width: 10),
-                      Text(
-                        '${diff.label} • ${diff.baseXp} XP • ${diff.baseGold}g',
-                        style: const TextStyle(
-                          fontSize: 11.5,
-                          color: LifeOsColors.textSecondary,
+                      const SizedBox(width: 8),
+                      GestureDetector(
+                        onTap: onCycleDifficulty,
+                        child: Text(
+                          '${diff.label} • ${diff.baseXp} XP • ${diff.baseGold}g',
+                          style: const TextStyle(
+                            fontSize: 11.5,
+                            color: LifeOsColors.textSecondary,
+                            fontWeight: FontWeight.w700,
+                          ),
                         ),
                       ),
                     ],
