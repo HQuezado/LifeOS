@@ -179,6 +179,7 @@ class HouseTab extends ConsumerWidget {
                             HeroSpriteWidget(
                               assetPath: heroClass.spriteAsset,
                               size: 86,
+                              armorTint: ArmorTint.fromKey(hero.armorTint),
                             ),
                             if (equippedPet != null) ...[
                               const SizedBox(width: 8),

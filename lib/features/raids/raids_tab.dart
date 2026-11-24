@@ -466,6 +466,7 @@ class RaidBattleScreen extends ConsumerWidget {
                                   HeroSpriteWidget(
                                     assetPath: heroClass.spriteAsset,
                                     size: 82,
+                                    armorTint: ArmorTint.fromKey(hero.armorTint),
                                   ),
                                   const SizedBox(height: 6),
                                   Text(

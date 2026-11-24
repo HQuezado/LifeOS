@@ -1,9 +1,10 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:material_ui/material_ui.dart';
 
 import 'core/theme/lifeos_theme.dart';
 import 'features/character_creation/character_creation_screen.dart';
 import 'features/shell/main_shell.dart';
+import 'features/title/title_screen.dart';
 import 'providers/app_providers.dart';
 
 void main() {
@@ -11,11 +12,18 @@ void main() {
   runApp(const ProviderScope(child: LifeOsApp()));
 }
 
-class LifeOsApp extends ConsumerWidget {
+class LifeOsApp extends ConsumerStatefulWidget {
   const LifeOsApp({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<LifeOsApp> createState() => _LifeOsAppState();
+}
+
+class _LifeOsAppState extends ConsumerState<LifeOsApp> {
+  bool _inGame = false;
+
+  @override
+  Widget build(BuildContext context) {
     final heroAsync = ref.watch(heroProfileProvider);
 
     return MaterialApp(
@@ -24,10 +32,20 @@ class LifeOsApp extends ConsumerWidget {
       theme: LifeOsTheme.build(),
       home: heroAsync.when(
         data: (hero) {
+          if (!_inGame) {
+            return TitleScreen(
+              hero: hero,
+              onContinue: () => setState(() => _inGame = true),
+              onNewHero: () => setState(() => _inGame = true),
+            );
+          }
           if (hero == null) {
             return const CharacterCreationScreen();
           }
-          return MainShell(hero: hero);
+          return MainShell(
+            hero: hero,
+            onExitToTitle: () => setState(() => _inGame = false),
+          );
         },
         loading: () => const Scaffold(
           body: Center(

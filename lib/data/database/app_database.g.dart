@@ -128,6 +128,57 @@ class $HeroProfilesTable extends HeroProfiles
         type: DriftSqlType.dateTime,
         requiredDuringInsert: false,
       );
+  static const VerificationMeta _armorTintMeta = const VerificationMeta(
+    'armorTint',
+  );
+  @override
+  late final GeneratedColumn<String> armorTint = GeneratedColumn<String>(
+    'armor_tint',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('default'),
+  );
+  static const VerificationMeta _soundEnabledMeta = const VerificationMeta(
+    'soundEnabled',
+  );
+  @override
+  late final GeneratedColumn<bool> soundEnabled = GeneratedColumn<bool>(
+    'sound_enabled',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("sound_enabled" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
+  static const VerificationMeta _stepsTodayMeta = const VerificationMeta(
+    'stepsToday',
+  );
+  @override
+  late final GeneratedColumn<int> stepsToday = GeneratedColumn<int>(
+    'steps_today',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _lastEncounterStepMilestoneMeta =
+      const VerificationMeta('lastEncounterStepMilestone');
+  @override
+  late final GeneratedColumn<int> lastEncounterStepMilestone =
+      GeneratedColumn<int>(
+        'last_encounter_step_milestone',
+        aliasedName,
+        false,
+        type: DriftSqlType.int,
+        requiredDuringInsert: false,
+        defaultValue: const Constant(0),
+      );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -152,6 +203,10 @@ class $HeroProfilesTable extends HeroProfiles
     energyModeActiveUntil,
     bardInspirationActive,
     focusPotionUntil,
+    armorTint,
+    soundEnabled,
+    stepsToday,
+    lastEncounterStepMilestone,
     createdAt,
   ];
   @override
@@ -239,6 +294,36 @@ class $HeroProfilesTable extends HeroProfiles
         ),
       );
     }
+    if (data.containsKey('armor_tint')) {
+      context.handle(
+        _armorTintMeta,
+        armorTint.isAcceptableOrUnknown(data['armor_tint']!, _armorTintMeta),
+      );
+    }
+    if (data.containsKey('sound_enabled')) {
+      context.handle(
+        _soundEnabledMeta,
+        soundEnabled.isAcceptableOrUnknown(
+          data['sound_enabled']!,
+          _soundEnabledMeta,
+        ),
+      );
+    }
+    if (data.containsKey('steps_today')) {
+      context.handle(
+        _stepsTodayMeta,
+        stepsToday.isAcceptableOrUnknown(data['steps_today']!, _stepsTodayMeta),
+      );
+    }
+    if (data.containsKey('last_encounter_step_milestone')) {
+      context.handle(
+        _lastEncounterStepMilestoneMeta,
+        lastEncounterStepMilestone.isAcceptableOrUnknown(
+          data['last_encounter_step_milestone']!,
+          _lastEncounterStepMilestoneMeta,
+        ),
+      );
+    }
     if (data.containsKey('created_at')) {
       context.handle(
         _createdAtMeta,
@@ -294,6 +379,22 @@ class $HeroProfilesTable extends HeroProfiles
         DriftSqlType.dateTime,
         data['${effectivePrefix}focus_potion_until'],
       ),
+      armorTint: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}armor_tint'],
+      )!,
+      soundEnabled: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}sound_enabled'],
+      )!,
+      stepsToday: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}steps_today'],
+      )!,
+      lastEncounterStepMilestone: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}last_encounter_step_milestone'],
+      )!,
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
@@ -318,6 +419,10 @@ class HeroProfile extends DataClass implements Insertable<HeroProfile> {
   final DateTime? energyModeActiveUntil;
   final bool bardInspirationActive;
   final DateTime? focusPotionUntil;
+  final String armorTint;
+  final bool soundEnabled;
+  final int stepsToday;
+  final int lastEncounterStepMilestone;
   final DateTime createdAt;
   const HeroProfile({
     required this.id,
@@ -330,6 +435,10 @@ class HeroProfile extends DataClass implements Insertable<HeroProfile> {
     this.energyModeActiveUntil,
     required this.bardInspirationActive,
     this.focusPotionUntil,
+    required this.armorTint,
+    required this.soundEnabled,
+    required this.stepsToday,
+    required this.lastEncounterStepMilestone,
     required this.createdAt,
   });
   @override
@@ -353,6 +462,12 @@ class HeroProfile extends DataClass implements Insertable<HeroProfile> {
     if (!nullToAbsent || focusPotionUntil != null) {
       map['focus_potion_until'] = Variable<DateTime>(focusPotionUntil);
     }
+    map['armor_tint'] = Variable<String>(armorTint);
+    map['sound_enabled'] = Variable<bool>(soundEnabled);
+    map['steps_today'] = Variable<int>(stepsToday);
+    map['last_encounter_step_milestone'] = Variable<int>(
+      lastEncounterStepMilestone,
+    );
     map['created_at'] = Variable<DateTime>(createdAt);
     return map;
   }
@@ -375,6 +490,10 @@ class HeroProfile extends DataClass implements Insertable<HeroProfile> {
       focusPotionUntil: focusPotionUntil == null && nullToAbsent
           ? const Value.absent()
           : Value(focusPotionUntil),
+      armorTint: Value(armorTint),
+      soundEnabled: Value(soundEnabled),
+      stepsToday: Value(stepsToday),
+      lastEncounterStepMilestone: Value(lastEncounterStepMilestone),
       createdAt: Value(createdAt),
     );
   }
@@ -403,6 +522,12 @@ class HeroProfile extends DataClass implements Insertable<HeroProfile> {
       focusPotionUntil: serializer.fromJson<DateTime?>(
         json['focusPotionUntil'],
       ),
+      armorTint: serializer.fromJson<String>(json['armorTint']),
+      soundEnabled: serializer.fromJson<bool>(json['soundEnabled']),
+      stepsToday: serializer.fromJson<int>(json['stepsToday']),
+      lastEncounterStepMilestone: serializer.fromJson<int>(
+        json['lastEncounterStepMilestone'],
+      ),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
     );
   }
@@ -422,6 +547,12 @@ class HeroProfile extends DataClass implements Insertable<HeroProfile> {
       ),
       'bardInspirationActive': serializer.toJson<bool>(bardInspirationActive),
       'focusPotionUntil': serializer.toJson<DateTime?>(focusPotionUntil),
+      'armorTint': serializer.toJson<String>(armorTint),
+      'soundEnabled': serializer.toJson<bool>(soundEnabled),
+      'stepsToday': serializer.toJson<int>(stepsToday),
+      'lastEncounterStepMilestone': serializer.toJson<int>(
+        lastEncounterStepMilestone,
+      ),
       'createdAt': serializer.toJson<DateTime>(createdAt),
     };
   }
@@ -437,6 +568,10 @@ class HeroProfile extends DataClass implements Insertable<HeroProfile> {
     Value<DateTime?> energyModeActiveUntil = const Value.absent(),
     bool? bardInspirationActive,
     Value<DateTime?> focusPotionUntil = const Value.absent(),
+    String? armorTint,
+    bool? soundEnabled,
+    int? stepsToday,
+    int? lastEncounterStepMilestone,
     DateTime? createdAt,
   }) => HeroProfile(
     id: id ?? this.id,
@@ -455,6 +590,11 @@ class HeroProfile extends DataClass implements Insertable<HeroProfile> {
     focusPotionUntil: focusPotionUntil.present
         ? focusPotionUntil.value
         : this.focusPotionUntil,
+    armorTint: armorTint ?? this.armorTint,
+    soundEnabled: soundEnabled ?? this.soundEnabled,
+    stepsToday: stepsToday ?? this.stepsToday,
+    lastEncounterStepMilestone:
+        lastEncounterStepMilestone ?? this.lastEncounterStepMilestone,
     createdAt: createdAt ?? this.createdAt,
   );
   HeroProfile copyWithCompanion(HeroProfilesCompanion data) {
@@ -477,6 +617,16 @@ class HeroProfile extends DataClass implements Insertable<HeroProfile> {
       focusPotionUntil: data.focusPotionUntil.present
           ? data.focusPotionUntil.value
           : this.focusPotionUntil,
+      armorTint: data.armorTint.present ? data.armorTint.value : this.armorTint,
+      soundEnabled: data.soundEnabled.present
+          ? data.soundEnabled.value
+          : this.soundEnabled,
+      stepsToday: data.stepsToday.present
+          ? data.stepsToday.value
+          : this.stepsToday,
+      lastEncounterStepMilestone: data.lastEncounterStepMilestone.present
+          ? data.lastEncounterStepMilestone.value
+          : this.lastEncounterStepMilestone,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
     );
   }
@@ -494,6 +644,10 @@ class HeroProfile extends DataClass implements Insertable<HeroProfile> {
           ..write('energyModeActiveUntil: $energyModeActiveUntil, ')
           ..write('bardInspirationActive: $bardInspirationActive, ')
           ..write('focusPotionUntil: $focusPotionUntil, ')
+          ..write('armorTint: $armorTint, ')
+          ..write('soundEnabled: $soundEnabled, ')
+          ..write('stepsToday: $stepsToday, ')
+          ..write('lastEncounterStepMilestone: $lastEncounterStepMilestone, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
         .toString();
@@ -511,6 +665,10 @@ class HeroProfile extends DataClass implements Insertable<HeroProfile> {
     energyModeActiveUntil,
     bardInspirationActive,
     focusPotionUntil,
+    armorTint,
+    soundEnabled,
+    stepsToday,
+    lastEncounterStepMilestone,
     createdAt,
   );
   @override
@@ -527,6 +685,10 @@ class HeroProfile extends DataClass implements Insertable<HeroProfile> {
           other.energyModeActiveUntil == this.energyModeActiveUntil &&
           other.bardInspirationActive == this.bardInspirationActive &&
           other.focusPotionUntil == this.focusPotionUntil &&
+          other.armorTint == this.armorTint &&
+          other.soundEnabled == this.soundEnabled &&
+          other.stepsToday == this.stepsToday &&
+          other.lastEncounterStepMilestone == this.lastEncounterStepMilestone &&
           other.createdAt == this.createdAt);
 }
 
@@ -541,6 +703,10 @@ class HeroProfilesCompanion extends UpdateCompanion<HeroProfile> {
   final Value<DateTime?> energyModeActiveUntil;
   final Value<bool> bardInspirationActive;
   final Value<DateTime?> focusPotionUntil;
+  final Value<String> armorTint;
+  final Value<bool> soundEnabled;
+  final Value<int> stepsToday;
+  final Value<int> lastEncounterStepMilestone;
   final Value<DateTime> createdAt;
   const HeroProfilesCompanion({
     this.id = const Value.absent(),
@@ -553,6 +719,10 @@ class HeroProfilesCompanion extends UpdateCompanion<HeroProfile> {
     this.energyModeActiveUntil = const Value.absent(),
     this.bardInspirationActive = const Value.absent(),
     this.focusPotionUntil = const Value.absent(),
+    this.armorTint = const Value.absent(),
+    this.soundEnabled = const Value.absent(),
+    this.stepsToday = const Value.absent(),
+    this.lastEncounterStepMilestone = const Value.absent(),
     this.createdAt = const Value.absent(),
   });
   HeroProfilesCompanion.insert({
@@ -566,6 +736,10 @@ class HeroProfilesCompanion extends UpdateCompanion<HeroProfile> {
     this.energyModeActiveUntil = const Value.absent(),
     this.bardInspirationActive = const Value.absent(),
     this.focusPotionUntil = const Value.absent(),
+    this.armorTint = const Value.absent(),
+    this.soundEnabled = const Value.absent(),
+    this.stepsToday = const Value.absent(),
+    this.lastEncounterStepMilestone = const Value.absent(),
     this.createdAt = const Value.absent(),
   }) : name = Value(name),
        heroClass = Value(heroClass);
@@ -580,6 +754,10 @@ class HeroProfilesCompanion extends UpdateCompanion<HeroProfile> {
     Expression<DateTime>? energyModeActiveUntil,
     Expression<bool>? bardInspirationActive,
     Expression<DateTime>? focusPotionUntil,
+    Expression<String>? armorTint,
+    Expression<bool>? soundEnabled,
+    Expression<int>? stepsToday,
+    Expression<int>? lastEncounterStepMilestone,
     Expression<DateTime>? createdAt,
   }) {
     return RawValuesInsertable({
@@ -595,6 +773,11 @@ class HeroProfilesCompanion extends UpdateCompanion<HeroProfile> {
       if (bardInspirationActive != null)
         'bard_inspiration_active': bardInspirationActive,
       if (focusPotionUntil != null) 'focus_potion_until': focusPotionUntil,
+      if (armorTint != null) 'armor_tint': armorTint,
+      if (soundEnabled != null) 'sound_enabled': soundEnabled,
+      if (stepsToday != null) 'steps_today': stepsToday,
+      if (lastEncounterStepMilestone != null)
+        'last_encounter_step_milestone': lastEncounterStepMilestone,
       if (createdAt != null) 'created_at': createdAt,
     });
   }
@@ -610,6 +793,10 @@ class HeroProfilesCompanion extends UpdateCompanion<HeroProfile> {
     Value<DateTime?>? energyModeActiveUntil,
     Value<bool>? bardInspirationActive,
     Value<DateTime?>? focusPotionUntil,
+    Value<String>? armorTint,
+    Value<bool>? soundEnabled,
+    Value<int>? stepsToday,
+    Value<int>? lastEncounterStepMilestone,
     Value<DateTime>? createdAt,
   }) {
     return HeroProfilesCompanion(
@@ -625,6 +812,11 @@ class HeroProfilesCompanion extends UpdateCompanion<HeroProfile> {
       bardInspirationActive:
           bardInspirationActive ?? this.bardInspirationActive,
       focusPotionUntil: focusPotionUntil ?? this.focusPotionUntil,
+      armorTint: armorTint ?? this.armorTint,
+      soundEnabled: soundEnabled ?? this.soundEnabled,
+      stepsToday: stepsToday ?? this.stepsToday,
+      lastEncounterStepMilestone:
+          lastEncounterStepMilestone ?? this.lastEncounterStepMilestone,
       createdAt: createdAt ?? this.createdAt,
     );
   }
@@ -666,6 +858,20 @@ class HeroProfilesCompanion extends UpdateCompanion<HeroProfile> {
     if (focusPotionUntil.present) {
       map['focus_potion_until'] = Variable<DateTime>(focusPotionUntil.value);
     }
+    if (armorTint.present) {
+      map['armor_tint'] = Variable<String>(armorTint.value);
+    }
+    if (soundEnabled.present) {
+      map['sound_enabled'] = Variable<bool>(soundEnabled.value);
+    }
+    if (stepsToday.present) {
+      map['steps_today'] = Variable<int>(stepsToday.value);
+    }
+    if (lastEncounterStepMilestone.present) {
+      map['last_encounter_step_milestone'] = Variable<int>(
+        lastEncounterStepMilestone.value,
+      );
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -685,6 +891,10 @@ class HeroProfilesCompanion extends UpdateCompanion<HeroProfile> {
           ..write('energyModeActiveUntil: $energyModeActiveUntil, ')
           ..write('bardInspirationActive: $bardInspirationActive, ')
           ..write('focusPotionUntil: $focusPotionUntil, ')
+          ..write('armorTint: $armorTint, ')
+          ..write('soundEnabled: $soundEnabled, ')
+          ..write('stepsToday: $stepsToday, ')
+          ..write('lastEncounterStepMilestone: $lastEncounterStepMilestone, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
         .toString();
@@ -3799,6 +4009,10 @@ typedef $$HeroProfilesTableCreateCompanionBuilder =
       Value<DateTime?> energyModeActiveUntil,
       Value<bool> bardInspirationActive,
       Value<DateTime?> focusPotionUntil,
+      Value<String> armorTint,
+      Value<bool> soundEnabled,
+      Value<int> stepsToday,
+      Value<int> lastEncounterStepMilestone,
       Value<DateTime> createdAt,
     });
 typedef $$HeroProfilesTableUpdateCompanionBuilder =
@@ -3813,6 +4027,10 @@ typedef $$HeroProfilesTableUpdateCompanionBuilder =
       Value<DateTime?> energyModeActiveUntil,
       Value<bool> bardInspirationActive,
       Value<DateTime?> focusPotionUntil,
+      Value<String> armorTint,
+      Value<bool> soundEnabled,
+      Value<int> stepsToday,
+      Value<int> lastEncounterStepMilestone,
       Value<DateTime> createdAt,
     });
 
@@ -3872,6 +4090,26 @@ class $$HeroProfilesTableFilterComposer
 
   ColumnFilters<DateTime> get focusPotionUntil => $composableBuilder(
     column: $table.focusPotionUntil,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get armorTint => $composableBuilder(
+    column: $table.armorTint,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get soundEnabled => $composableBuilder(
+    column: $table.soundEnabled,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get stepsToday => $composableBuilder(
+    column: $table.stepsToday,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get lastEncounterStepMilestone => $composableBuilder(
+    column: $table.lastEncounterStepMilestone,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -3940,6 +4178,26 @@ class $$HeroProfilesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get armorTint => $composableBuilder(
+    column: $table.armorTint,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get soundEnabled => $composableBuilder(
+    column: $table.soundEnabled,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get stepsToday => $composableBuilder(
+    column: $table.stepsToday,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get lastEncounterStepMilestone => $composableBuilder(
+    column: $table.lastEncounterStepMilestone,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
@@ -3993,6 +4251,24 @@ class $$HeroProfilesTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<String> get armorTint =>
+      $composableBuilder(column: $table.armorTint, builder: (column) => column);
+
+  GeneratedColumn<bool> get soundEnabled => $composableBuilder(
+    column: $table.soundEnabled,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get stepsToday => $composableBuilder(
+    column: $table.stepsToday,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get lastEncounterStepMilestone => $composableBuilder(
+    column: $table.lastEncounterStepMilestone,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
 }
@@ -4038,6 +4314,10 @@ class $$HeroProfilesTableTableManager
                 Value<DateTime?> energyModeActiveUntil = const Value.absent(),
                 Value<bool> bardInspirationActive = const Value.absent(),
                 Value<DateTime?> focusPotionUntil = const Value.absent(),
+                Value<String> armorTint = const Value.absent(),
+                Value<bool> soundEnabled = const Value.absent(),
+                Value<int> stepsToday = const Value.absent(),
+                Value<int> lastEncounterStepMilestone = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
               }) => HeroProfilesCompanion(
                 id: id,
@@ -4050,6 +4330,10 @@ class $$HeroProfilesTableTableManager
                 energyModeActiveUntil: energyModeActiveUntil,
                 bardInspirationActive: bardInspirationActive,
                 focusPotionUntil: focusPotionUntil,
+                armorTint: armorTint,
+                soundEnabled: soundEnabled,
+                stepsToday: stepsToday,
+                lastEncounterStepMilestone: lastEncounterStepMilestone,
                 createdAt: createdAt,
               ),
           createCompanionCallback:
@@ -4064,6 +4348,10 @@ class $$HeroProfilesTableTableManager
                 Value<DateTime?> energyModeActiveUntil = const Value.absent(),
                 Value<bool> bardInspirationActive = const Value.absent(),
                 Value<DateTime?> focusPotionUntil = const Value.absent(),
+                Value<String> armorTint = const Value.absent(),
+                Value<bool> soundEnabled = const Value.absent(),
+                Value<int> stepsToday = const Value.absent(),
+                Value<int> lastEncounterStepMilestone = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
               }) => HeroProfilesCompanion.insert(
                 id: id,
@@ -4076,6 +4364,10 @@ class $$HeroProfilesTableTableManager
                 energyModeActiveUntil: energyModeActiveUntil,
                 bardInspirationActive: bardInspirationActive,
                 focusPotionUntil: focusPotionUntil,
+                armorTint: armorTint,
+                soundEnabled: soundEnabled,
+                stepsToday: stepsToday,
+                lastEncounterStepMilestone: lastEncounterStepMilestone,
                 createdAt: createdAt,
               ),
           withReferenceMapper: (p0) => p0

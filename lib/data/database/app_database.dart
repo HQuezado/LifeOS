@@ -16,6 +16,11 @@ class HeroProfiles extends Table {
   BoolColumn get bardInspirationActive =>
       boolean().withDefault(const Constant(false))();
   DateTimeColumn get focusPotionUntil => dateTime().nullable()();
+  TextColumn get armorTint => text().withDefault(const Constant('default'))();
+  BoolColumn get soundEnabled => boolean().withDefault(const Constant(true))();
+  IntColumn get stepsToday => integer().withDefault(const Constant(0))();
+  IntColumn get lastEncounterStepMilestone =>
+      integer().withDefault(const Constant(0))();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 }
 
@@ -116,7 +121,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 6;
+  int get schemaVersion => 7;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -144,6 +149,15 @@ class AppDatabase extends _$AppDatabase {
           if (from < 6) {
             await m.addColumn(calendarEvents, calendarEvents.attributeKey);
             await m.addColumn(calendarEvents, calendarEvents.isCompleted);
+          }
+          if (from < 7) {
+            await m.addColumn(heroProfiles, heroProfiles.armorTint);
+            await m.addColumn(heroProfiles, heroProfiles.soundEnabled);
+            await m.addColumn(heroProfiles, heroProfiles.stepsToday);
+            await m.addColumn(
+              heroProfiles,
+              heroProfiles.lastEncounterStepMilestone,
+            );
           }
         },
       );

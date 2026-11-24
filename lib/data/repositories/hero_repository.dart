@@ -89,6 +89,7 @@ class HeroRepository {
   Future<void> createHero({
     required String name,
     required HeroClass heroClass,
+    ArmorTint armorTint = ArmorTint.original,
   }) async {
     await _db.transaction(() async {
       await _db.delete(_db.heroProfiles).go();
@@ -101,6 +102,7 @@ class HeroRepository {
               level: const Value(1),
               currentXp: const Value(0),
               gold: const Value(50),
+              armorTint: Value(armorTint.key),
             ),
           );
 
@@ -114,6 +116,49 @@ class HeroRepository {
               ),
             );
       }
+    });
+  }
+
+  /// Atualiza a tintura da armadura/manto do herói.
+  Future<void> updateArmorTint(ArmorTint tint) async {
+    final hero = await getHero();
+    if (hero == null) return;
+    await (_db.update(_db.heroProfiles)..where((t) => t.id.equals(hero.id)))
+        .write(HeroProfilesCompanion(armorTint: Value(tint.key)));
+  }
+
+  /// Liga ou desliga o som do aplicativo.
+  Future<void> setSoundEnabled(bool enabled) async {
+    final hero = await getHero();
+    if (hero == null) return;
+    await (_db.update(_db.heroProfiles)..where((t) => t.id.equals(hero.id)))
+        .write(HeroProfilesCompanion(soundEnabled: Value(enabled)));
+  }
+
+  /// Atualiza a contagem de passos de hoje e o marco de encontros.
+  Future<void> updateSteps({
+    required int stepsToday,
+    int? lastMilestone,
+  }) async {
+    final hero = await getHero();
+    if (hero == null) return;
+    await (_db.update(_db.heroProfiles)..where((t) => t.id.equals(hero.id)))
+        .write(
+      HeroProfilesCompanion(
+        stepsToday: Value(stepsToday),
+        lastEncounterStepMilestone:
+            lastMilestone != null ? Value(lastMilestone) : const Value.absent(),
+      ),
+    );
+  }
+
+  /// Apaga o personagem atual para iniciar um Novo Herói do zero.
+  Future<void> resetHero() async {
+    await _db.transaction(() async {
+      await _db.delete(_db.heroProfiles).go();
+      await _db.delete(_db.attributeStats).go();
+      await _db.delete(_db.ownedItems).go();
+      await _db.delete(_db.mysteryChests).go();
     });
   }
 

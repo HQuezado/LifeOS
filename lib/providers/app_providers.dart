@@ -6,6 +6,7 @@ import '../data/repositories/raid_repository.dart';
 import '../data/repositories/shop_repository.dart';
 import '../data/repositories/task_repository.dart';
 import '../data/services/google_sync_service.dart';
+import '../data/services/step_encounter_service.dart';
 
 final appDatabaseProvider = Provider<AppDatabase>((ref) {
   final db = AppDatabase();
@@ -74,4 +75,14 @@ final googleSyncServiceProvider = Provider<GoogleSyncService>((ref) {
 
 final todayEventsProvider = StreamProvider<List<CalendarEvent>>((ref) {
   return ref.watch(googleSyncServiceProvider).watchTodayEvents();
+});
+
+final stepEncounterServiceProvider = Provider<StepEncounterService>((ref) {
+  final service = StepEncounterService(ref.watch(heroRepositoryProvider));
+  ref.onDispose(service.dispose);
+  return service;
+});
+
+final activeStepEncounterProvider = StreamProvider<StepSidequest?>((ref) {
+  return ref.watch(stepEncounterServiceProvider).activeEncounterStream;
 });

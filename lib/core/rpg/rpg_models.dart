@@ -216,3 +216,33 @@ class RpgProgression {
   }
 }
 
+/// Tinturas personalizáveis da armadura / manto / roupa do herói.
+enum ArmorTint {
+  original(key: 'default', label: 'Original', swatch: Color(0xFF94B0C2), tintColor: null),
+  ruby(key: 'ruby', label: 'Rubi', swatch: Color(0xFFD94A54), tintColor: Color(0xFFD94A54)),
+  emerald(key: 'emerald', label: 'Esmeralda', swatch: Color(0xFF38B764), tintColor: Color(0xFF38B764)),
+  sapphire(key: 'sapphire', label: 'Safira', swatch: Color(0xFF4A86E8), tintColor: Color(0xFF4A86E8)),
+  gold(key: 'gold', label: 'Ouro Real', swatch: Color(0xFFE8A849), tintColor: Color(0xFFE8A849)),
+  amethyst(key: 'amethyst', label: 'Ametista', swatch: Color(0xFFB366E8), tintColor: Color(0xFFB366E8)),
+  obsidian(key: 'obsidian', label: 'Obsidiana', swatch: Color(0xFF3A3644), tintColor: Color(0xFF4E485C));
+
+  const ArmorTint({
+    required this.key,
+    required this.label,
+    required this.swatch,
+    required this.tintColor,
+  });
+
+  final String key;
+  final String label;
+  final Color swatch;
+  final Color? tintColor;
+
+  static ArmorTint fromKey(String key) {
+    return ArmorTint.values.firstWhere(
+      (t) => t.key == key,
+      orElse: () => ArmorTint.original,
+    );
+  }
+}
+

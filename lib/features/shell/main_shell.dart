@@ -14,9 +14,14 @@ import '../today/today_tab.dart';
 /// Navegação principal em 5 abas com ícones Pixel Art 16-bit:
 /// Hoje | Raids | Casa | Loja | Herói
 class MainShell extends ConsumerStatefulWidget {
-  const MainShell({super.key, required this.hero});
+  const MainShell({
+    super.key,
+    required this.hero,
+    required this.onExitToTitle,
+  });
 
   final HeroProfile hero;
+  final VoidCallback onExitToTitle;
 
   @override
   ConsumerState<MainShell> createState() => _MainShellState();
@@ -52,7 +57,7 @@ class _MainShellState extends ConsumerState<MainShell> {
       RaidsTab(hero: hero),
       HouseTab(hero: hero),
       ShopTab(hero: hero),
-      HeroSheetTab(hero: hero),
+      HeroSheetTab(hero: hero, onExitToTitle: widget.onExitToTitle),
     ];
 
     return Scaffold(

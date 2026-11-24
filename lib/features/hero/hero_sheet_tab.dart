@@ -12,9 +12,14 @@ import '../../providers/app_providers.dart';
 
 /// Aba "Herói": Ficha RPG completa com Nível Geral, Baús Misteriosos e os 5 Atributos.
 class HeroSheetTab extends ConsumerWidget {
-  const HeroSheetTab({super.key, required this.hero});
+  const HeroSheetTab({
+    super.key,
+    required this.hero,
+    required this.onExitToTitle,
+  });
 
   final HeroProfile hero;
+  final VoidCallback onExitToTitle;
 
   Future<void> _openChest(
     BuildContext context,
@@ -103,6 +108,7 @@ class HeroSheetTab extends ConsumerWidget {
                     child: HeroSpriteWidget(
                       assetPath: heroClass.spriteAsset,
                       size: 74,
+                      armorTint: ArmorTint.fromKey(hero.armorTint),
                     ),
                   ),
                   const SizedBox(width: 14),
@@ -465,6 +471,75 @@ class HeroSheetTab extends ConsumerWidget {
               ),
             ],
           ),
+        ),
+        const SizedBox(height: 16),
+
+        // Personalização de cor da armadura / manto
+        PixelPanel(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                'COR DA ARMADURA / MANTO',
+                style: LifeOsTheme.pixelTitle(
+                  size: 10,
+                  color: LifeOsColors.gold,
+                ),
+              ),
+              const SizedBox(height: 10),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: ArmorTint.values.map((tint) {
+                  final active = tint.key == hero.armorTint;
+                  return GestureDetector(
+                    onTap: () =>
+                        ref.read(heroRepositoryProvider).updateArmorTint(tint),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 9,
+                        vertical: 6,
+                      ),
+                      decoration: BoxDecoration(
+                        color: active
+                            ? tint.swatch.withValues(alpha: 0.25)
+                            : LifeOsColors.bgDark,
+                        border: Border.all(
+                          color: active ? LifeOsColors.gold : tint.swatch,
+                          width: active ? 2 : 1.2,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(width: 11, height: 11, color: tint.swatch),
+                          const SizedBox(width: 5),
+                          Text(
+                            tint.label,
+                            style: TextStyle(
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.w800,
+                              color: active
+                                  ? LifeOsColors.gold
+                                  : LifeOsColors.textPrimary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }).toList(),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+
+        // Sair do personagem / voltar para a Tela Inicial
+        PixelButton(
+          label: 'SAIR PARA TELA INICIAL',
+          backgroundColor: LifeOsColors.surface,
+          onPressed: onExitToTitle,
         ),
       ],
     );

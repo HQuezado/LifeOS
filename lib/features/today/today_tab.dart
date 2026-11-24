@@ -11,6 +11,7 @@ import '../../data/database/app_database.dart';
 import '../../data/repositories/hero_repository.dart';
 import '../../providers/app_providers.dart';
 import 'day_map_widget.dart';
+import 'steps_encounter_widget.dart';
 
 class TodayTab extends ConsumerStatefulWidget {
   const TodayTab({super.key, required this.hero});
@@ -248,6 +249,10 @@ class _TodayTabState extends ConsumerState<TodayTab> {
         children: [
           // 0. Mapa do Dia (Google Agenda + Zonas de Exploração)
           const DayMapWidget(),
+          const SizedBox(height: 12),
+
+          // 0.5. Contador de Passos & Encontros Aleatórios (Sidequests)
+          StepsEncounterWidget(hero: widget.hero),
           const SizedBox(height: 12),
 
           // 1. Modo Energia / Dia Sem Culpa (1x por semana)

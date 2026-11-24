@@ -1,10 +1,9 @@
 import 'package:material_ui/material_ui.dart';
 
-/// Exibe o sprite do herói a partir de um sprite sheet horizontal (2 frames:
-/// Frame 0 = pose neutra, Frame 1 = pose *idle* animada com brilho/notas/bolhas)
-/// com renderização pixel-perfect (`FilterQuality.none`) e fundo transparente.
-///
-/// Preparado para expandir facilmente para mais frames (ataque/vitória no RPG por turnos).
+import '../rpg/rpg_models.dart';
+
+/// Exibe o sprite do herói a partir de um sprite sheet horizontal (2 frames)
+/// com suporte a personalização de cor da armadura/manto (`armorTint`).
 class HeroSpriteWidget extends StatefulWidget {
   const HeroSpriteWidget({
     super.key,
@@ -12,12 +11,14 @@ class HeroSpriteWidget extends StatefulWidget {
     this.size = 72,
     this.animate = true,
     this.frameCount = 2,
+    this.armorTint = ArmorTint.original,
   });
 
   final String assetPath;
   final double size;
   final bool animate;
   final int frameCount;
+  final ArmorTint armorTint;
 
   @override
   State<HeroSpriteWidget> createState() => _HeroSpriteWidgetState();
@@ -57,6 +58,25 @@ class _HeroSpriteWidgetState extends State<HeroSpriteWidget>
 
   Widget _buildFrame(int frameIndex) {
     final totalWidth = widget.size * widget.frameCount;
+    Widget img = Image.asset(
+      widget.assetPath,
+      width: totalWidth,
+      height: widget.size,
+      fit: BoxFit.fill,
+      filterQuality: FilterQuality.none,
+    );
+
+    final tint = widget.armorTint.tintColor;
+    if (tint != null) {
+      img = ColorFiltered(
+        colorFilter: ColorFilter.mode(
+          tint.withValues(alpha: 0.34),
+          BlendMode.srcATop,
+        ),
+        child: img,
+      );
+    }
+
     return SizedBox(
       width: widget.size,
       height: widget.size,
@@ -69,13 +89,7 @@ class _HeroSpriteWidgetState extends State<HeroSpriteWidget>
           maxHeight: widget.size,
           child: Transform.translate(
             offset: Offset(-frameIndex * widget.size, 0),
-            child: Image.asset(
-              widget.assetPath,
-              width: totalWidth,
-              height: widget.size,
-              fit: BoxFit.fill,
-              filterQuality: FilterQuality.none,
-            ),
+            child: img,
           ),
         ),
       ),

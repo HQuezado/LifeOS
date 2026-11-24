@@ -128,7 +128,10 @@ O Ouro ganho nas vitórias é gasto na loja interna (3 categorias):
 2. **Fase 2 — Loop Core TDAH:** Tarefas locais, **Sistema de Raids**, **Dopamina Variável** (Críticos, Baús, Missões Relâmpago) e **Modo Energia (1x/semana)**.
 3. **Fase 3 — Progressão & Casa Viva:** Loja interna, equipamentos/visuais do personagem e **Casa/Santuário em Pixel Art** com bônus passivos.
 4. **Fase 4 — Google Sync & Mapa do Dia:** Login Google OAuth no Android, sincronização com Google Agenda + Google Tasks e tela do **Mapa do Dia**.
-5. **Fase 5 — Polimento & UI Pixel Art:** Estilização completa dos menus/painéis com assets Pixel Art (molduras 9-slice, ícones das abas, botões), sons 8-bit/16-bit opcionais e geração de APK release.
+5. **Fase 5 — Polimento, Tela Inicial & Caminhada (Sidequests):**
+   - **Tela Inicial (Title Screen 16-bit):** Arte vertical em Pixel Art, botão Continuar / Novo Herói (e opção de sair/trocar de personagem na aba Herói), controle de **Som ON/OFF** e **Login Google**.
+   - **Personalização de Cores:** Tintura/paleta para customizar as cores da armadura/manto/roupa do herói (salva localmente).
+   - **Contador de Passos & Encontros Aleatórios (Sidequests):** Leitura do pedômetro nativo do Android (`ACTIVITY_RECOGNITION`) com notificações locais disparando encontros/sidequests rápidas a cada marco de passos (ex.: 1.000 passos), dando XP (VIG), Ouro e chance de Baú.
 6. **Fase 6 (Visão Futura) — Masmorra Procedural (Estilo *Pixel Dungeon*):**
    - **Roguelike por turnos em grid** com o seu próprio herói, andares e salas/corredores gerados proceduralmente, inimigos escalando por andar e chefes a cada 5 andares.
    - **Conexão direta com a vida real (anti-procrastinação):** concluir tarefas e Raids gera *Chaves/Energia de Expedição* para descer na masmorra (evitando jogar sem cumprir o dia), e seus **5 atributos reais** viram status reais de combate:

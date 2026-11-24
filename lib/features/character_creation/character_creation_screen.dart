@@ -19,6 +19,7 @@ class _CharacterCreationScreenState
     extends ConsumerState<CharacterCreationScreen> {
   final _nameController = TextEditingController();
   HeroClass _selectedClass = HeroClass.warrior;
+  ArmorTint _selectedTint = ArmorTint.original;
   bool _saving = false;
 
   @override
@@ -43,6 +44,7 @@ class _CharacterCreationScreenState
       await ref.read(heroRepositoryProvider).createHero(
             name: name,
             heroClass: _selectedClass,
+            armorTint: _selectedTint,
           );
     } finally {
       if (mounted) setState(() => _saving = false);
@@ -189,6 +191,7 @@ class _CharacterCreationScreenState
                           child: HeroSpriteWidget(
                             assetPath: _selectedClass.spriteAsset,
                             size: 72,
+                            armorTint: _selectedTint,
                           ),
                         ),
                         const SizedBox(width: 14),
@@ -260,13 +263,62 @@ class _CharacterCreationScreenState
                   ],
                 ),
               ),
-              const SizedBox(height: 12),
-              const Text(
-                'Você poderá trocar de classe depois na Loja usando Ouro, sem perder seu nível.',
-                style: TextStyle(
-                  fontSize: 12,
-                  color: LifeOsColors.textMuted,
+              const SizedBox(height: 16),
+
+              // 3. Cor da Armadura / Manto
+              Text(
+                '3. COR DA ARMADURA / MANTO',
+                style: LifeOsTheme.pixelTitle(
+                  size: 10,
+                  color: LifeOsColors.gold,
                 ),
+              ),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: ArmorTint.values.map((tint) {
+                  final selected = tint == _selectedTint;
+                  return GestureDetector(
+                    onTap: () => setState(() => _selectedTint = tint),
+                    child: Container(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 7,
+                      ),
+                      decoration: BoxDecoration(
+                        color: selected
+                            ? tint.swatch.withValues(alpha: 0.25)
+                            : LifeOsColors.surface,
+                        border: Border.all(
+                          color: selected ? LifeOsColors.gold : tint.swatch,
+                          width: selected ? 2.5 : 1.5,
+                        ),
+                      ),
+                      child: Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Container(
+                            width: 12,
+                            height: 12,
+                            color: tint.swatch,
+                          ),
+                          const SizedBox(width: 6),
+                          Text(
+                            tint.label,
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w800,
+                              color: selected
+                                  ? LifeOsColors.gold
+                                  : LifeOsColors.textPrimary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }).toList(),
               ),
               const SizedBox(height: 20),
 
