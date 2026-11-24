@@ -54,6 +54,9 @@ class GoogleSyncService {
   bool _initialized = false;
   GoogleSignInAccount? _currentAccount;
 
+  static const String _webClientId =
+      '517983012004-5t43sai4hq56kcklanlo87d5cbfv8mf2.apps.googleusercontent.com';
+
   static const List<String> _scopes = [
     gcal.CalendarApi.calendarReadonlyScope,
     gtasks.TasksApi.tasksScope,
@@ -64,7 +67,7 @@ class GoogleSyncService {
 
   Future<void> _ensureInitialized() async {
     if (_initialized) return;
-    await GoogleSignIn.instance.initialize();
+    await GoogleSignIn.instance.initialize(serverClientId: _webClientId);
     _initialized = true;
   }
 
