@@ -128,6 +128,14 @@ O Ouro ganho nas vitórias é gasto na loja interna (3 categorias):
 2. **Fase 2 — Loop Core TDAH:** Tarefas locais, **Sistema de Raids**, **Dopamina Variável** (Críticos, Baús, Missões Relâmpago) e **Modo Energia (1x/semana)**.
 3. **Fase 3 — Progressão & Casa Viva:** Loja interna, equipamentos/visuais do personagem e **Casa/Santuário em Pixel Art** com bônus passivos.
 4. **Fase 4 — Google Sync & Mapa do Dia:** Login Google OAuth no Android, sincronização com Google Agenda + Google Tasks e tela do **Mapa do Dia**.
-5. **Fase 5 — Polimento:** Assets Pixel Art completos (sprites *cozy* 16-bit com animação *idle* e suporte a sprite sheets), sons 8-bit/16-bit opcionais, exportação/importação de save local e widgets Android.
-6. **Visão Futura — Modo RPG por Turnos:** Expandir os atributos, equipamentos e classes do herói para batalhas táticas por turnos (usando o mesmo sistema de sprites animados *idle* / ataque / vitória).
+5. **Fase 5 — Polimento & UI Pixel Art:** Estilização completa dos menus/painéis com assets Pixel Art (molduras 9-slice, ícones das abas, botões), sons 8-bit/16-bit opcionais e geração de APK release.
+6. **Fase 6 (Visão Futura) — Masmorra Procedural (Estilo *Pixel Dungeon*):**
+   - **Roguelike por turnos em grid** com o seu próprio herói, andares e salas/corredores gerados proceduralmente, inimigos escalando por andar e chefes a cada 5 andares.
+   - **Conexão direta com a vida real (anti-procrastinação):** concluir tarefas e Raids gera *Chaves/Energia de Expedição* para descer na masmorra (evitando jogar sem cumprir o dia), e seus **5 atributos reais** viram status reais de combate:
+     - **VIG** → Vida máxima (HP) e defesa física
+     - **INT** → Mana e poder das habilidades mágicas/classe
+     - **DES** → Esquiva, precisão e chance de Acerto Crítico
+     - **SAB** → Detecção de armadilhas, eficácia de poções e visão no mapa
+     - **CAR** → Sorte de baús/itens raros e preços do Mercador da Masmorra
+   - **Recompensa de volta para o LifeOS:** projetos exclusivos de móveis e cosméticos raros para a **Casa Viva** e o personagem.
 

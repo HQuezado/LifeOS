@@ -33,11 +33,7 @@ class HeroSheetTab extends ConsumerWidget {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              const Icon(
-                Icons.inventory_2_rounded,
-                size: 46,
-                color: LifeOsColors.gold,
-              ),
+              const PixelIcon('assets/images/ui/icon_chest.png', size: 52),
               const SizedBox(height: 10),
               Text(
                 '${result.rarity.label.toUpperCase()} ABERTO!',
@@ -140,7 +136,10 @@ class HeroSheetTab extends ConsumerWidget {
                             ),
                             const SizedBox(width: 8),
                             _StatBadge(
-                              icon: Icons.monetization_on_rounded,
+                              leading: const PixelIcon(
+                                'assets/images/ui/icon_coin.png',
+                                size: 15,
+                              ),
                               label: '${hero.gold} Ouro',
                               color: LifeOsColors.gold,
                             ),
@@ -214,7 +213,10 @@ class HeroSheetTab extends ConsumerWidget {
                         padding: const EdgeInsets.only(bottom: 8),
                         child: Row(
                           children: [
-                            Icon(Icons.inventory_2_rounded, color: color),
+                            const PixelIcon(
+                              'assets/images/ui/icon_chest.png',
+                              size: 28,
+                            ),
                             const SizedBox(width: 10),
                             Expanded(
                               child: Column(
@@ -527,12 +529,14 @@ class HeroSheetTab extends ConsumerWidget {
 
 class _StatBadge extends StatelessWidget {
   const _StatBadge({
-    required this.icon,
+    this.icon,
+    this.leading,
     required this.label,
     required this.color,
   });
 
-  final IconData icon;
+  final IconData? icon;
+  final Widget? leading;
   final String label;
   final Color color;
 
@@ -547,7 +551,10 @@ class _StatBadge extends StatelessWidget {
       child: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          Icon(icon, size: 14, color: color),
+          if (leading != null)
+            leading!
+          else if (icon != null)
+            Icon(icon, size: 14, color: color),
           const SizedBox(width: 4),
           Text(
             label,
