@@ -79,24 +79,24 @@ class RaidRepository {
     });
   }
 
-  /// Cria uma nova Raid com vários inimigos (micro-passos).
+  /// Cria uma nova Raid onde cada inimigo/passo pode aprimorar um atributo próprio.
   Future<int> createRaid({
     required String title,
-    required RpgAttribute attribute,
-    required List<String> stepTitles,
+    required List<({String title, RpgAttribute attribute})> steps,
   }) async {
     return _db.transaction(() async {
+      final cleanSteps = steps
+          .where((s) => s.title.trim().isNotEmpty)
+          .toList();
+      final primaryAttr =
+          cleanSteps.isNotEmpty ? cleanSteps.first.attribute : RpgAttribute.intellect;
+
       final raidId = await _db.into(_db.raids).insert(
             RaidsCompanion.insert(
               title: title.trim(),
-              attributeKey: attribute.key,
+              attributeKey: primaryAttr.key,
             ),
           );
-
-      final cleanSteps = stepTitles
-          .map((s) => s.trim())
-          .where((s) => s.isNotEmpty)
-          .toList();
 
       for (var i = 0; i < cleanSteps.length; i++) {
         final isLast = i == cleanSteps.length - 1;
@@ -105,7 +105,8 @@ class RaidRepository {
         await _db.into(_db.raidEnemies).insert(
               RaidEnemiesCompanion.insert(
                 raidId: raidId,
-                title: cleanSteps[i],
+                title: cleanSteps[i].title.trim(),
+                attributeKey: Value(cleanSteps[i].attribute.key),
                 enemyType: Value(enemyType),
                 sortOrder: Value(i),
               ),
@@ -163,7 +164,7 @@ class RaidRepository {
 
     final heroClass = HeroClass.fromKey(hero.heroClass);
     final attrLevels = await _heroRepository.getAttributeLevelsMap();
-    final attribute = RpgAttribute.fromKey(raid.attributeKey);
+    final attribute = RpgAttribute.fromKey(enemy.attributeKey);
     final focusPotionActive = ShopRepository.isFocusPotionActive(hero);
     final furnitureIds = await _shopRepository.getOwnedFurnitureIds();
 

@@ -22,7 +22,11 @@ class RaidsTab extends ConsumerWidget {
       TextEditingController(),
       TextEditingController(),
     ];
-    var selectedAttr = RpgAttribute.intellect;
+    final stepAttrs = [
+      RpgAttribute.intellect,
+      RpgAttribute.dexterity,
+      RpgAttribute.vigor,
+    ];
 
     showModalBottomSheet<void>(
       context: context,
@@ -51,40 +55,17 @@ class RaidsTab extends ConsumerWidget {
                         color: LifeOsColors.gold,
                       ),
                     ),
-                    const SizedBox(height: 6),
-                    const Text(
-                      'Divida uma tarefa maior em micro-passos de 2 a 15 min — cada passo vira um inimigo!',
-                      style: TextStyle(
-                        fontSize: 12.5,
-                        color: LifeOsColors.textSecondary,
-                      ),
-                    ),
                     const SizedBox(height: 12),
                     TextField(
                       controller: titleCtrl,
                       textCapitalization: TextCapitalization.sentences,
                       decoration: const InputDecoration(
-                        hintText: 'Nome da Raid (ex.: Organizar escritório)',
+                        hintText: 'Nome da Raid',
                       ),
-                    ),
-                    const SizedBox(height: 12),
-                    Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: RpgAttribute.values.map((attr) {
-                        final active = attr == selectedAttr;
-                        return ChoiceChip(
-                          label: Text(attr.shortName),
-                          selected: active,
-                          selectedColor: attr.color.withValues(alpha: 0.3),
-                          onSelected: (_) =>
-                              setSheetState(() => selectedAttr = attr),
-                        );
-                      }).toList(),
                     ),
                     const SizedBox(height: 14),
                     const Text(
-                      'Inimigos / Micro-passos:',
+                      'Inimigos e atributos:',
                       style: TextStyle(
                         fontSize: 13,
                         fontWeight: FontWeight.w800,
@@ -93,26 +74,68 @@ class RaidsTab extends ConsumerWidget {
                     ),
                     const SizedBox(height: 8),
                     ...List.generate(stepCtrls.length, (i) {
+                      final attr = stepAttrs[i];
                       return Padding(
                         padding: const EdgeInsets.only(bottom: 8),
-                        child: TextField(
-                          controller: stepCtrls[i],
-                          textCapitalization: TextCapitalization.sentences,
-                          decoration: InputDecoration(
-                            hintText: 'Inimigo ${i + 1} (ex.: Passo rápido)',
-                          ),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: TextField(
+                                controller: stepCtrls[i],
+                                textCapitalization:
+                                    TextCapitalization.sentences,
+                                decoration: InputDecoration(
+                                  hintText: 'Inimigo ${i + 1}',
+                                ),
+                              ),
+                            ),
+                            const SizedBox(width: 8),
+                            GestureDetector(
+                              onTap: () {
+                                final nextIdx =
+                                    (RpgAttribute.values.indexOf(attr) + 1) %
+                                        RpgAttribute.values.length;
+                                setSheetState(
+                                  () => stepAttrs[i] =
+                                      RpgAttribute.values[nextIdx],
+                                );
+                              },
+                              child: Container(
+                                padding: const EdgeInsets.symmetric(
+                                  horizontal: 10,
+                                  vertical: 13,
+                                ),
+                                decoration: BoxDecoration(
+                                  color: attr.color.withValues(alpha: 0.2),
+                                  border: Border.all(
+                                    color: attr.color,
+                                    width: 2,
+                                  ),
+                                ),
+                                child: Text(
+                                  attr.shortName,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    fontWeight: FontWeight.w900,
+                                    color: attr.color,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ],
                         ),
                       );
                     }),
                     TextButton.icon(
                       onPressed: () {
-                        setSheetState(
-                          () => stepCtrls.add(TextEditingController()),
-                        );
+                        setSheetState(() {
+                          stepCtrls.add(TextEditingController());
+                          stepAttrs.add(RpgAttribute.intellect);
+                        });
                       },
                       icon: const Icon(Icons.add_rounded, color: LifeOsColors.xpBar),
                       label: const Text(
-                        'Adicionar mais um inimigo',
+                        '+ Inimigo',
                         style: TextStyle(color: LifeOsColors.xpBar),
                       ),
                     ),
@@ -121,17 +144,20 @@ class RaidsTab extends ConsumerWidget {
                       label: 'CRIAR RAID',
                       onPressed: () async {
                         final title = titleCtrl.text.trim();
-                        final steps = stepCtrls
-                            .map((c) => c.text.trim())
-                            .where((s) => s.isNotEmpty)
-                            .toList();
+                        final steps = <({String title, RpgAttribute attribute})>[
+                          for (var i = 0; i < stepCtrls.length; i++)
+                            if (stepCtrls[i].text.trim().isNotEmpty)
+                              (
+                                title: stepCtrls[i].text.trim(),
+                                attribute: stepAttrs[i],
+                              ),
+                        ];
                         if (title.isEmpty || steps.isEmpty) return;
 
                         final raidId =
                             await ref.read(raidRepositoryProvider).createRaid(
                                   title: title,
-                                  attribute: selectedAttr,
-                                  stepTitles: steps,
+                                  steps: steps,
                                 );
                         if (ctx.mounted) {
                           Navigator.of(ctx).pop();
@@ -203,19 +229,19 @@ class RaidsTab extends ConsumerWidget {
                           ),
                         ],
                       ),
-                      const SizedBox(height: 12),
+                      const SizedBox(height: 10),
                       const Text(
-                        'Transforme tarefas maiores em uma masmorra com vários inimigos (micro-passos de 2 a 15 min).',
+                        'Quebre tarefas maiores em inimigos — cada um pode evoluir um atributo diferente.',
                         style: TextStyle(
-                          fontSize: 14,
+                          fontSize: 13.5,
                           color: LifeOsColors.textSecondary,
-                          height: 1.45,
+                          height: 1.4,
                         ),
                       ),
-                      const Divider(height: 22, color: LifeOsColors.border),
+                      const Divider(height: 20, color: LifeOsColors.border),
                       const Text(
-                        '▸ Cada inimigo derrotado dá +25 XP e +18 Ouro na hora\n▸ Limpar toda a Raid concede +80 XP, +60 Ouro e 1 Baú de Raid',
-                        style: TextStyle(fontSize: 13.5, height: 1.5),
+                        '▸ Inimigo: +25 XP e +18 Ouro\n▸ Vitória da Raid: +80 XP, +60 Ouro + Baú',
+                        style: TextStyle(fontSize: 13, height: 1.5),
                       ),
                     ],
                   ),
@@ -392,8 +418,10 @@ class RaidBattleScreen extends ConsumerWidget {
             return const Center(child: CircularProgressIndicator());
           }
 
-          final attr = RpgAttribute.fromKey(data.raid.attributeKey);
           final current = data.currentEnemy;
+          final currentAttr = current != null
+              ? RpgAttribute.fromKey(current.attributeKey)
+              : RpgAttribute.fromKey(data.raid.attributeKey);
 
           return ListView(
             padding: const EdgeInsets.all(16),
@@ -413,7 +441,7 @@ class RaidBattleScreen extends ConsumerWidget {
               ),
               const SizedBox(height: 6),
               Text(
-                'Ondas derrotadas: ${data.defeatedCount} / ${data.totalCount}  •  Atributo: ${attr.name}',
+                'Ondas: ${data.defeatedCount}/${data.totalCount}',
                 style: const TextStyle(
                   fontSize: 12.5,
                   color: LifeOsColors.textSecondary,
@@ -504,9 +532,25 @@ class RaidBattleScreen extends ConsumerWidget {
                               fontWeight: FontWeight.w800,
                             ),
                           ),
+                          const SizedBox(height: 6),
+                          Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 3,
+                            ),
+                            color: currentAttr.color.withValues(alpha: 0.2),
+                            child: Text(
+                              'Atributo: ${currentAttr.name} (${currentAttr.shortName})',
+                              style: TextStyle(
+                                fontSize: 12,
+                                fontWeight: FontWeight.w800,
+                                color: currentAttr.color,
+                              ),
+                            ),
+                          ),
                           const SizedBox(height: 16),
                           PixelButton(
-                            label: 'DERROTAR INIMIGO (+25 XP / +18g)',
+                            label: 'DERROTAR (+25 XP / +18g)',
                             backgroundColor: LifeOsColors.success,
                             textColor: LifeOsColors.bgDark,
                             onPressed: () async {
@@ -517,7 +561,7 @@ class RaidBattleScreen extends ConsumerWidget {
                                 showRewardFeedback(
                                   context,
                                   outcome: result.outcome,
-                                  attribute: attr,
+                                  attribute: currentAttr,
                                   isRaidVictory: result.raidCompleted,
                                 );
                               }
@@ -564,8 +608,9 @@ class RaidBattleScreen extends ConsumerWidget {
                 style: LifeOsTheme.pixelTitle(size: 10, color: LifeOsColors.gold),
               ),
               const SizedBox(height: 8),
-              ...data.enemies.map(
-                (e) => Padding(
+              ...data.enemies.map((e) {
+                final enemyAttr = RpgAttribute.fromKey(e.attributeKey);
+                return Padding(
                   padding: const EdgeInsets.only(bottom: 8),
                   child: PixelPanel(
                     padding: const EdgeInsets.symmetric(
@@ -603,11 +648,19 @@ class RaidBattleScreen extends ConsumerWidget {
                             ),
                           ),
                         ),
+                        Text(
+                          enemyAttr.shortName,
+                          style: TextStyle(
+                            fontSize: 11.5,
+                            fontWeight: FontWeight.w900,
+                            color: enemyAttr.color,
+                          ),
+                        ),
                       ],
                     ),
                   ),
-                ),
-              ),
+                );
+              }),
             ],
           );
         },

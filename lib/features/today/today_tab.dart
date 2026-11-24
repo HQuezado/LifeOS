@@ -286,10 +286,10 @@ class _TodayTabState extends ConsumerState<TodayTab> {
                       const SizedBox(height: 4),
                       Text(
                         energyActive
-                            ? 'Dia sem culpa: micro-vitórias dão Ouro 2x!'
+                            ? 'Ouro 2x em micro-vitórias hoje'
                             : cooldownDays == 0
-                                ? 'Dia difícil? Ative para dobrar o Ouro de micro-vitórias.'
-                                : 'Em recarga: disponível novamente em $cooldownDays dia(s).',
+                                ? 'Ouro 2x em micro-vitórias'
+                                : 'Recarga: $cooldownDays dia(s)',
                         style: const TextStyle(
                           fontSize: 12.5,
                           color: LifeOsColors.textSecondary,
@@ -349,8 +349,8 @@ class _TodayTabState extends ConsumerState<TodayTab> {
                       const SizedBox(height: 4),
                       Text(
                         _isFlashActive
-                            ? 'Conclua qualquer tarefa antes do tempo acabar para +35 Ouro e sorte extra de Baú!'
-                            : 'Desafio de 15 min: conclua 1 tarefa rápida por Ouro bônus.',
+                            ? '+35 Ouro ao concluir 1 tarefa antes de zerar'
+                            : '1 tarefa em 15 min = +35 Ouro',
                         style: const TextStyle(
                           fontSize: 12.5,
                           color: LifeOsColors.textSecondary,
@@ -432,15 +432,15 @@ class _TodayTabState extends ConsumerState<TodayTab> {
                       ),
                       const SizedBox(height: 10),
                       const Text(
-                        'Nenhuma atividade cadastrada ainda.',
+                        'Sem atividades ainda',
                         style: TextStyle(
                           fontWeight: FontWeight.w800,
                           fontSize: 15,
                         ),
                       ),
-                      const SizedBox(height: 6),
+                      const SizedBox(height: 4),
                       const Text(
-                        'Toque em "+ ATIVIDADE" para cadastrar hábitos ou tarefas que evoluem seus 5 atributos!',
+                        'Toque em "+ ATIVIDADE" para começar.',
                         textAlign: TextAlign.center,
                         style: TextStyle(
                           color: LifeOsColors.textSecondary,

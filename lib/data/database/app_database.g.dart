@@ -1940,6 +1940,18 @@ class $RaidEnemiesTable extends RaidEnemies
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _attributeKeyMeta = const VerificationMeta(
+    'attributeKey',
+  );
+  @override
+  late final GeneratedColumn<String> attributeKey = GeneratedColumn<String>(
+    'attribute_key',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('INT'),
+  );
   static const VerificationMeta _enemyTypeMeta = const VerificationMeta(
     'enemyType',
   );
@@ -1995,6 +2007,7 @@ class $RaidEnemiesTable extends RaidEnemies
     id,
     raidId,
     title,
+    attributeKey,
     enemyType,
     sortOrder,
     isDefeated,
@@ -2030,6 +2043,15 @@ class $RaidEnemiesTable extends RaidEnemies
       );
     } else if (isInserting) {
       context.missing(_titleMeta);
+    }
+    if (data.containsKey('attribute_key')) {
+      context.handle(
+        _attributeKeyMeta,
+        attributeKey.isAcceptableOrUnknown(
+          data['attribute_key']!,
+          _attributeKeyMeta,
+        ),
+      );
     }
     if (data.containsKey('enemy_type')) {
       context.handle(
@@ -2076,6 +2098,10 @@ class $RaidEnemiesTable extends RaidEnemies
         DriftSqlType.string,
         data['${effectivePrefix}title'],
       )!,
+      attributeKey: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}attribute_key'],
+      )!,
       enemyType: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}enemy_type'],
@@ -2105,6 +2131,7 @@ class RaidEnemy extends DataClass implements Insertable<RaidEnemy> {
   final int id;
   final int raidId;
   final String title;
+  final String attributeKey;
   final String enemyType;
   final int sortOrder;
   final bool isDefeated;
@@ -2113,6 +2140,7 @@ class RaidEnemy extends DataClass implements Insertable<RaidEnemy> {
     required this.id,
     required this.raidId,
     required this.title,
+    required this.attributeKey,
     required this.enemyType,
     required this.sortOrder,
     required this.isDefeated,
@@ -2124,6 +2152,7 @@ class RaidEnemy extends DataClass implements Insertable<RaidEnemy> {
     map['id'] = Variable<int>(id);
     map['raid_id'] = Variable<int>(raidId);
     map['title'] = Variable<String>(title);
+    map['attribute_key'] = Variable<String>(attributeKey);
     map['enemy_type'] = Variable<String>(enemyType);
     map['sort_order'] = Variable<int>(sortOrder);
     map['is_defeated'] = Variable<bool>(isDefeated);
@@ -2138,6 +2167,7 @@ class RaidEnemy extends DataClass implements Insertable<RaidEnemy> {
       id: Value(id),
       raidId: Value(raidId),
       title: Value(title),
+      attributeKey: Value(attributeKey),
       enemyType: Value(enemyType),
       sortOrder: Value(sortOrder),
       isDefeated: Value(isDefeated),
@@ -2156,6 +2186,7 @@ class RaidEnemy extends DataClass implements Insertable<RaidEnemy> {
       id: serializer.fromJson<int>(json['id']),
       raidId: serializer.fromJson<int>(json['raidId']),
       title: serializer.fromJson<String>(json['title']),
+      attributeKey: serializer.fromJson<String>(json['attributeKey']),
       enemyType: serializer.fromJson<String>(json['enemyType']),
       sortOrder: serializer.fromJson<int>(json['sortOrder']),
       isDefeated: serializer.fromJson<bool>(json['isDefeated']),
@@ -2169,6 +2200,7 @@ class RaidEnemy extends DataClass implements Insertable<RaidEnemy> {
       'id': serializer.toJson<int>(id),
       'raidId': serializer.toJson<int>(raidId),
       'title': serializer.toJson<String>(title),
+      'attributeKey': serializer.toJson<String>(attributeKey),
       'enemyType': serializer.toJson<String>(enemyType),
       'sortOrder': serializer.toJson<int>(sortOrder),
       'isDefeated': serializer.toJson<bool>(isDefeated),
@@ -2180,6 +2212,7 @@ class RaidEnemy extends DataClass implements Insertable<RaidEnemy> {
     int? id,
     int? raidId,
     String? title,
+    String? attributeKey,
     String? enemyType,
     int? sortOrder,
     bool? isDefeated,
@@ -2188,6 +2221,7 @@ class RaidEnemy extends DataClass implements Insertable<RaidEnemy> {
     id: id ?? this.id,
     raidId: raidId ?? this.raidId,
     title: title ?? this.title,
+    attributeKey: attributeKey ?? this.attributeKey,
     enemyType: enemyType ?? this.enemyType,
     sortOrder: sortOrder ?? this.sortOrder,
     isDefeated: isDefeated ?? this.isDefeated,
@@ -2198,6 +2232,9 @@ class RaidEnemy extends DataClass implements Insertable<RaidEnemy> {
       id: data.id.present ? data.id.value : this.id,
       raidId: data.raidId.present ? data.raidId.value : this.raidId,
       title: data.title.present ? data.title.value : this.title,
+      attributeKey: data.attributeKey.present
+          ? data.attributeKey.value
+          : this.attributeKey,
       enemyType: data.enemyType.present ? data.enemyType.value : this.enemyType,
       sortOrder: data.sortOrder.present ? data.sortOrder.value : this.sortOrder,
       isDefeated: data.isDefeated.present
@@ -2215,6 +2252,7 @@ class RaidEnemy extends DataClass implements Insertable<RaidEnemy> {
           ..write('id: $id, ')
           ..write('raidId: $raidId, ')
           ..write('title: $title, ')
+          ..write('attributeKey: $attributeKey, ')
           ..write('enemyType: $enemyType, ')
           ..write('sortOrder: $sortOrder, ')
           ..write('isDefeated: $isDefeated, ')
@@ -2228,6 +2266,7 @@ class RaidEnemy extends DataClass implements Insertable<RaidEnemy> {
     id,
     raidId,
     title,
+    attributeKey,
     enemyType,
     sortOrder,
     isDefeated,
@@ -2240,6 +2279,7 @@ class RaidEnemy extends DataClass implements Insertable<RaidEnemy> {
           other.id == this.id &&
           other.raidId == this.raidId &&
           other.title == this.title &&
+          other.attributeKey == this.attributeKey &&
           other.enemyType == this.enemyType &&
           other.sortOrder == this.sortOrder &&
           other.isDefeated == this.isDefeated &&
@@ -2250,6 +2290,7 @@ class RaidEnemiesCompanion extends UpdateCompanion<RaidEnemy> {
   final Value<int> id;
   final Value<int> raidId;
   final Value<String> title;
+  final Value<String> attributeKey;
   final Value<String> enemyType;
   final Value<int> sortOrder;
   final Value<bool> isDefeated;
@@ -2258,6 +2299,7 @@ class RaidEnemiesCompanion extends UpdateCompanion<RaidEnemy> {
     this.id = const Value.absent(),
     this.raidId = const Value.absent(),
     this.title = const Value.absent(),
+    this.attributeKey = const Value.absent(),
     this.enemyType = const Value.absent(),
     this.sortOrder = const Value.absent(),
     this.isDefeated = const Value.absent(),
@@ -2267,6 +2309,7 @@ class RaidEnemiesCompanion extends UpdateCompanion<RaidEnemy> {
     this.id = const Value.absent(),
     required int raidId,
     required String title,
+    this.attributeKey = const Value.absent(),
     this.enemyType = const Value.absent(),
     this.sortOrder = const Value.absent(),
     this.isDefeated = const Value.absent(),
@@ -2277,6 +2320,7 @@ class RaidEnemiesCompanion extends UpdateCompanion<RaidEnemy> {
     Expression<int>? id,
     Expression<int>? raidId,
     Expression<String>? title,
+    Expression<String>? attributeKey,
     Expression<String>? enemyType,
     Expression<int>? sortOrder,
     Expression<bool>? isDefeated,
@@ -2286,6 +2330,7 @@ class RaidEnemiesCompanion extends UpdateCompanion<RaidEnemy> {
       if (id != null) 'id': id,
       if (raidId != null) 'raid_id': raidId,
       if (title != null) 'title': title,
+      if (attributeKey != null) 'attribute_key': attributeKey,
       if (enemyType != null) 'enemy_type': enemyType,
       if (sortOrder != null) 'sort_order': sortOrder,
       if (isDefeated != null) 'is_defeated': isDefeated,
@@ -2297,6 +2342,7 @@ class RaidEnemiesCompanion extends UpdateCompanion<RaidEnemy> {
     Value<int>? id,
     Value<int>? raidId,
     Value<String>? title,
+    Value<String>? attributeKey,
     Value<String>? enemyType,
     Value<int>? sortOrder,
     Value<bool>? isDefeated,
@@ -2306,6 +2352,7 @@ class RaidEnemiesCompanion extends UpdateCompanion<RaidEnemy> {
       id: id ?? this.id,
       raidId: raidId ?? this.raidId,
       title: title ?? this.title,
+      attributeKey: attributeKey ?? this.attributeKey,
       enemyType: enemyType ?? this.enemyType,
       sortOrder: sortOrder ?? this.sortOrder,
       isDefeated: isDefeated ?? this.isDefeated,
@@ -2324,6 +2371,9 @@ class RaidEnemiesCompanion extends UpdateCompanion<RaidEnemy> {
     }
     if (title.present) {
       map['title'] = Variable<String>(title.value);
+    }
+    if (attributeKey.present) {
+      map['attribute_key'] = Variable<String>(attributeKey.value);
     }
     if (enemyType.present) {
       map['enemy_type'] = Variable<String>(enemyType.value);
@@ -2346,6 +2396,7 @@ class RaidEnemiesCompanion extends UpdateCompanion<RaidEnemy> {
           ..write('id: $id, ')
           ..write('raidId: $raidId, ')
           ..write('title: $title, ')
+          ..write('attributeKey: $attributeKey, ')
           ..write('enemyType: $enemyType, ')
           ..write('sortOrder: $sortOrder, ')
           ..write('isDefeated: $isDefeated, ')
@@ -4711,6 +4762,7 @@ typedef $$RaidEnemiesTableCreateCompanionBuilder =
       Value<int> id,
       required int raidId,
       required String title,
+      Value<String> attributeKey,
       Value<String> enemyType,
       Value<int> sortOrder,
       Value<bool> isDefeated,
@@ -4721,6 +4773,7 @@ typedef $$RaidEnemiesTableUpdateCompanionBuilder =
       Value<int> id,
       Value<int> raidId,
       Value<String> title,
+      Value<String> attributeKey,
       Value<String> enemyType,
       Value<int> sortOrder,
       Value<bool> isDefeated,
@@ -4765,6 +4818,11 @@ class $$RaidEnemiesTableFilterComposer
 
   ColumnFilters<String> get title => $composableBuilder(
     column: $table.title,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get attributeKey => $composableBuilder(
+    column: $table.attributeKey,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -4831,6 +4889,11 @@ class $$RaidEnemiesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get attributeKey => $composableBuilder(
+    column: $table.attributeKey,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<String> get enemyType => $composableBuilder(
     column: $table.enemyType,
     builder: (column) => ColumnOrderings(column),
@@ -4889,6 +4952,11 @@ class $$RaidEnemiesTableAnnotationComposer
 
   GeneratedColumn<String> get title =>
       $composableBuilder(column: $table.title, builder: (column) => column);
+
+  GeneratedColumn<String> get attributeKey => $composableBuilder(
+    column: $table.attributeKey,
+    builder: (column) => column,
+  );
 
   GeneratedColumn<String> get enemyType =>
       $composableBuilder(column: $table.enemyType, builder: (column) => column);
@@ -4961,6 +5029,7 @@ class $$RaidEnemiesTableTableManager
                 Value<int> id = const Value.absent(),
                 Value<int> raidId = const Value.absent(),
                 Value<String> title = const Value.absent(),
+                Value<String> attributeKey = const Value.absent(),
                 Value<String> enemyType = const Value.absent(),
                 Value<int> sortOrder = const Value.absent(),
                 Value<bool> isDefeated = const Value.absent(),
@@ -4969,6 +5038,7 @@ class $$RaidEnemiesTableTableManager
                 id: id,
                 raidId: raidId,
                 title: title,
+                attributeKey: attributeKey,
                 enemyType: enemyType,
                 sortOrder: sortOrder,
                 isDefeated: isDefeated,
@@ -4979,6 +5049,7 @@ class $$RaidEnemiesTableTableManager
                 Value<int> id = const Value.absent(),
                 required int raidId,
                 required String title,
+                Value<String> attributeKey = const Value.absent(),
                 Value<String> enemyType = const Value.absent(),
                 Value<int> sortOrder = const Value.absent(),
                 Value<bool> isDefeated = const Value.absent(),
@@ -4987,6 +5058,7 @@ class $$RaidEnemiesTableTableManager
                 id: id,
                 raidId: raidId,
                 title: title,
+                attributeKey: attributeKey,
                 enemyType: enemyType,
                 sortOrder: sortOrder,
                 isDefeated: isDefeated,

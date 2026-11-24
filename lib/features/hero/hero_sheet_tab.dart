@@ -403,13 +403,12 @@ class HeroSheetTab extends ConsumerWidget {
                   color: LifeOsColors.xpBar,
                 ),
               ),
-              const SizedBox(height: 10),
+              const SizedBox(height: 8),
               const Text(
-                'Todo o seu progresso fica salvo 100% no aparelho. Use o Google apenas para puxar sua Agenda e Tasks, ou exporte um backup em JSON quando quiser.',
+                'Save 100% local. Sincronize Agenda/Tasks ou faça backup em JSON.',
                 style: TextStyle(
                   fontSize: 12.5,
                   color: LifeOsColors.textSecondary,
-                  height: 1.35,
                 ),
               ),
               const SizedBox(height: 12),

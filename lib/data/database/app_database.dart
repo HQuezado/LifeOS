@@ -51,12 +51,13 @@ class Raids extends Table {
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 }
 
-/// Inimigos (micro-passos de 2 a 15 min) dentro de uma Raid.
+/// Inimigos (micro-passos de 2 a 15 min) dentro de uma Raid — cada um com seu próprio atributo.
 class RaidEnemies extends Table {
   IntColumn get id => integer().autoIncrement()();
   IntColumn get raidId =>
       integer().references(Raids, #id, onDelete: KeyAction.cascade)();
   TextColumn get title => text().withLength(min: 1, max: 140)();
+  TextColumn get attributeKey => text().withDefault(const Constant('INT'))();
   TextColumn get enemyType => text().withDefault(const Constant('slime'))();
   IntColumn get sortOrder => integer().withDefault(const Constant(0))();
   BoolColumn get isDefeated => boolean().withDefault(const Constant(false))();
@@ -113,7 +114,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -134,6 +135,9 @@ class AppDatabase extends _$AppDatabase {
           }
           if (from < 4) {
             await m.createTable(calendarEvents);
+          }
+          if (from < 5) {
+            await m.addColumn(raidEnemies, raidEnemies.attributeKey);
           }
         },
       );

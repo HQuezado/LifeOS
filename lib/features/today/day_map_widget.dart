@@ -209,11 +209,10 @@ class _DayMapWidgetState extends ConsumerState<DayMapWidget> {
                 return const Padding(
                   padding: EdgeInsets.only(top: 4),
                   child: Text(
-                    'Sem compromissos marcados hoje — dia aberto para exploração! Toque em 🔄 para sincronizar o Google Agenda ou ⏰ para adicionar um marco.',
+                    'Sem compromissos hoje.',
                     style: TextStyle(
                       fontSize: 12.5,
                       color: LifeOsColors.textSecondary,
-                      height: 1.35,
                     ),
                   ),
                 );

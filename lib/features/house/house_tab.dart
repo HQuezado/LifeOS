@@ -312,11 +312,10 @@ class HouseTab extends ConsumerWidget {
               const SizedBox(height: 10),
               if (ownedFurniture.isEmpty)
                 const Text(
-                  'Você ainda não comprou móveis. Visite a aba Loja para adicionar Horta, Escrivaninha Arcana, Lareira e desbloquear bônus passivos reais!',
+                  'Nenhum móvel comprado ainda.',
                   style: TextStyle(
-                    fontSize: 13.5,
+                    fontSize: 13,
                     color: LifeOsColors.textSecondary,
-                    height: 1.4,
                   ),
                 )
               else
