@@ -321,7 +321,7 @@ class HeroSheetTab extends ConsumerWidget {
               return Padding(
                 padding: const EdgeInsets.only(bottom: 10),
                 child: PixelPanel(
-                  padding: const EdgeInsets.all(12),
+                  padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
                   borderColor:
                       isPrimary ? meta.color : LifeOsColors.border,
                   child: Column(

@@ -30,10 +30,13 @@ class LifeOsTheme {
     double size = 14,
     Color color = LifeOsColors.textPrimary,
   }) {
-    return GoogleFonts.pressStart2p(
-      fontSize: size,
+    // Silkscreen: fonte pixel RPG com suporte completo a acentos em português (Á, É, Í, Ó, Ú, Ã, Ç).
+    return GoogleFonts.silkscreen(
+      fontSize: size * 1.28,
+      fontWeight: FontWeight.w700,
       color: color,
-      height: 1.4,
+      height: 1.25,
+      letterSpacing: 0.4,
     );
   }
 

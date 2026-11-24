@@ -257,7 +257,7 @@ class _TodayTabState extends ConsumerState<TodayTab> {
                 : cooldownDays == 0
                     ? LifeOsColors.xpBar
                     : LifeOsColors.border,
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
             child: Row(
               children: [
                 Icon(
@@ -324,7 +324,7 @@ class _TodayTabState extends ConsumerState<TodayTab> {
           PixelPanel(
             borderColor:
                 _isFlashActive ? LifeOsColors.gold : LifeOsColors.border,
-            padding: const EdgeInsets.all(12),
+            padding: const EdgeInsets.symmetric(horizontal: 18, vertical: 16),
             child: Row(
               children: [
                 const Icon(

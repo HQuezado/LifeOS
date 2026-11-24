@@ -144,8 +144,11 @@ class PixelProgressBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final ratio = max <= 0 ? 0.0 : (current / max).clamp(0.0, 1.0);
+    // Garante altura mínima >= 20px para que a moldura 9-slice (28px) nunca colapse.
+    final effectiveHeight = height < 20 ? 20.0 : height;
     return SizedBox(
-      height: height,
+      height: effectiveHeight,
+      width: double.infinity,
       child: Stack(
         fit: StackFit.expand,
         children: [

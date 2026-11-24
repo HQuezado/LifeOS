@@ -28,7 +28,7 @@ class _MainShellState extends ConsumerState<MainShell> {
   static const _titles = [
     'HOJE',
     'RAIDS',
-    'CASA VIVA',
+    'CASA',
     'LOJA',
     'HERÓI',
   ];

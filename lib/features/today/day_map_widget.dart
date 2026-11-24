@@ -157,7 +157,7 @@ class _DayMapWidgetState extends ConsumerState<DayMapWidget> {
 
     return PixelPanel(
       borderColor: LifeOsColors.xpBar,
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.fromLTRB(18, 14, 14, 16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
