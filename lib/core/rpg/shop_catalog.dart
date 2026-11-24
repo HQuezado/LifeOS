@@ -16,7 +16,8 @@ enum ShopCategory {
 enum EquipmentSlot {
   weapon('Arma'),
   outfit('Visual'),
-  pet('Pet');
+  pet('Pet'),
+  scene('Cenário');
 
   const EquipmentSlot(this.label);
   final String label;
@@ -184,6 +185,53 @@ class ShopCatalog {
       effectBadge: 'Pet lendário na Casa',
       icon: Icons.local_fire_department_rounded,
       color: Color(0xFFE43B44),
+    ),
+
+    // ==================== CENÁRIOS DA CASA VIVA ====================
+    ShopItem(
+      id: 'scene_tavern',
+      name: 'Cenário: Taverna Aconchegante',
+      category: ShopCategory.equipment,
+      slot: EquipmentSlot.scene,
+      price: 300,
+      description: 'Madeira quente, lareira acesa e clima de descanso após as missões.',
+      effectBadge: 'Cenário equipado na Casa',
+      icon: Icons.cottage_rounded,
+      color: Color(0xFFE8A849),
+    ),
+    ShopItem(
+      id: 'scene_tower',
+      name: 'Cenário: Torre Arcana',
+      category: ShopCategory.equipment,
+      slot: EquipmentSlot.scene,
+      price: 450,
+      description: 'Estantes de grimórios, janela noturna estrelada e velas flutuantes.',
+      effectBadge: 'Cenário equipado na Casa',
+      icon: Icons.castle_rounded,
+      color: Color(0xFF5B6EE1),
+    ),
+    ShopItem(
+      id: 'scene_greenhouse',
+      name: 'Cenário: Estufa Encantada',
+      category: ShopCategory.equipment,
+      slot: EquipmentSlot.scene,
+      price: 550,
+      description: 'Plantas luminosas, vasos de ervas e luz suave atravessando o vidro.',
+      effectBadge: 'Cenário equipado na Casa',
+      icon: Icons.park_rounded,
+      color: Color(0xFF56C271),
+    ),
+    ShopItem(
+      id: 'scene_sanctuary',
+      name: 'Cenário: Santuário Estelar',
+      category: ShopCategory.equipment,
+      slot: EquipmentSlot.scene,
+      price: 900,
+      minHeroLevel: 5,
+      description: 'Salão lendário com vitrais dourados e céu cósmico ao fundo.',
+      effectBadge: 'Cenário lendário na Casa',
+      icon: Icons.auto_awesome_rounded,
+      color: Color(0xFFD97BFF),
     ),
 
     // ==================== CONSUMÍVEIS & UTILIDADES ====================
