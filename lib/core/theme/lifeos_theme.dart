@@ -1,25 +1,26 @@
-import 'package:material_ui/material_ui.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:material_ui/material_ui.dart';
 
-/// Paleta RPG 16-bit aconchegante (Stardew Valley / Chrono Trigger em modo escuro).
+/// Paleta RPG 16-bit aconchegante em tons de madeira escura e pergaminho
+/// (harmonizada com as molduras de madeira/ouro e os cenários da Casa Viva).
 class LifeOsColors {
   const LifeOsColors._();
 
-  static const Color bgDark = Color(0xFF1A1C2C);
-  static const Color surface = Color(0xFF262B44);
-  static const Color surfaceHighlight = Color(0xFF333C57);
-  static const Color border = Color(0xFF566C86);
-  static const Color borderLight = Color(0xFF94B0C2);
+  static const Color bgDark = Color(0xFF1B1412);
+  static const Color surface = Color(0xFF2A1F1B);
+  static const Color surfaceHighlight = Color(0xFF3A2B24);
+  static const Color border = Color(0xFF6E4E3A);
+  static const Color borderLight = Color(0xFFA87F5C);
 
   static const Color gold = Color(0xFFFFCD75);
   static const Color goldDark = Color(0xFFD68C45);
   static const Color xpBar = Color(0xFF73EFF7);
-  static const Color success = Color(0xFF38B764);
-  static const Color danger = Color(0xFFE43B44);
+  static const Color success = Color(0xFF56C271);
+  static const Color danger = Color(0xFFE4525A);
 
-  static const Color textPrimary = Color(0xFFF4F4F4);
-  static const Color textSecondary = Color(0xFFB8C4D4);
-  static const Color textMuted = Color(0xFF7F90A6);
+  static const Color textPrimary = Color(0xFFF7EFE6);
+  static const Color textSecondary = Color(0xFFCDBAA8);
+  static const Color textMuted = Color(0xFF947E6B);
 }
 
 class LifeOsTheme {
@@ -76,6 +77,15 @@ class LifeOsTheme {
           borderSide: BorderSide(color: LifeOsColors.gold, width: 2),
         ),
       ),
+      chipTheme: ChipThemeData(
+        backgroundColor: LifeOsColors.surface,
+        selectedColor: LifeOsColors.gold.withValues(alpha: 0.25),
+        side: const BorderSide(color: LifeOsColors.border),
+        labelStyle: const TextStyle(
+          color: LifeOsColors.textPrimary,
+          fontWeight: FontWeight.w700,
+        ),
+      ),
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: LifeOsColors.surface,
         indicatorColor: LifeOsColors.gold.withValues(alpha: 0.18),
@@ -98,4 +108,3 @@ class LifeOsTheme {
     );
   }
 }
-

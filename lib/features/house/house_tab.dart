@@ -99,8 +99,9 @@ class HouseTab extends ConsumerWidget {
               ),
               const SizedBox(height: 12),
 
-              // Sala 16-bit (usa cenário Pixel Art em assets/images/scenes/ se existir, ou gradiente temático)
-              ClipRect(
+              // Sala 16-bit com cenário Pixel Art 16:9 + Herói posicionado no chão
+              AspectRatio(
+                aspectRatio: 16 / 10,
                 child: Container(
                   width: double.infinity,
                   decoration: BoxDecoration(
@@ -112,125 +113,110 @@ class HouseTab extends ConsumerWidget {
                     border: Border.all(color: LifeOsColors.border, width: 2),
                   ),
                   child: Stack(
-                    alignment: Alignment.bottomCenter,
+                    fit: StackFit.expand,
                     children: [
-                      Positioned.fill(
-                        child: Image.asset(
-                          sceneAsset,
-                          fit: BoxFit.cover,
-                          filterQuality: FilterQuality.none,
-                          errorBuilder: (_, _, _) => const SizedBox.shrink(),
-                        ),
+                      Image.asset(
+                        sceneAsset,
+                        fit: BoxFit.cover,
+                        filterQuality: FilterQuality.none,
+                        errorBuilder: (_, _, _) => const SizedBox.shrink(),
                       ),
-                      Container(
-                        width: double.infinity,
-                        padding: const EdgeInsets.fromLTRB(14, 18, 14, 16),
+                      // Vinheta suave só na base para leitura e profundidade
+                      DecoratedBox(
                         decoration: BoxDecoration(
                           gradient: LinearGradient(
                             begin: Alignment.topCenter,
                             end: Alignment.bottomCenter,
+                            stops: const [0.0, 0.65, 1.0],
                             colors: [
-                              Colors.black.withValues(alpha: 0.12),
-                              Colors.black.withValues(alpha: 0.45),
+                              Colors.black.withValues(alpha: 0.08),
+                              Colors.transparent,
+                              Colors.black.withValues(alpha: 0.55),
                             ],
                           ),
                         ),
-                        child: Column(
-                          children: [
-                            if (ownedFurniture.isNotEmpty) ...[
-                              Wrap(
-                                spacing: 10,
-                                runSpacing: 8,
-                                alignment: WrapAlignment.center,
-                                children: ownedFurniture.map((f) {
-                                  return Tooltip(
-                                    message: '${f.name}: ${f.effectBadge}',
-                                    child: Container(
-                                      padding: const EdgeInsets.all(8),
-                                      decoration: BoxDecoration(
-                                        color: LifeOsColors.bgDark
-                                            .withValues(alpha: 0.8),
-                                        border: Border.all(
-                                          color: f.color,
-                                          width: 1.5,
-                                        ),
-                                      ),
-                                      child: Icon(
-                                        f.icon,
-                                        color: f.color,
-                                        size: 22,
-                                      ),
+                      ),
+                      // Móveis comprados exibidos no topo da cena
+                      if (ownedFurniture.isNotEmpty)
+                        Positioned(
+                          top: 8,
+                          left: 8,
+                          right: 8,
+                          child: Wrap(
+                            spacing: 6,
+                            runSpacing: 6,
+                            alignment: WrapAlignment.center,
+                            children: ownedFurniture.map((f) {
+                              return Tooltip(
+                                message: '${f.name}: ${f.effectBadge}',
+                                child: Container(
+                                  padding: const EdgeInsets.all(5),
+                                  decoration: BoxDecoration(
+                                    color: LifeOsColors.bgDark
+                                        .withValues(alpha: 0.78),
+                                    border: Border.all(
+                                      color: f.color,
+                                      width: 1.5,
                                     ),
-                                  );
-                                }).toList(),
-                              ),
-                              const SizedBox(height: 16),
-                            ],
-                            Row(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              crossAxisAlignment: CrossAxisAlignment.end,
-                              children: [
-                                HeroSpriteWidget(
-                                  assetPath: heroClass.spriteAsset,
-                                  size: 96,
-                                ),
-                                if (equippedPet != null) ...[
-                                  const SizedBox(width: 14),
-                                  Column(
-                                    children: [
-                                      Container(
-                                        padding: const EdgeInsets.all(8),
-                                        decoration: BoxDecoration(
-                                          color: LifeOsColors.bgDark,
-                                          border: Border.all(
-                                            color: equippedPet.color,
-                                            width: 2,
-                                          ),
-                                        ),
-                                        child: Icon(
-                                          equippedPet.icon,
-                                          color: equippedPet.color,
-                                          size: 28,
-                                        ),
-                                      ),
-                                      const SizedBox(height: 4),
-                                      Text(
-                                        equippedPet.name.split(' ').first,
-                                        style: TextStyle(
-                                          fontSize: 11,
-                                          fontWeight: FontWeight.w800,
-                                          color: equippedPet.color,
-                                        ),
-                                      ),
-                                    ],
                                   ),
-                                ],
-                              ],
+                                  child: Icon(
+                                    f.icon,
+                                    color: f.color,
+                                    size: 16,
+                                  ),
+                                ),
+                              );
+                            }).toList(),
+                          ),
+                        ),
+                      // Herói animado + Pet em pé sobre o tapete/chão da cena
+                      Align(
+                        alignment: const Alignment(0, 0.68),
+                        child: Row(
+                          mainAxisSize: MainAxisSize.min,
+                          crossAxisAlignment: CrossAxisAlignment.end,
+                          children: [
+                            HeroSpriteWidget(
+                              assetPath: heroClass.spriteAsset,
+                              size: 86,
                             ),
-                            const SizedBox(height: 10),
-                            Container(
-                              height: 8,
-                              width: double.infinity,
-                              color: const Color(0xFF4A362C),
-                            ),
-                            const SizedBox(height: 10),
-                            Text(
-                              equippedScene != null
-                                  ? equippedScene.name
-                                  : (nextStage != null
-                                      ? 'Próxima evolução: ${nextStage.nextName} (Nv. ${nextStage.nextLevel})'
-                                      : 'Sua Casa alcançou o estágio máximo!'),
-                              style: const TextStyle(
-                                fontSize: 12,
-                                color: LifeOsColors.textPrimary,
-                                fontWeight: FontWeight.w800,
+                            if (equippedPet != null) ...[
+                              const SizedBox(width: 8),
+                              Container(
+                                padding: const EdgeInsets.all(6),
+                                decoration: BoxDecoration(
+                                  color: LifeOsColors.bgDark
+                                      .withValues(alpha: 0.85),
+                                  border: Border.all(
+                                    color: equippedPet.color,
+                                    width: 1.5,
+                                  ),
+                                ),
+                                child: Icon(
+                                  equippedPet.icon,
+                                  color: equippedPet.color,
+                                  size: 22,
+                                ),
                               ),
-                            ),
+                            ],
                           ],
                         ),
                       ),
                     ],
                   ),
+                ),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                equippedScene != null
+                    ? equippedScene.name
+                    : (nextStage != null
+                        ? 'Próxima evolução: ${nextStage.nextName} (Nv. ${nextStage.nextLevel})'
+                        : 'Sua Casa alcançou o estágio máximo!'),
+                style: const TextStyle(
+                  fontSize: 12,
+                  color: LifeOsColors.textSecondary,
+                  fontWeight: FontWeight.w700,
                 ),
               ),
             ],
