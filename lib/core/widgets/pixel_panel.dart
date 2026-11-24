@@ -43,7 +43,8 @@ class PixelPanel extends StatelessWidget {
     }
 
     return Container(
-      padding: padding,
+      // Respiro extra garantido para a moldura de madeira (rebites e borda 9-slice)
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 6),
       decoration: const BoxDecoration(
         image: DecorationImage(
           image: AssetImage('assets/images/ui/panel_frame.png'),
@@ -52,7 +53,10 @@ class PixelPanel extends StatelessWidget {
           filterQuality: FilterQuality.none,
         ),
       ),
-      child: child,
+      child: Padding(
+        padding: padding,
+        child: child,
+      ),
     );
   }
 }
