@@ -5,6 +5,7 @@ import '../../core/theme/lifeos_theme.dart';
 import '../../core/widgets/pixel_panel.dart';
 import '../../data/database/app_database.dart';
 import '../../providers/app_providers.dart';
+import '../guide/guide_screen.dart';
 import '../hero/hero_sheet_tab.dart';
 import '../house/house_tab.dart';
 import '../raids/raids_tab.dart';
@@ -71,6 +72,19 @@ class _MainShellState extends ConsumerState<MainShell> {
           ],
         ),
         actions: [
+          IconButton(
+            onPressed: () {
+              Navigator.of(context).push(
+                MaterialPageRoute<void>(builder: (_) => const GuideScreen()),
+              );
+            },
+            tooltip: 'Guia do Aventureiro',
+            icon: const Icon(
+              Icons.menu_book_rounded,
+              color: LifeOsColors.textSecondary,
+              size: 21,
+            ),
+          ),
           Padding(
             padding: const EdgeInsets.only(right: 14),
             child: Center(

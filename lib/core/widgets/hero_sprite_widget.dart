@@ -2,8 +2,10 @@ import 'package:material_ui/material_ui.dart';
 
 import '../rpg/rpg_models.dart';
 
-/// Exibe o sprite do herói a partir de um sprite sheet horizontal (2 frames)
-/// com suporte a personalização de cor da armadura/manto (`armorTint`).
+/// Exibe o sprite do herói a partir do sprite sheet horizontal de 2 frames.
+/// Quando `armorTint` não é `original`, carrega a variante recolorida pixel-a-pixel
+/// apenas na armadura/manto/roupa (`{classe}_{cor}.png`), mantendo pele, rosto e
+/// contornos 100% preservados.
 class HeroSpriteWidget extends StatefulWidget {
   const HeroSpriteWidget({
     super.key,
@@ -19,6 +21,14 @@ class HeroSpriteWidget extends StatefulWidget {
   final bool animate;
   final int frameCount;
   final ArmorTint armorTint;
+
+  /// Resolve o caminho do asset conforme a tintura escolhida.
+  static String resolveAssetPath(String basePath, ArmorTint tint) {
+    if (tint == ArmorTint.original || !basePath.endsWith('.png')) {
+      return basePath;
+    }
+    return basePath.replaceFirst('.png', '_${tint.key}.png');
+  }
 
   @override
   State<HeroSpriteWidget> createState() => _HeroSpriteWidgetState();
@@ -58,24 +68,10 @@ class _HeroSpriteWidgetState extends State<HeroSpriteWidget>
 
   Widget _buildFrame(int frameIndex) {
     final totalWidth = widget.size * widget.frameCount;
-    Widget img = Image.asset(
+    final resolvedPath = HeroSpriteWidget.resolveAssetPath(
       widget.assetPath,
-      width: totalWidth,
-      height: widget.size,
-      fit: BoxFit.fill,
-      filterQuality: FilterQuality.none,
+      widget.armorTint,
     );
-
-    final tint = widget.armorTint.tintColor;
-    if (tint != null) {
-      img = ColorFiltered(
-        colorFilter: ColorFilter.mode(
-          tint.withValues(alpha: 0.34),
-          BlendMode.srcATop,
-        ),
-        child: img,
-      );
-    }
 
     return SizedBox(
       width: widget.size,
@@ -89,7 +85,20 @@ class _HeroSpriteWidgetState extends State<HeroSpriteWidget>
           maxHeight: widget.size,
           child: Transform.translate(
             offset: Offset(-frameIndex * widget.size, 0),
-            child: img,
+            child: Image.asset(
+              resolvedPath,
+              width: totalWidth,
+              height: widget.size,
+              fit: BoxFit.fill,
+              filterQuality: FilterQuality.none,
+              errorBuilder: (_, _, _) => Image.asset(
+                widget.assetPath,
+                width: totalWidth,
+                height: widget.size,
+                fit: BoxFit.fill,
+                filterQuality: FilterQuality.none,
+              ),
+            ),
           ),
         ),
       ),
@@ -106,7 +115,6 @@ class _HeroSpriteWidgetState extends State<HeroSpriteWidget>
       animation: _controller,
       builder: (context, _) {
         final step = (_controller.value * 4).floor() % 4;
-        // Frame 0 nos passos 0 e 3; Frame 1 (efeito/brilho) nos passos 1 e 2.
         final frameIndex = (step == 1 || step == 2) ? 1 : 0;
         final offsetY = (step == 1 || step == 2) ? -1.5 : 0.0;
 

@@ -128,17 +128,19 @@ O Ouro ganho nas vitórias é gasto na loja interna (3 categorias):
 2. **Fase 2 — Loop Core TDAH:** Tarefas locais, **Sistema de Raids**, **Dopamina Variável** (Críticos, Baús, Missões Relâmpago) e **Modo Energia (1x/semana)**.
 3. **Fase 3 — Progressão & Casa Viva:** Loja interna, equipamentos/visuais do personagem e **Casa/Santuário em Pixel Art** com bônus passivos.
 4. **Fase 4 — Google Sync & Mapa do Dia:** Login Google OAuth no Android, sincronização com Google Agenda + Google Tasks e tela do **Mapa do Dia**.
-5. **Fase 5 — Polimento, Tela Inicial & Caminhada (Sidequests):**
-   - **Tela Inicial (Title Screen 16-bit):** Arte vertical em Pixel Art, botão Continuar / Novo Herói (e opção de sair/trocar de personagem na aba Herói), controle de **Som ON/OFF** e **Login Google**.
-   - **Personalização de Cores:** Tintura/paleta para customizar as cores da armadura/manto/roupa do herói (salva localmente).
-   - **Contador de Passos & Encontros Aleatórios (Sidequests):** Leitura do pedômetro nativo do Android (`ACTIVITY_RECOGNITION`) com notificações locais disparando encontros/sidequests rápidas a cada marco de passos (ex.: 1.000 passos), dando XP (VIG), Ouro e chance de Baú.
-6. **Fase 6 (Visão Futura) — Masmorra Procedural (Estilo *Pixel Dungeon*):**
-   - **Roguelike por turnos em grid** com o seu próprio herói, andares e salas/corredores gerados proceduralmente, inimigos escalando por andar e chefes a cada 5 andares.
-   - **Conexão direta com a vida real (anti-procrastinação):** concluir tarefas e Raids gera *Chaves/Energia de Expedição* para descer na masmorra (evitando jogar sem cumprir o dia), e seus **5 atributos reais** viram status reais de combate:
+5. **Fase 5 — Polimento, Tela Inicial, Guia & Caminhada (Sidequests):**
+   - **Tela Inicial (Title Screen 16-bit):** Arte vertical em Pixel Art animada a 60 FPS, Continuar / Novo Herói (e opção de sair/trocar de personagem na aba Herói), controle de **Som ON/OFF** e **Login Google**.
+   - **Personalização Real de Cores:** Recoloração pixel-a-pixel apenas da armadura/manto/roupa (preservando pele, rosto, contornos, armas e detalhes).
+   - **Guia Rápido do LifeOS:** Introdução narrativa ao universo do app + guia claro (sem linguagem robótica) sobre tarefas, os 5 atributos, personagem, loja e casa.
+   - **Contador de Passos & Encontros Aleatórios (125 Sidequests):** Pedômetro nativo + notificações locais disparando sidequests a cada 1.000 passos + cooldown de 1h com barra de recarga na Missão Relâmpago.
+6. **Fase 6 — Masmorra Procedural (Estilo *Pixel Dungeon*, no lugar das Raids):**
+   - **Substitui a aba Raids:** a "Raid" passa a ser a própria masmorra roguelike por turnos em grid, com salas, corredores e inimigos gerados proceduralmente e chefes a cada 5 andares.
+   - **Inventário do Personagem:** nova seção/tela integrada para gerenciar equipamentos encontrados na masmorra, poções, chaves de expedição e relíquias.
+   - **Conexão direta com a vida real (anti-procrastinação):** concluir tarefas e compromissos gera *Chaves/Energia de Expedição* para descer andares na masmorra, e seus **5 atributos reais** viram status reais de combate:
      - **VIG** → Vida máxima (HP) e defesa física
      - **INT** → Mana e poder das habilidades mágicas/classe
      - **DES** → Esquiva, precisão e chance de Acerto Crítico
      - **SAB** → Detecção de armadilhas, eficácia de poções e visão no mapa
      - **CAR** → Sorte de baús/itens raros e preços do Mercador da Masmorra
-   - **Recompensa de volta para o LifeOS:** projetos exclusivos de móveis e cosméticos raros para a **Casa Viva** e o personagem.
+   - **Recompensa de volta para o LifeOS:** projetos exclusivos de móveis e cosméticos raros para a **Casa** e o personagem.
 

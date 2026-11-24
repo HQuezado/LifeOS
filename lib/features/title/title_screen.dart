@@ -10,6 +10,7 @@ import '../../core/widgets/hero_sprite_widget.dart';
 import '../../core/widgets/pixel_panel.dart';
 import '../../data/database/app_database.dart';
 import '../../providers/app_providers.dart';
+import '../guide/guide_screen.dart';
 
 /// Tela Inicial (Title Screen 16-bit) animada a 60 FPS:
 /// paisagem crepuscular, estrelas cintilando, vaga-lumes dourados flutuando,
@@ -188,7 +189,7 @@ class _TitleScreenState extends ConsumerState<TitleScreen>
               padding: const EdgeInsets.fromLTRB(22, 24, 22, 22),
               child: Column(
                 children: [
-                  // Barra superior: Som ON/OFF e Login Google
+                  // Barra superior: Som ON/OFF, Guia e Login Google
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -196,15 +197,27 @@ class _TitleScreenState extends ConsumerState<TitleScreen>
                         icon: _localSoundOn
                             ? Icons.volume_up_rounded
                             : Icons.volume_off_rounded,
-                        label: _localSoundOn ? 'Som ON' : 'Som OFF',
+                        label: _localSoundOn ? 'Som' : 'Mudo',
                         active: _localSoundOn,
                         onTap: _toggleSound,
+                      ),
+                      _TitleChipButton(
+                        icon: Icons.menu_book_rounded,
+                        label: 'Guia',
+                        active: false,
+                        onTap: () {
+                          Navigator.of(context).push(
+                            MaterialPageRoute<void>(
+                              builder: (_) => const GuideScreen(),
+                            ),
+                          );
+                        },
                       ),
                       _TitleChipButton(
                         icon: _syncingGoogle
                             ? Icons.sync_rounded
                             : Icons.account_circle_rounded,
-                        label: _syncingGoogle ? 'Conectando...' : 'Conta Google',
+                        label: _syncingGoogle ? 'Sync...' : 'Google',
                         active: ref.read(googleSyncServiceProvider).isConnected,
                         onTap: _syncingGoogle ? null : _connectGoogle,
                       ),
