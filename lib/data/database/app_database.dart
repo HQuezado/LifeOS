@@ -21,6 +21,7 @@ class HeroProfiles extends Table {
   IntColumn get stepsToday => integer().withDefault(const Constant(0))();
   IntColumn get lastEncounterStepMilestone =>
       integer().withDefault(const Constant(0))();
+  DateTimeColumn get lastFlashMissionAt => dateTime().nullable()();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 }
 
@@ -121,7 +122,7 @@ class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 7;
+  int get schemaVersion => 8;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -158,6 +159,9 @@ class AppDatabase extends _$AppDatabase {
               heroProfiles,
               heroProfiles.lastEncounterStepMilestone,
             );
+          }
+          if (from < 8) {
+            await m.addColumn(heroProfiles, heroProfiles.lastFlashMissionAt);
           }
         },
       );

@@ -179,6 +179,17 @@ class $HeroProfilesTable extends HeroProfiles
         requiredDuringInsert: false,
         defaultValue: const Constant(0),
       );
+  static const VerificationMeta _lastFlashMissionAtMeta =
+      const VerificationMeta('lastFlashMissionAt');
+  @override
+  late final GeneratedColumn<DateTime> lastFlashMissionAt =
+      GeneratedColumn<DateTime>(
+        'last_flash_mission_at',
+        aliasedName,
+        true,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: false,
+      );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -207,6 +218,7 @@ class $HeroProfilesTable extends HeroProfiles
     soundEnabled,
     stepsToday,
     lastEncounterStepMilestone,
+    lastFlashMissionAt,
     createdAt,
   ];
   @override
@@ -324,6 +336,15 @@ class $HeroProfilesTable extends HeroProfiles
         ),
       );
     }
+    if (data.containsKey('last_flash_mission_at')) {
+      context.handle(
+        _lastFlashMissionAtMeta,
+        lastFlashMissionAt.isAcceptableOrUnknown(
+          data['last_flash_mission_at']!,
+          _lastFlashMissionAtMeta,
+        ),
+      );
+    }
     if (data.containsKey('created_at')) {
       context.handle(
         _createdAtMeta,
@@ -395,6 +416,10 @@ class $HeroProfilesTable extends HeroProfiles
         DriftSqlType.int,
         data['${effectivePrefix}last_encounter_step_milestone'],
       )!,
+      lastFlashMissionAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}last_flash_mission_at'],
+      ),
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
@@ -423,6 +448,7 @@ class HeroProfile extends DataClass implements Insertable<HeroProfile> {
   final bool soundEnabled;
   final int stepsToday;
   final int lastEncounterStepMilestone;
+  final DateTime? lastFlashMissionAt;
   final DateTime createdAt;
   const HeroProfile({
     required this.id,
@@ -439,6 +465,7 @@ class HeroProfile extends DataClass implements Insertable<HeroProfile> {
     required this.soundEnabled,
     required this.stepsToday,
     required this.lastEncounterStepMilestone,
+    this.lastFlashMissionAt,
     required this.createdAt,
   });
   @override
@@ -468,6 +495,9 @@ class HeroProfile extends DataClass implements Insertable<HeroProfile> {
     map['last_encounter_step_milestone'] = Variable<int>(
       lastEncounterStepMilestone,
     );
+    if (!nullToAbsent || lastFlashMissionAt != null) {
+      map['last_flash_mission_at'] = Variable<DateTime>(lastFlashMissionAt);
+    }
     map['created_at'] = Variable<DateTime>(createdAt);
     return map;
   }
@@ -494,6 +524,9 @@ class HeroProfile extends DataClass implements Insertable<HeroProfile> {
       soundEnabled: Value(soundEnabled),
       stepsToday: Value(stepsToday),
       lastEncounterStepMilestone: Value(lastEncounterStepMilestone),
+      lastFlashMissionAt: lastFlashMissionAt == null && nullToAbsent
+          ? const Value.absent()
+          : Value(lastFlashMissionAt),
       createdAt: Value(createdAt),
     );
   }
@@ -528,6 +561,9 @@ class HeroProfile extends DataClass implements Insertable<HeroProfile> {
       lastEncounterStepMilestone: serializer.fromJson<int>(
         json['lastEncounterStepMilestone'],
       ),
+      lastFlashMissionAt: serializer.fromJson<DateTime?>(
+        json['lastFlashMissionAt'],
+      ),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
     );
   }
@@ -553,6 +589,7 @@ class HeroProfile extends DataClass implements Insertable<HeroProfile> {
       'lastEncounterStepMilestone': serializer.toJson<int>(
         lastEncounterStepMilestone,
       ),
+      'lastFlashMissionAt': serializer.toJson<DateTime?>(lastFlashMissionAt),
       'createdAt': serializer.toJson<DateTime>(createdAt),
     };
   }
@@ -572,6 +609,7 @@ class HeroProfile extends DataClass implements Insertable<HeroProfile> {
     bool? soundEnabled,
     int? stepsToday,
     int? lastEncounterStepMilestone,
+    Value<DateTime?> lastFlashMissionAt = const Value.absent(),
     DateTime? createdAt,
   }) => HeroProfile(
     id: id ?? this.id,
@@ -595,6 +633,9 @@ class HeroProfile extends DataClass implements Insertable<HeroProfile> {
     stepsToday: stepsToday ?? this.stepsToday,
     lastEncounterStepMilestone:
         lastEncounterStepMilestone ?? this.lastEncounterStepMilestone,
+    lastFlashMissionAt: lastFlashMissionAt.present
+        ? lastFlashMissionAt.value
+        : this.lastFlashMissionAt,
     createdAt: createdAt ?? this.createdAt,
   );
   HeroProfile copyWithCompanion(HeroProfilesCompanion data) {
@@ -627,6 +668,9 @@ class HeroProfile extends DataClass implements Insertable<HeroProfile> {
       lastEncounterStepMilestone: data.lastEncounterStepMilestone.present
           ? data.lastEncounterStepMilestone.value
           : this.lastEncounterStepMilestone,
+      lastFlashMissionAt: data.lastFlashMissionAt.present
+          ? data.lastFlashMissionAt.value
+          : this.lastFlashMissionAt,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
     );
   }
@@ -648,6 +692,7 @@ class HeroProfile extends DataClass implements Insertable<HeroProfile> {
           ..write('soundEnabled: $soundEnabled, ')
           ..write('stepsToday: $stepsToday, ')
           ..write('lastEncounterStepMilestone: $lastEncounterStepMilestone, ')
+          ..write('lastFlashMissionAt: $lastFlashMissionAt, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
         .toString();
@@ -669,6 +714,7 @@ class HeroProfile extends DataClass implements Insertable<HeroProfile> {
     soundEnabled,
     stepsToday,
     lastEncounterStepMilestone,
+    lastFlashMissionAt,
     createdAt,
   );
   @override
@@ -689,6 +735,7 @@ class HeroProfile extends DataClass implements Insertable<HeroProfile> {
           other.soundEnabled == this.soundEnabled &&
           other.stepsToday == this.stepsToday &&
           other.lastEncounterStepMilestone == this.lastEncounterStepMilestone &&
+          other.lastFlashMissionAt == this.lastFlashMissionAt &&
           other.createdAt == this.createdAt);
 }
 
@@ -707,6 +754,7 @@ class HeroProfilesCompanion extends UpdateCompanion<HeroProfile> {
   final Value<bool> soundEnabled;
   final Value<int> stepsToday;
   final Value<int> lastEncounterStepMilestone;
+  final Value<DateTime?> lastFlashMissionAt;
   final Value<DateTime> createdAt;
   const HeroProfilesCompanion({
     this.id = const Value.absent(),
@@ -723,6 +771,7 @@ class HeroProfilesCompanion extends UpdateCompanion<HeroProfile> {
     this.soundEnabled = const Value.absent(),
     this.stepsToday = const Value.absent(),
     this.lastEncounterStepMilestone = const Value.absent(),
+    this.lastFlashMissionAt = const Value.absent(),
     this.createdAt = const Value.absent(),
   });
   HeroProfilesCompanion.insert({
@@ -740,6 +789,7 @@ class HeroProfilesCompanion extends UpdateCompanion<HeroProfile> {
     this.soundEnabled = const Value.absent(),
     this.stepsToday = const Value.absent(),
     this.lastEncounterStepMilestone = const Value.absent(),
+    this.lastFlashMissionAt = const Value.absent(),
     this.createdAt = const Value.absent(),
   }) : name = Value(name),
        heroClass = Value(heroClass);
@@ -758,6 +808,7 @@ class HeroProfilesCompanion extends UpdateCompanion<HeroProfile> {
     Expression<bool>? soundEnabled,
     Expression<int>? stepsToday,
     Expression<int>? lastEncounterStepMilestone,
+    Expression<DateTime>? lastFlashMissionAt,
     Expression<DateTime>? createdAt,
   }) {
     return RawValuesInsertable({
@@ -778,6 +829,8 @@ class HeroProfilesCompanion extends UpdateCompanion<HeroProfile> {
       if (stepsToday != null) 'steps_today': stepsToday,
       if (lastEncounterStepMilestone != null)
         'last_encounter_step_milestone': lastEncounterStepMilestone,
+      if (lastFlashMissionAt != null)
+        'last_flash_mission_at': lastFlashMissionAt,
       if (createdAt != null) 'created_at': createdAt,
     });
   }
@@ -797,6 +850,7 @@ class HeroProfilesCompanion extends UpdateCompanion<HeroProfile> {
     Value<bool>? soundEnabled,
     Value<int>? stepsToday,
     Value<int>? lastEncounterStepMilestone,
+    Value<DateTime?>? lastFlashMissionAt,
     Value<DateTime>? createdAt,
   }) {
     return HeroProfilesCompanion(
@@ -817,6 +871,7 @@ class HeroProfilesCompanion extends UpdateCompanion<HeroProfile> {
       stepsToday: stepsToday ?? this.stepsToday,
       lastEncounterStepMilestone:
           lastEncounterStepMilestone ?? this.lastEncounterStepMilestone,
+      lastFlashMissionAt: lastFlashMissionAt ?? this.lastFlashMissionAt,
       createdAt: createdAt ?? this.createdAt,
     );
   }
@@ -872,6 +927,11 @@ class HeroProfilesCompanion extends UpdateCompanion<HeroProfile> {
         lastEncounterStepMilestone.value,
       );
     }
+    if (lastFlashMissionAt.present) {
+      map['last_flash_mission_at'] = Variable<DateTime>(
+        lastFlashMissionAt.value,
+      );
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -895,6 +955,7 @@ class HeroProfilesCompanion extends UpdateCompanion<HeroProfile> {
           ..write('soundEnabled: $soundEnabled, ')
           ..write('stepsToday: $stepsToday, ')
           ..write('lastEncounterStepMilestone: $lastEncounterStepMilestone, ')
+          ..write('lastFlashMissionAt: $lastFlashMissionAt, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
         .toString();
@@ -4013,6 +4074,7 @@ typedef $$HeroProfilesTableCreateCompanionBuilder =
       Value<bool> soundEnabled,
       Value<int> stepsToday,
       Value<int> lastEncounterStepMilestone,
+      Value<DateTime?> lastFlashMissionAt,
       Value<DateTime> createdAt,
     });
 typedef $$HeroProfilesTableUpdateCompanionBuilder =
@@ -4031,6 +4093,7 @@ typedef $$HeroProfilesTableUpdateCompanionBuilder =
       Value<bool> soundEnabled,
       Value<int> stepsToday,
       Value<int> lastEncounterStepMilestone,
+      Value<DateTime?> lastFlashMissionAt,
       Value<DateTime> createdAt,
     });
 
@@ -4110,6 +4173,11 @@ class $$HeroProfilesTableFilterComposer
 
   ColumnFilters<int> get lastEncounterStepMilestone => $composableBuilder(
     column: $table.lastEncounterStepMilestone,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get lastFlashMissionAt => $composableBuilder(
+    column: $table.lastFlashMissionAt,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -4198,6 +4266,11 @@ class $$HeroProfilesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<DateTime> get lastFlashMissionAt => $composableBuilder(
+    column: $table.lastFlashMissionAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
@@ -4269,6 +4342,11 @@ class $$HeroProfilesTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<DateTime> get lastFlashMissionAt => $composableBuilder(
+    column: $table.lastFlashMissionAt,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
 }
@@ -4318,6 +4396,7 @@ class $$HeroProfilesTableTableManager
                 Value<bool> soundEnabled = const Value.absent(),
                 Value<int> stepsToday = const Value.absent(),
                 Value<int> lastEncounterStepMilestone = const Value.absent(),
+                Value<DateTime?> lastFlashMissionAt = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
               }) => HeroProfilesCompanion(
                 id: id,
@@ -4334,6 +4413,7 @@ class $$HeroProfilesTableTableManager
                 soundEnabled: soundEnabled,
                 stepsToday: stepsToday,
                 lastEncounterStepMilestone: lastEncounterStepMilestone,
+                lastFlashMissionAt: lastFlashMissionAt,
                 createdAt: createdAt,
               ),
           createCompanionCallback:
@@ -4352,6 +4432,7 @@ class $$HeroProfilesTableTableManager
                 Value<bool> soundEnabled = const Value.absent(),
                 Value<int> stepsToday = const Value.absent(),
                 Value<int> lastEncounterStepMilestone = const Value.absent(),
+                Value<DateTime?> lastFlashMissionAt = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
               }) => HeroProfilesCompanion.insert(
                 id: id,
@@ -4368,6 +4449,7 @@ class $$HeroProfilesTableTableManager
                 soundEnabled: soundEnabled,
                 stepsToday: stepsToday,
                 lastEncounterStepMilestone: lastEncounterStepMilestone,
+                lastFlashMissionAt: lastFlashMissionAt,
                 createdAt: createdAt,
               ),
           withReferenceMapper: (p0) => p0

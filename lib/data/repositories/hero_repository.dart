@@ -67,6 +67,36 @@ class HeroRepository {
     return (diffHours / 24).ceil().clamp(1, 7);
   }
 
+  /// Cooldown da Missão Relâmpago (1 hora após ativada).
+  static const Duration flashMissionCooldown = Duration(hours: 1);
+
+  /// Tempo restante de recarga da Missão Relâmpago (Duration.zero se disponível).
+  static Duration flashMissionRemaining(HeroProfile hero, [DateTime? now]) {
+    final last = hero.lastFlashMissionAt;
+    if (last == null) return Duration.zero;
+    final nextReady = last.add(flashMissionCooldown);
+    final current = now ?? DateTime.now();
+    if (!current.isBefore(nextReady)) return Duration.zero;
+    return nextReady.difference(current);
+  }
+
+  /// Progresso de recarga do botão da Missão Relâmpago (0.0 a 1.0).
+  static double flashMissionChargeProgress(HeroProfile hero, [DateTime? now]) {
+    final remaining = flashMissionRemaining(hero, now);
+    if (remaining <= Duration.zero) return 1.0;
+    final elapsed =
+        flashMissionCooldown.inSeconds - remaining.inSeconds;
+    return (elapsed / flashMissionCooldown.inSeconds).clamp(0.0, 1.0);
+  }
+
+  /// Registra o horário de ativação da Missão Relâmpago (inicia cooldown de 1h).
+  Future<void> recordFlashMissionStart() async {
+    final hero = await getHero();
+    if (hero == null) return;
+    await (_db.update(_db.heroProfiles)..where((t) => t.id.equals(hero.id)))
+        .write(HeroProfilesCompanion(lastFlashMissionAt: Value(DateTime.now())));
+  }
+
   /// Ativa o Modo Energia / Dia Sem Culpa (limite: 1x a cada 7 dias).
   Future<bool> activateEnergyMode() async {
     final hero = await getHero();

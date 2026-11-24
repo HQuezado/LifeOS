@@ -1,9 +1,12 @@
+import 'dart:convert';
+import 'dart:io';
 import 'dart:math';
 
 import 'package:flutter_test/flutter_test.dart';
 import 'package:lifeos/core/rpg/reward_engine.dart';
 import 'package:lifeos/core/rpg/rpg_models.dart';
 import 'package:lifeos/core/rpg/shop_catalog.dart';
+import 'package:lifeos/data/services/step_encounter_service.dart';
 
 void main() {
   group('LifeOS RPG Progression', () {
@@ -126,6 +129,21 @@ void main() {
 
       // 60 * 1.12 (arcane desk +20% alch) * 1.12 (star library +20% alch) * 1.25 (potion) = 94+
       expect(outcome.xpGained, greaterThanOrEqualTo(94));
+    });
+  });
+
+  group('Phase 5 Sidequests Catalog', () {
+    test('assets/data/sidequests.json contains 125 valid sidequests (25 per attribute)', () {
+      final raw = File('assets/data/sidequests.json').readAsStringSync();
+      final decoded = jsonDecode(raw) as List<dynamic>;
+      final quests = decoded
+          .map((e) => StepSidequest.fromJson(e as Map<String, dynamic>))
+          .toList();
+
+      expect(quests.length, 125);
+      for (final attr in RpgAttribute.values) {
+        expect(quests.where((q) => q.attribute == attr).length, 25);
+      }
     });
   });
 }

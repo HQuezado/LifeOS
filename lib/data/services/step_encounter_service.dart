@@ -1,6 +1,8 @@
 import 'dart:async';
+import 'dart:convert';
 import 'dart:math';
 
+import 'package:flutter/services.dart';
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
 import 'package:pedometer/pedometer.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -11,21 +13,42 @@ import '../repositories/hero_repository.dart';
 
 class StepSidequest {
   const StepSidequest({
+    required this.id,
     required this.enemyName,
     required this.questTitle,
+    required this.flavorText,
     required this.attribute,
-    this.rewardXp = 40,
-    this.rewardGold = 30,
+    required this.rewardXp,
+    required this.rewardGold,
+    this.rarity = 'common',
   });
 
+  final String id;
   final String enemyName;
   final String questTitle;
+  final String flavorText;
   final RpgAttribute attribute;
   final int rewardXp;
   final int rewardGold;
+  final String rarity;
+
+  bool get isRare => rarity == 'rare';
+
+  factory StepSidequest.fromJson(Map<String, dynamic> json) {
+    return StepSidequest(
+      id: json['id'] as String? ?? 'sq_fallback',
+      enemyName: json['enemyName'] as String,
+      questTitle: json['questTitle'] as String,
+      flavorText: json['flavorText'] as String? ?? '',
+      attribute: RpgAttribute.fromKey(json['attribute'] as String? ?? 'VIG'),
+      rewardXp: (json['rewardXp'] as num?)?.toInt() ?? 40,
+      rewardGold: (json['rewardGold'] as num?)?.toInt() ?? 30,
+      rarity: json['rarity'] as String? ?? 'common',
+    );
+  }
 }
 
-/// Serviço de Pedômetro + Encontros Aleatórios (Sidequests via Notificação).
+/// Serviço de Pedômetro + Encontros Aleatórios (125 Sidequests via JSON + Notificação).
 /// A cada 1.000 passos caminhados, dispara uma notificação estilo RPG e gera uma Sidequest!
 class StepEncounterService {
   StepEncounterService(this._heroRepository);
@@ -33,41 +56,24 @@ class StepEncounterService {
   final HeroRepository _heroRepository;
   final FlutterLocalNotificationsPlugin _notifications =
       FlutterLocalNotificationsPlugin();
+  final Random _rng = Random();
 
   static const int stepsPerEncounter = 1000;
 
-  static const List<StepSidequest> _sidequestPool = [
+  static const List<StepSidequest> _fallbackPool = [
     StepSidequest(
+      id: 'sq_vig_01',
       enemyName: 'Slime da Sede',
       questTitle: 'Beba 1 copo cheio de água agora',
+      flavorText: 'Um slime azul salta na trilha pedindo um golinho de hidratação!',
       attribute: RpgAttribute.vigor,
-    ),
-    StepSidequest(
-      enemyName: 'Goblin da Postura',
-      questTitle: 'Alongue ombros e pescoço por 2 minutos',
-      attribute: RpgAttribute.vigor,
-    ),
-    StepSidequest(
-      enemyName: 'Bardo Viajante',
-      questTitle: 'Envie uma mensagem curta para alguém querido',
-      attribute: RpgAttribute.charisma,
-    ),
-    StepSidequest(
-      enemyName: 'Mago da Calma',
-      questTitle: 'Faça 5 respirações profundas longe da tela',
-      attribute: RpgAttribute.wisdom,
-    ),
-    StepSidequest(
-      enemyName: 'Ladino da Bagunça',
-      questTitle: 'Guarde 3 objetos fora do lugar ao seu redor',
-      attribute: RpgAttribute.dexterity,
-    ),
-    StepSidequest(
-      enemyName: 'Coruja Sábia',
-      questTitle: 'Anote 1 ideia ou revisão rápida do seu dia',
-      attribute: RpgAttribute.intellect,
+      rewardXp: 40,
+      rewardGold: 30,
     ),
   ];
+
+  List<StepSidequest>? _loadedPool;
+  final List<String> _recentQuestIds = [];
 
   bool _notificationsReady = false;
   StreamSubscription<StepCount>? _stepSub;
@@ -82,6 +88,19 @@ class StepEncounterService {
       _activeEncounterController.stream;
   StepSidequest? get activeEncounter => _activeEncounter;
   bool get isListening => _stepSub != null;
+
+  Future<List<StepSidequest>> _getPool() async {
+    if (_loadedPool != null) return _loadedPool!;
+    try {
+      final raw = await rootBundle.loadString('assets/data/sidequests.json');
+      final list = jsonDecode(raw) as List<dynamic>;
+      _loadedPool = list
+          .map((e) => StepSidequest.fromJson(e as Map<String, dynamic>))
+          .toList();
+      if (_loadedPool!.isNotEmpty) return _loadedPool!;
+    } catch (_) {}
+    return _fallbackPool;
+  }
 
   Future<void> _initNotifications() async {
     if (_notificationsReady) return;
@@ -116,7 +135,7 @@ class StepEncounterService {
       );
 
       return (ok: true, message: 'Pedômetro ativo! Caminhe para achar encontros.');
-    } catch (e) {
+    } catch (_) {
       return (
         ok: false,
         message: 'Sensor de passos indisponível neste aparelho.',
@@ -155,8 +174,27 @@ class StepEncounterService {
     }
   }
 
+  Future<StepSidequest> _pickSidequest() async {
+    final pool = await _getPool();
+    final wantRare = _rng.nextDouble() < 0.25;
+    var candidates = pool
+        .where((q) => q.isRare == wantRare && !_recentQuestIds.contains(q.id))
+        .toList();
+    if (candidates.isEmpty) {
+      candidates = pool.where((q) => !_recentQuestIds.contains(q.id)).toList();
+    }
+    if (candidates.isEmpty) candidates = pool;
+
+    final chosen = candidates[_rng.nextInt(candidates.length)];
+    _recentQuestIds.add(chosen.id);
+    if (_recentQuestIds.length > 15) {
+      _recentQuestIds.removeAt(0);
+    }
+    return chosen;
+  }
+
   Future<void> _triggerRandomEncounter(int totalSteps) async {
-    final quest = _sidequestPool[Random().nextInt(_sidequestPool.length)];
+    final quest = await _pickSidequest();
     _activeEncounter = quest;
     _activeEncounterController.add(quest);
 
@@ -170,16 +208,17 @@ class StepEncounterService {
         importance: Importance.high,
         priority: Priority.high,
       );
+      final prefix = quest.isRare ? '✨ ENCONTRO RARO: ' : '⚔️ ';
       await _notifications.show(
         id: 1001,
-        title: '⚔️ ${quest.enemyName} apareceu! ($totalSteps passos)',
-        body: 'Sidequest: ${quest.questTitle} (+${quest.rewardXp} XP / +${quest.rewardGold}g)',
+        title: '$prefix${quest.enemyName} ($totalSteps passos)',
+        body: '${quest.questTitle} (+${quest.rewardXp} XP / +${quest.rewardGold}g)',
         notificationDetails: const NotificationDetails(android: androidDetails),
       );
     } catch (_) {}
   }
 
-  /// Conclui a Sidequest ativa e concede XP, Ouro e chance de Baú!
+  /// Conclui a Sidequest ativa e concede XP, Ouro e chance de Baú (maior se rara!).
   Future<RewardOutcome?> completeActiveEncounter() async {
     final quest = _activeEncounter;
     if (quest == null) return null;
@@ -187,23 +226,29 @@ class StepEncounterService {
     _activeEncounter = null;
     _activeEncounterController.add(null);
 
-    final dropChest = Random().nextDouble() < 0.25 ? ChestRarity.common : null;
+    final chestRoll = _rng.nextDouble();
+    final ChestRarity? dropChest = quest.isRare
+        ? (chestRoll < 0.45 ? ChestRarity.rare : ChestRarity.common)
+        : (chestRoll < 0.25 ? ChestRarity.common : null);
+
     final progress = await _heroRepository.awardProgress(
       attribute: quest.attribute,
       xpGained: quest.rewardXp,
       goldGained: quest.rewardGold,
       droppedChest: dropChest,
-      chestSource: 'Encontro: ${quest.enemyName}',
+      chestSource: 'Sidequest: ${quest.enemyName}',
     );
 
     return RewardOutcome(
       xpGained: quest.rewardXp,
       goldGained: quest.rewardGold,
-      isCritical: false,
+      isCritical: quest.isRare,
       criticalMultiplier: 1.0,
       droppedChest: dropChest,
       showMicroTaskGentleReminder: false,
-      classBonusNotes: ['Sidequest concluída: ${quest.enemyName}'],
+      classBonusNotes: [
+        if (quest.isRare) 'Encontro Raro vencido!' else 'Sidequest: ${quest.enemyName}',
+      ],
       heroLeveledUp: progress.heroLeveledUp,
       attributeLeveledUp: progress.attributeLeveledUp,
     );
@@ -214,4 +259,3 @@ class StepEncounterService {
     _activeEncounterController.close();
   }
 }
-

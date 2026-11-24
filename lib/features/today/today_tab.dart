@@ -26,19 +26,52 @@ class _TodayTabState extends ConsumerState<TodayTab> {
   RpgAttribute? _selectedFilter;
   DateTime? _flashMissionEndsAt;
   Timer? _flashTimer;
+  Timer? _cooldownRefreshTimer;
 
   bool get _isFlashActive =>
       _flashMissionEndsAt != null &&
       DateTime.now().isBefore(_flashMissionEndsAt!);
 
   @override
+  void initState() {
+    super.initState();
+    // Atualiza a barra de recarga da Missão Relâmpago periodicamente.
+    _cooldownRefreshTimer = Timer.periodic(
+      const Duration(seconds: 15),
+      (_) {
+        if (mounted &&
+            HeroRepository.flashMissionRemaining(widget.hero) > Duration.zero) {
+          setState(() {});
+        }
+      },
+    );
+  }
+
+  @override
   void dispose() {
     _flashTimer?.cancel();
+    _cooldownRefreshTimer?.cancel();
     super.dispose();
   }
 
-  void _startFlashMission() {
+  Future<void> _startFlashMission() async {
+    final remaining = HeroRepository.flashMissionRemaining(widget.hero);
+    if (remaining > Duration.zero) {
+      final mins = (remaining.inSeconds / 60).ceil().clamp(1, 60);
+      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(
+            '⏳ Missão Relâmpago em recarga: faltam $mins min.',
+          ),
+        ),
+      );
+      return;
+    }
+
+    await ref.read(heroRepositoryProvider).recordFlashMissionStart();
     _flashTimer?.cancel();
+    if (!mounted) return;
     setState(() {
       _flashMissionEndsAt = DateTime.now().add(const Duration(minutes: 15));
     });
@@ -365,20 +398,11 @@ class _TodayTabState extends ConsumerState<TodayTab> {
                   ),
                 ),
                 if (!_isFlashActive)
-                  TextButton(
-                    onPressed: _startFlashMission,
-                    style: TextButton.styleFrom(
-                      backgroundColor: LifeOsColors.gold.withValues(alpha: 0.16),
-                      foregroundColor: LifeOsColors.gold,
-                      shape: const RoundedRectangleBorder(
-                        borderRadius: BorderRadius.zero,
-                        side: BorderSide(color: LifeOsColors.gold, width: 1.5),
-                      ),
+                  _FlashCooldownButton(
+                    progress: HeroRepository.flashMissionChargeProgress(
+                      widget.hero,
                     ),
-                    child: const Text(
-                      '15 MIN',
-                      style: TextStyle(fontWeight: FontWeight.w800, fontSize: 12),
-                    ),
+                    onTap: _startFlashMission,
                   ),
               ],
             ),
@@ -525,6 +549,63 @@ class _TodayTabState extends ConsumerState<TodayTab> {
             error: (e, _) => Text('Erro ao carregar atividades: $e'),
           ),
         ],
+      ),
+    );
+  }
+}
+
+class _FlashCooldownButton extends StatelessWidget {
+  const _FlashCooldownButton({
+    required this.progress,
+    required this.onTap,
+  });
+
+  final double progress;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    final ready = progress >= 1.0;
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+        width: 78,
+        height: 36,
+        decoration: BoxDecoration(
+          color: LifeOsColors.bgDark,
+          border: Border.all(
+            color: ready ? LifeOsColors.gold : LifeOsColors.border,
+            width: 1.5,
+          ),
+        ),
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            // Barra de recarga que enche gradualmente durante 1 hora
+            Align(
+              alignment: Alignment.centerLeft,
+              child: FractionallySizedBox(
+                widthFactor: progress.clamp(0.0, 1.0),
+                heightFactor: 1.0,
+                child: Container(
+                  color: ready
+                      ? LifeOsColors.gold.withValues(alpha: 0.24)
+                      : LifeOsColors.goldDark.withValues(alpha: 0.38),
+                ),
+              ),
+            ),
+            Center(
+              child: Text(
+                ready ? '15 MIN' : '${(progress * 100).round()}%',
+                style: TextStyle(
+                  fontWeight: FontWeight.w900,
+                  fontSize: 11.5,
+                  color: ready ? LifeOsColors.gold : LifeOsColors.textSecondary,
+                ),
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

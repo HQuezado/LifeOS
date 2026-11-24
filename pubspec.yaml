@@ -78,6 +78,7 @@ flutter:
     - assets/images/classes/
     - assets/images/ui/
     - assets/images/scenes/
+    - assets/data/sidequests.json
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

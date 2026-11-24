@@ -108,41 +108,79 @@ class StepsEncounterWidget extends ConsumerWidget {
           if (encounter != null) ...[
             const Divider(height: 20, color: LifeOsColors.border),
             Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Icon(
                   encounter.attribute.icon,
-                  color: LifeOsColors.gold,
-                  size: 22,
+                  color: encounter.isRare
+                      ? LifeOsColors.gold
+                      : encounter.attribute.color,
+                  size: 24,
                 ),
-                const SizedBox(width: 8),
+                const SizedBox(width: 10),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        '⚔️ ${encounter.enemyName.toUpperCase()}',
-                        style: LifeOsTheme.pixelTitle(
-                          size: 9,
-                          color: LifeOsColors.gold,
-                        ),
+                      Row(
+                        children: [
+                          Expanded(
+                            child: Text(
+                              '${encounter.isRare ? '✨ ' : '⚔️ '}${encounter.enemyName.toUpperCase()}',
+                              style: LifeOsTheme.pixelTitle(
+                                size: 9,
+                                color: encounter.isRare
+                                    ? LifeOsColors.gold
+                                    : LifeOsColors.xpBar,
+                              ),
+                            ),
+                          ),
+                          if (encounter.isRare)
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 6,
+                                vertical: 2,
+                              ),
+                              color: LifeOsColors.gold.withValues(alpha: 0.22),
+                              child: const Text(
+                                'RARO',
+                                style: TextStyle(
+                                  fontSize: 10,
+                                  fontWeight: FontWeight.w900,
+                                  color: LifeOsColors.gold,
+                                ),
+                              ),
+                            ),
+                        ],
                       ),
-                      const SizedBox(height: 3),
+                      const SizedBox(height: 4),
                       Text(
                         encounter.questTitle,
                         style: const TextStyle(
-                          fontSize: 13,
-                          fontWeight: FontWeight.w700,
+                          fontSize: 13.5,
+                          fontWeight: FontWeight.w800,
                         ),
                       ),
+                      if (encounter.flavorText.isNotEmpty) ...[
+                        const SizedBox(height: 3),
+                        Text(
+                          encounter.flavorText,
+                          style: const TextStyle(
+                            fontSize: 12,
+                            color: LifeOsColors.textSecondary,
+                            fontStyle: FontStyle.italic,
+                          ),
+                        ),
+                      ],
                     ],
                   ),
                 ),
               ],
             ),
-            const SizedBox(height: 10),
+            const SizedBox(height: 12),
             PixelButton(
               label:
-                  'CONCLUIR SIDEQUEST (+${encounter.rewardXp} XP ${encounter.attribute.shortName})',
+                  'CONCLUIR (+${encounter.rewardXp} XP ${encounter.attribute.shortName} • +${encounter.rewardGold}g)',
               onPressed: () async {
                 final outcome = await service.completeActiveEncounter();
                 if (outcome != null && context.mounted) {
