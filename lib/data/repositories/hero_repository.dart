@@ -194,6 +194,7 @@ class HeroRepository {
       await _db.delete(_db.dungeonInventory).go();
       await _db.delete(_db.dungeonProgress).go();
       await _db.delete(_db.gratitudeLogs).go();
+      await _db.delete(_db.bestiaryDiscoveries).go();
     });
   }
 

@@ -3,6 +3,7 @@ import 'dart:math';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
+import '../../core/audio/sound_fx.dart';
 import '../../core/dungeon/dungeon_catalog.dart';
 import '../../core/dungeon/dungeon_combat.dart';
 import '../../core/dungeon/dungeon_generator.dart';
@@ -40,13 +41,38 @@ class DungeonRunScreen extends ConsumerStatefulWidget {
   ConsumerState<DungeonRunScreen> createState() => _DungeonRunScreenState();
 }
 
-class _DungeonRunScreenState extends ConsumerState<DungeonRunScreen> {
+class _FloatingCombatText {
+  _FloatingCombatText({
+    required this.text,
+    required this.gridX,
+    required this.gridY,
+    required this.color,
+    this.isBig = false,
+    this.verticalOffset = 0.0,
+  });
+
+  final String text;
+  final int gridX;
+  final int gridY;
+  final Color color;
+  final bool isBig;
+  final double verticalOffset;
+}
+
+class _DungeonRunScreenState extends ConsumerState<DungeonRunScreen>
+    with SingleTickerProviderStateMixin {
   late HeroCombatStats _stats;
   late DungeonFloorMap _floor;
   late Random _combatRng;
   late List<DungeonItem> _equippedItems;
   DungeonTileAtlas? _atlas;
   int _repaintVersion = 0;
+
+  // "Juice": números flutuantes, screen shake e flash de dano (sem timers soltos!)
+  late final AnimationController _fxController;
+  final List<_FloatingCombatText> _floatingTexts = [];
+  double _shakeIntensity = 0.0;
+  bool _hurtFlash = false;
 
   int _floorNumber = 1;
   int _heroX = 0;
@@ -82,6 +108,18 @@ class _DungeonRunScreenState extends ConsumerState<DungeonRunScreen> {
   @override
   void initState() {
     super.initState();
+    _fxController = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 850),
+    )..addStatusListener((status) {
+        if (status == AnimationStatus.completed && mounted) {
+          setState(() {
+            _floatingTexts.clear();
+            _shakeIntensity = 0.0;
+            _hurtFlash = false;
+          });
+        }
+      });
     _combatRng = Random(widget.seed ^ 0x55AA33);
     _equippedItems = [...widget.equippedItems];
     _stats = DungeonCombatEngine.computeHeroStats(
@@ -156,6 +194,50 @@ class _DungeonRunScreenState extends ConsumerState<DungeonRunScreen> {
     }
   }
 
+  @override
+  void dispose() {
+    _fxController.dispose();
+    super.dispose();
+  }
+
+  void _spawnFloat(
+    String text,
+    int gx,
+    int gy,
+    Color color, {
+    bool isBig = false,
+  }) {
+    final stackCount = _floatingTexts
+        .where((f) => f.gridX == gx && f.gridY == gy)
+        .length;
+    _floatingTexts.add(
+      _FloatingCombatText(
+        text: text,
+        gridX: gx,
+        gridY: gy,
+        color: color,
+        isBig: isBig,
+        verticalOffset: stackCount * 16.0,
+      ),
+    );
+    _fxController.forward(from: 0.0);
+  }
+
+  void _triggerShake({double intensity = 5.0, bool hurtFlash = false}) {
+    _shakeIntensity = max(_shakeIntensity, intensity);
+    if (hurtFlash) _hurtFlash = true;
+    _fxController.forward(from: 0.0);
+  }
+
+  void _sfx(String effect, {bool haptic = false, bool heavyHaptic = false}) {
+    LifeOsSfx.play(
+      effect,
+      soundEnabled: widget.hero.soundEnabled,
+      haptic: haptic,
+      heavyHaptic: heavyHaptic,
+    );
+  }
+
   void _pushLog(String message) {
     _repaintVersion++;
     _log.insert(0, message);
@@ -205,6 +287,7 @@ class _DungeonRunScreenState extends ConsumerState<DungeonRunScreen> {
     setState(() {
       _heroX = nx;
       _heroY = ny;
+      _sfx('step');
       _floor.updateVisibility(
         _heroX,
         _heroY,
@@ -217,9 +300,13 @@ class _DungeonRunScreenState extends ConsumerState<DungeonRunScreen> {
         final lavaDmg = max(4, (_stats.maxHp * 0.08).round());
         _hp = max(0, _hp - lavaDmg);
         _burnTurns = max(_burnTurns, 2);
+        _spawnFloat('-$lavaDmg 🔥', _heroX, _heroY, const Color(0xFFE86A38));
+        _triggerShake(intensity: 5.5, hurtFlash: true);
+        _sfx('hurt', haptic: true);
         _pushLog('A lava queima seus pés! -$lavaDmg HP (Queimadura).');
       } else if (tile == DungeonTileType.swamp && _combatRng.nextDouble() < 0.35) {
         _poisonTurns = max(_poisonTurns, 2);
+        _spawnFloat('VENENO!', _heroX, _heroY, const Color(0xFF6CC44A));
         _pushLog('Vapor do pântano envenena você!');
       }
 
@@ -230,10 +317,15 @@ class _DungeonRunScreenState extends ConsumerState<DungeonRunScreen> {
         trap.isTriggered = true;
         final dodgeTrap = _combatRng.nextDouble() < (_stats.dodgeChance * 0.8);
         if (dodgeTrap) {
+          _spawnFloat('ESQUIVOU!', _heroX, _heroY, LifeOsColors.xpBar);
+          _sfx('dodge');
           _pushLog('Armadilha disparou, mas sua Destreza evitou o dano!');
         } else {
           final dmg = max(2, trap.damage - (_stats.defense * 0.4).round());
           _hp = max(0, _hp - dmg);
+          _spawnFloat('-$dmg', _heroX, _heroY, LifeOsColors.danger, isBig: true);
+          _triggerShake(intensity: 7.0, hurtFlash: true);
+          _sfx('hurt', heavyHaptic: true);
           _pushLog('Armadilha de espinhos! Você sofreu $dmg de dano.');
         }
       }
@@ -286,11 +378,27 @@ class _DungeonRunScreenState extends ConsumerState<DungeonRunScreen> {
     );
 
     if (res.dodged) {
+      _spawnFloat('ESQUIVOU!', target.x, target.y, LifeOsColors.xpBar);
+      _sfx('dodge');
       _pushLog('${target.template.name} esquivou do seu ataque!');
       return;
     }
 
     target.hp = max(0, target.hp - res.damage);
+    if (res.isCritical) {
+      _spawnFloat(
+        'CRÍTICO! -${res.damage}',
+        target.x,
+        target.y,
+        LifeOsColors.gold,
+        isBig: true,
+      );
+      _triggerShake(intensity: 6.5);
+      _sfx('crit', heavyHaptic: true);
+    } else {
+      _spawnFloat('-${res.damage}', target.x, target.y, Colors.white);
+      _sfx('hit', haptic: true);
+    }
     final critTag = res.isCritical ? ' (CRÍTICO!)' : '';
     _pushLog('Você causou ${res.damage}$critTag em ${target.template.name}.');
 
@@ -323,6 +431,8 @@ class _DungeonRunScreenState extends ConsumerState<DungeonRunScreen> {
             return;
           }
           _mana -= skill.manaCost;
+          _sfx('skill', heavyHaptic: true);
+          _triggerShake(intensity: 6.5);
           for (final e in adjacent) {
             final res = DungeonCombatEngine.resolveAttack(
               rng: _combatRng,
@@ -335,6 +445,7 @@ class _DungeonRunScreenState extends ConsumerState<DungeonRunScreen> {
             );
             e.hp = max(0, e.hp - res.damage);
             e.stunTurns = max(e.stunTurns, 1);
+            _spawnFloat('-${res.damage} ⚡', e.x, e.y, LifeOsColors.gold, isBig: true);
             _pushLog('${skill.name}! ${res.damage} em ${e.template.name} (Atordoado).');
             if (!e.isAlive) _onEnemyDefeated(e);
           }
@@ -346,6 +457,7 @@ class _DungeonRunScreenState extends ConsumerState<DungeonRunScreen> {
             return;
           }
           _mana -= skill.manaCost;
+          _sfx('skill', haptic: true);
           _inspectedEnemy = target;
           final res = DungeonCombatEngine.resolveAttack(
             rng: _combatRng,
@@ -357,6 +469,7 @@ class _DungeonRunScreenState extends ConsumerState<DungeonRunScreen> {
             cannotDodge: true,
           );
           target.hp = max(0, target.hp - res.damage);
+          _spawnFloat('-${res.damage} ✨', target.x, target.y, LifeOsColors.xpBar, isBig: true);
           final critTag = res.isCritical ? ' (CRÍTICO!)' : '';
           _pushLog(
             '${skill.name}! ${res.damage}$critTag de dano arcano em ${target.template.name}.',
@@ -370,6 +483,8 @@ class _DungeonRunScreenState extends ConsumerState<DungeonRunScreen> {
             return;
           }
           _mana -= skill.manaCost;
+          _sfx('crit', heavyHaptic: true);
+          _triggerShake(intensity: 6.0);
           _dodgeBuffTurns = 2;
           _inspectedEnemy = target;
           final res = DungeonCombatEngine.resolveAttack(
@@ -383,6 +498,7 @@ class _DungeonRunScreenState extends ConsumerState<DungeonRunScreen> {
             cannotDodge: true,
           );
           target.hp = max(0, target.hp - res.damage);
+          _spawnFloat('CRÍTICO! -${res.damage}', target.x, target.y, LifeOsColors.gold, isBig: true);
           _pushLog(
             '${skill.name}! CRÍTICO de ${res.damage} em ${target.template.name} (+Esquiva).',
           );
@@ -390,11 +506,13 @@ class _DungeonRunScreenState extends ConsumerState<DungeonRunScreen> {
 
         case HeroClass.alchemist:
           _mana -= skill.manaCost;
+          _sfx('potion', haptic: true);
           final heal = max(
             18,
             (_stats.maxHp * 0.35 * _stats.potionHealMultiplier).round(),
           );
           _hp = min(_stats.maxHp, _hp + heal);
+          _spawnFloat('+$heal HP', _heroX, _heroY, LifeOsColors.success, isBig: true);
           _poisonTurns = 0;
           _burnTurns = 0;
           _bleedTurns = 0;
@@ -403,6 +521,7 @@ class _DungeonRunScreenState extends ConsumerState<DungeonRunScreen> {
           for (final e in _floor.enemies) {
             if (e.isAlive && GridPos(_heroX, _heroY).manhattanTo(e.pos) <= 2) {
               e.poisonTurns = max(e.poisonTurns, 3);
+              _spawnFloat('VENENO!', e.x, e.y, const Color(0xFF6CC44A));
               poisonedCount++;
             }
           }
@@ -412,8 +531,10 @@ class _DungeonRunScreenState extends ConsumerState<DungeonRunScreen> {
 
         case HeroClass.bard:
           _mana -= skill.manaCost;
+          _sfx('skill', haptic: true);
           _attackBuffValue = max(_attackBuffValue, (_stats.attackPower * 0.25).round() + 3);
           _attackBuffTurns = 3;
+          _spawnFloat('+$_attackBuffValue ATQ', _heroX, _heroY, LifeOsColors.gold);
           final nearby = _floor.enemies
               .where((e) =>
                   e.isAlive && GridPos(_heroX, _heroY).manhattanTo(e.pos) <= 2)
@@ -430,6 +551,7 @@ class _DungeonRunScreenState extends ConsumerState<DungeonRunScreen> {
             );
             e.hp = max(0, e.hp - res.damage);
             e.slowTurns = max(e.slowTurns, 2);
+            _spawnFloat('-${res.damage} ♪', e.x, e.y, const Color(0xFFC078F8));
             if (!e.isAlive) _onEnemyDefeated(e);
           }
           _pushLog(
@@ -469,9 +591,13 @@ class _DungeonRunScreenState extends ConsumerState<DungeonRunScreen> {
         case 'heal_hp':
           final heal = (eff.value * _stats.potionHealMultiplier).round();
           _hp = min(_stats.maxHp, _hp + heal);
+          _spawnFloat('+$heal HP', _heroX, _heroY, LifeOsColors.success, isBig: true);
+          _sfx('potion', haptic: true);
           _pushLog('${item.name}: recuperou +$heal HP!');
         case 'heal_mana':
           _mana = min(_stats.maxMana, _mana + eff.value);
+          _spawnFloat('+${eff.value} MP', _heroX, _heroY, const Color(0xFF5DA9FF), isBig: true);
+          _sfx('potion', haptic: true);
           _pushLog('${item.name}: recuperou +${eff.value} MP!');
         case 'cure_status':
           _poisonTurns = 0;
@@ -479,9 +605,13 @@ class _DungeonRunScreenState extends ConsumerState<DungeonRunScreen> {
           _bleedTurns = 0;
           _slowTurns = 0;
           _stunTurns = 0;
+          _spawnFloat('PURIFICADO!', _heroX, _heroY, LifeOsColors.xpBar);
+          _sfx('potion', haptic: true);
           _pushLog('${item.name}: todos os efeitos negativos foram purificados!');
         case 'reveal_map':
           _floor.revealAll();
+          _spawnFloat('MAPA REVELADO!', _heroX, _heroY, LifeOsColors.gold);
+          _sfx('skill', haptic: true);
           _pushLog('${item.name}: todo o andar e suas armadilhas foram revelados!');
         case 'teleport':
           final safeTiles = <GridPos>[];
@@ -505,18 +635,23 @@ class _DungeonRunScreenState extends ConsumerState<DungeonRunScreen> {
               _stats.visionRadius,
               _stats.wisdom,
             );
+            _spawnFloat('TELEPORTE!', _heroX, _heroY, LifeOsColors.xpBar);
+            _sfx('skill', haptic: true);
             _pushLog('${item.name}: teleportado para um ponto seguro!');
           }
         case 'aoe_damage':
           final targets = _floor.enemies
               .where((e) => e.isAlive && _floor.visible[e.y][e.x])
               .toList();
+          _triggerShake(intensity: 8.5);
+          _sfx('crit', heavyHaptic: true);
           for (final e in targets) {
             final dmg = max(
               eff.value,
               eff.value + (_stats.magicPower * 0.4).round(),
             );
             e.hp = max(0, e.hp - dmg);
+            _spawnFloat('-$dmg 💥', e.x, e.y, const Color(0xFFE86A38), isBig: true);
             if (!e.isAlive) _onEnemyDefeated(e);
           }
           _pushLog(
@@ -525,6 +660,8 @@ class _DungeonRunScreenState extends ConsumerState<DungeonRunScreen> {
         case 'buff_attack':
           _attackBuffValue = max(_attackBuffValue, eff.value);
           _attackBuffTurns = 5;
+          _spawnFloat('+${eff.value} ATQ!', _heroX, _heroY, LifeOsColors.gold, isBig: true);
+          _sfx('potion', haptic: true);
           _pushLog('${item.name}: +${eff.value} ATQ pelos próximos 5 turnos!');
       }
       _processTurnEnd();
@@ -549,6 +686,8 @@ class _DungeonRunScreenState extends ConsumerState<DungeonRunScreen> {
     _earnedGold += gold;
     _foundItems.add(item);
     ref.read(dungeonRepositoryProvider).addItem(item);
+    _spawnFloat('BAÚ! +${gold}g', chest.x, chest.y, LifeOsColors.gold, isBig: true);
+    _sfx('chest', haptic: true);
     _pushLog('Baú aberto! +$gold ouro e ${item.name} (${item.rarity.label})!');
   }
 
@@ -558,6 +697,20 @@ class _DungeonRunScreenState extends ConsumerState<DungeonRunScreen> {
     final gold = (enemy.template.goldReward * (1 + (_floorNumber - 1) * 0.12)).round();
     _earnedXp += xp;
     _earnedGold += gold;
+    _spawnFloat('+${gold}g', enemy.x, enemy.y, LifeOsColors.gold);
+
+    // Registra no Bestiário Colecionável (e celebra 1ª descoberta!)
+    ref
+        .read(dungeonRepositoryProvider)
+        .recordMonsterDefeat(enemy.template.id)
+        .then((isFirst) {
+      if (isFirst && mounted) {
+        setState(() {
+          _spawnFloat('📖 BESTIÁRIO!', enemy.x, enemy.y, LifeOsColors.xpBar, isBig: true);
+          _pushLog('📖 Novo registro no Bestiário: ${enemy.template.name}!');
+        });
+      }
+    });
 
     if (_inspectedEnemy?.uid == enemy.uid) {
       _inspectedEnemy = null;
@@ -600,6 +753,8 @@ class _DungeonRunScreenState extends ConsumerState<DungeonRunScreen> {
     _mana = min(_stats.maxMana, _mana + healMp);
 
     _loadFloor(nextFloor);
+    _sfx('stairs', haptic: true);
+    _spawnFloat('+$healHp HP', _heroX, _heroY, LifeOsColors.success);
     _pushLog(
       _floor.isBossFloor
           ? '🔥 Andar $nextFloor/${widget.biome.maxFloors} — ARENA DO BOSS (${widget.biome.bossName})!'
@@ -711,11 +866,22 @@ class _DungeonRunScreenState extends ConsumerState<DungeonRunScreen> {
     );
 
     if (res.dodged) {
+      _spawnFloat('ESQUIVOU!', _heroX, _heroY, LifeOsColors.xpBar);
+      _sfx('dodge');
       _pushLog('Você esquivou de ${attack.name} (${enemy.template.name})!');
       return;
     }
 
     _hp = max(0, _hp - res.damage);
+    _spawnFloat(
+      res.isCritical ? 'CRÍTICO -${res.damage}' : '-${res.damage}',
+      _heroX,
+      _heroY,
+      LifeOsColors.danger,
+      isBig: res.isCritical,
+    );
+    _triggerShake(intensity: res.isCritical ? 8.0 : 4.5, hurtFlash: true);
+    _sfx('hurt', haptic: !res.isCritical, heavyHaptic: res.isCritical);
     if (res.lifesteal > 0) {
       enemy.hp = min(enemy.maxHp, enemy.hp + res.lifesteal);
     }
@@ -773,6 +939,9 @@ class _DungeonRunScreenState extends ConsumerState<DungeonRunScreen> {
     if (_runEnded) return;
     _runEnded = true;
     _victory = victory;
+    if (victory) {
+      _sfx('victory', heavyHaptic: true);
+    }
 
     if (!_rewardClaimed) {
       _rewardClaimed = true;
@@ -1012,53 +1181,130 @@ class _DungeonRunScreenState extends ConsumerState<DungeonRunScreen> {
               _onTileTap(tx, ty);
             },
             child: ClipRect(
-              child: ColoredBox(
-                color: const Color(0xFF100B0A),
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    if (atlas != null)
-                      CustomPaint(
-                        painter: DungeonMapPainter(
-                          floor: _floor,
-                          atlas: atlas,
-                          heroX: _heroX,
-                          heroY: _heroY,
-                          tileSize: tileSize,
-                          repaintVersion: _repaintVersion,
+              child: AnimatedBuilder(
+                animation: _fxController,
+                builder: (context, child) {
+                  final t = _fxController.value;
+                  // Tremidinha da câmera nos primeiros 25% da animação (~210ms)
+                  var shakeX = 0.0;
+                  var shakeY = 0.0;
+                  if (_shakeIntensity > 0 && t < 0.28) {
+                    final decay = 1.0 - (t / 0.28);
+                    shakeX = sin(t * 95) * _shakeIntensity * decay;
+                    shakeY = cos(t * 110) * _shakeIntensity * 0.6 * decay;
+                  }
+                  final flashAlpha = (_hurtFlash && t < 0.30)
+                      ? ((1.0 - t / 0.30) * 0.38)
+                      : 0.0;
+
+                  return Transform.translate(
+                    offset: Offset(shakeX, shakeY),
+                    child: Stack(
+                      fit: StackFit.expand,
+                      children: [
+                        child!,
+                        // Textos e números flutuantes de combate sobre os tiles
+                        if (_floatingTexts.isNotEmpty)
+                          IgnorePointer(
+                            child: Stack(
+                              children: _floatingTexts.map((ft) {
+                                final fx = centerX + (ft.gridX - _heroX) * tileSize;
+                                final fy = centerY +
+                                    (ft.gridY - _heroY) * tileSize -
+                                    20 -
+                                    ft.verticalOffset -
+                                    (t * 34);
+                                final opacity = (1.0 - Curves.easeIn.transform(t))
+                                    .clamp(0.0, 1.0);
+                                return Positioned(
+                                  left: fx - 64,
+                                  top: fy,
+                                  width: 128,
+                                  child: Opacity(
+                                    opacity: opacity,
+                                    child: Text(
+                                      ft.text,
+                                      textAlign: TextAlign.center,
+                                      style: TextStyle(
+                                        fontSize: ft.isBig ? 14.5 : 12.5,
+                                        fontWeight: FontWeight.w900,
+                                        color: ft.color,
+                                        shadows: const [
+                                          Shadow(color: Colors.black, offset: Offset(1.5, 1.5), blurRadius: 1),
+                                          Shadow(color: Colors.black, offset: Offset(-1, -1), blurRadius: 1),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                );
+                              }).toList(),
+                            ),
+                          ),
+                        // Vinheta vermelha suave ao sofrer dano
+                        if (flashAlpha > 0.01)
+                          IgnorePointer(
+                            child: Container(
+                              decoration: BoxDecoration(
+                                border: Border.all(
+                                  color: LifeOsColors.danger.withValues(alpha: flashAlpha * 2),
+                                  width: 6,
+                                ),
+                                color: LifeOsColors.danger.withValues(alpha: flashAlpha * 0.45),
+                              ),
+                            ),
+                          ),
+                      ],
+                    ),
+                  );
+                },
+                child: ColoredBox(
+                  color: const Color(0xFF100B0A),
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      if (atlas != null)
+                        CustomPaint(
+                          painter: DungeonMapPainter(
+                            floor: _floor,
+                            atlas: atlas,
+                            heroX: _heroX,
+                            heroY: _heroY,
+                            tileSize: tileSize,
+                            repaintVersion: _repaintVersion,
+                          ),
                         ),
-                      ),
-                    // Herói animado no centro da câmera com sombra suave no chão
-                    IgnorePointer(
-                      child: Center(
-                        child: SizedBox(
-                          width: tileSize,
-                          height: tileSize,
-                          child: Stack(
-                            alignment: Alignment.center,
-                            children: [
-                              Positioned(
-                                bottom: 3,
-                                child: Container(
-                                  width: tileSize * 0.56,
-                                  height: 7,
-                                  decoration: BoxDecoration(
-                                    color: const Color(0x700A0605),
-                                    borderRadius: BorderRadius.circular(10),
+                      // Herói animado no centro da câmera com sombra suave no chão
+                      IgnorePointer(
+                        child: Center(
+                          child: SizedBox(
+                            width: tileSize,
+                            height: tileSize,
+                            child: Stack(
+                              alignment: Alignment.center,
+                              children: [
+                                Positioned(
+                                  bottom: 3,
+                                  child: Container(
+                                    width: tileSize * 0.56,
+                                    height: 7,
+                                    decoration: BoxDecoration(
+                                      color: const Color(0x700A0605),
+                                      borderRadius: BorderRadius.circular(10),
+                                    ),
                                   ),
                                 ),
-                              ),
-                              HeroSpriteWidget(
-                                assetPath: _heroClass.spriteAsset,
-                                armorTint: _armorTint,
-                                size: tileSize * 0.94,
-                              ),
-                            ],
+                                HeroSpriteWidget(
+                                  assetPath: _heroClass.spriteAsset,
+                                  armorTint: _armorTint,
+                                  size: tileSize * 0.94,
+                                ),
+                              ],
+                            ),
                           ),
                         ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),

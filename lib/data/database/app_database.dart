@@ -157,6 +157,19 @@ class GratitudeLogs extends Table {
   Set<Column> get primaryKey => {tokenId};
 }
 
+/// Bestiário Colecionável: registra cada monstro derrotado e quantas vezes foi vencido.
+class BestiaryDiscoveries extends Table {
+  TextColumn get monsterId => text()();
+  IntColumn get defeatedCount => integer().withDefault(const Constant(1))();
+  DateTimeColumn get firstDefeatedAt =>
+      dateTime().withDefault(currentDateAndTime)();
+  DateTimeColumn get lastDefeatedAt =>
+      dateTime().withDefault(currentDateAndTime)();
+
+  @override
+  Set<Column> get primaryKey => {monsterId};
+}
+
 @DriftDatabase(
   tables: [
     HeroProfiles,
@@ -170,13 +183,14 @@ class GratitudeLogs extends Table {
     DungeonInventory,
     DungeonProgress,
     GratitudeLogs,
+    BestiaryDiscoveries,
   ],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 10;
+  int get schemaVersion => 11;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -239,6 +253,9 @@ class AppDatabase extends _$AppDatabase {
               heroProfiles.lastGratitudeReceivedLevel,
             );
             await m.createTable(gratitudeLogs);
+          }
+          if (from < 11) {
+            await m.createTable(bestiaryDiscoveries);
           }
         },
       );

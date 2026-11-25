@@ -32,6 +32,39 @@ class DungeonRepository {
     return _db.select(_db.dungeonProgress).watch();
   }
 
+  Stream<List<BestiaryDiscovery>> watchBestiaryDiscoveries() {
+    return _db.select(_db.bestiaryDiscoveries).watch();
+  }
+
+  /// Registra a derrota de um monstro no Bestiário Colecionável.
+  /// Retorna `true` se for a PRIMEIRA vez que este monstro foi descoberto!
+  Future<bool> recordMonsterDefeat(String monsterId) async {
+    return _db.transaction(() async {
+      final existing = await (_db.select(_db.bestiaryDiscoveries)
+            ..where((t) => t.monsterId.equals(monsterId)))
+          .getSingleOrNull();
+      if (existing == null) {
+        await _db.into(_db.bestiaryDiscoveries).insert(
+              BestiaryDiscoveriesCompanion.insert(
+                monsterId: monsterId,
+                defeatedCount: const Value(1),
+              ),
+            );
+        return true;
+      } else {
+        await (_db.update(_db.bestiaryDiscoveries)
+              ..where((t) => t.monsterId.equals(monsterId)))
+            .write(
+          BestiaryDiscoveriesCompanion(
+            defeatedCount: Value(existing.defeatedCount + 1),
+            lastDefeatedAt: Value(DateTime.now()),
+          ),
+        );
+        return false;
+      }
+    });
+  }
+
   /// Garante que o herói comece com um kit básico de expedição caso o inventário esteja vazio.
   Future<void> ensureStarterGear(HeroClass heroClass) async {
     final existing = await getInventory();

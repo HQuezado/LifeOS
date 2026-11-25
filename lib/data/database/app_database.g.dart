@@ -5744,6 +5744,339 @@ class GratitudeLogsCompanion extends UpdateCompanion<GratitudeLog> {
   }
 }
 
+class $BestiaryDiscoveriesTable extends BestiaryDiscoveries
+    with TableInfo<$BestiaryDiscoveriesTable, BestiaryDiscovery> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $BestiaryDiscoveriesTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _monsterIdMeta = const VerificationMeta(
+    'monsterId',
+  );
+  @override
+  late final GeneratedColumn<String> monsterId = GeneratedColumn<String>(
+    'monster_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _defeatedCountMeta = const VerificationMeta(
+    'defeatedCount',
+  );
+  @override
+  late final GeneratedColumn<int> defeatedCount = GeneratedColumn<int>(
+    'defeated_count',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(1),
+  );
+  static const VerificationMeta _firstDefeatedAtMeta = const VerificationMeta(
+    'firstDefeatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> firstDefeatedAt =
+      GeneratedColumn<DateTime>(
+        'first_defeated_at',
+        aliasedName,
+        false,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: false,
+        defaultValue: currentDateAndTime,
+      );
+  static const VerificationMeta _lastDefeatedAtMeta = const VerificationMeta(
+    'lastDefeatedAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> lastDefeatedAt =
+      GeneratedColumn<DateTime>(
+        'last_defeated_at',
+        aliasedName,
+        false,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: false,
+        defaultValue: currentDateAndTime,
+      );
+  @override
+  List<GeneratedColumn> get $columns => [
+    monsterId,
+    defeatedCount,
+    firstDefeatedAt,
+    lastDefeatedAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'bestiary_discoveries';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<BestiaryDiscovery> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('monster_id')) {
+      context.handle(
+        _monsterIdMeta,
+        monsterId.isAcceptableOrUnknown(data['monster_id']!, _monsterIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_monsterIdMeta);
+    }
+    if (data.containsKey('defeated_count')) {
+      context.handle(
+        _defeatedCountMeta,
+        defeatedCount.isAcceptableOrUnknown(
+          data['defeated_count']!,
+          _defeatedCountMeta,
+        ),
+      );
+    }
+    if (data.containsKey('first_defeated_at')) {
+      context.handle(
+        _firstDefeatedAtMeta,
+        firstDefeatedAt.isAcceptableOrUnknown(
+          data['first_defeated_at']!,
+          _firstDefeatedAtMeta,
+        ),
+      );
+    }
+    if (data.containsKey('last_defeated_at')) {
+      context.handle(
+        _lastDefeatedAtMeta,
+        lastDefeatedAt.isAcceptableOrUnknown(
+          data['last_defeated_at']!,
+          _lastDefeatedAtMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {monsterId};
+  @override
+  BestiaryDiscovery map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return BestiaryDiscovery(
+      monsterId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}monster_id'],
+      )!,
+      defeatedCount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}defeated_count'],
+      )!,
+      firstDefeatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}first_defeated_at'],
+      )!,
+      lastDefeatedAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}last_defeated_at'],
+      )!,
+    );
+  }
+
+  @override
+  $BestiaryDiscoveriesTable createAlias(String alias) {
+    return $BestiaryDiscoveriesTable(attachedDatabase, alias);
+  }
+}
+
+class BestiaryDiscovery extends DataClass
+    implements Insertable<BestiaryDiscovery> {
+  final String monsterId;
+  final int defeatedCount;
+  final DateTime firstDefeatedAt;
+  final DateTime lastDefeatedAt;
+  const BestiaryDiscovery({
+    required this.monsterId,
+    required this.defeatedCount,
+    required this.firstDefeatedAt,
+    required this.lastDefeatedAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['monster_id'] = Variable<String>(monsterId);
+    map['defeated_count'] = Variable<int>(defeatedCount);
+    map['first_defeated_at'] = Variable<DateTime>(firstDefeatedAt);
+    map['last_defeated_at'] = Variable<DateTime>(lastDefeatedAt);
+    return map;
+  }
+
+  BestiaryDiscoveriesCompanion toCompanion(bool nullToAbsent) {
+    return BestiaryDiscoveriesCompanion(
+      monsterId: Value(monsterId),
+      defeatedCount: Value(defeatedCount),
+      firstDefeatedAt: Value(firstDefeatedAt),
+      lastDefeatedAt: Value(lastDefeatedAt),
+    );
+  }
+
+  factory BestiaryDiscovery.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return BestiaryDiscovery(
+      monsterId: serializer.fromJson<String>(json['monsterId']),
+      defeatedCount: serializer.fromJson<int>(json['defeatedCount']),
+      firstDefeatedAt: serializer.fromJson<DateTime>(json['firstDefeatedAt']),
+      lastDefeatedAt: serializer.fromJson<DateTime>(json['lastDefeatedAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'monsterId': serializer.toJson<String>(monsterId),
+      'defeatedCount': serializer.toJson<int>(defeatedCount),
+      'firstDefeatedAt': serializer.toJson<DateTime>(firstDefeatedAt),
+      'lastDefeatedAt': serializer.toJson<DateTime>(lastDefeatedAt),
+    };
+  }
+
+  BestiaryDiscovery copyWith({
+    String? monsterId,
+    int? defeatedCount,
+    DateTime? firstDefeatedAt,
+    DateTime? lastDefeatedAt,
+  }) => BestiaryDiscovery(
+    monsterId: monsterId ?? this.monsterId,
+    defeatedCount: defeatedCount ?? this.defeatedCount,
+    firstDefeatedAt: firstDefeatedAt ?? this.firstDefeatedAt,
+    lastDefeatedAt: lastDefeatedAt ?? this.lastDefeatedAt,
+  );
+  BestiaryDiscovery copyWithCompanion(BestiaryDiscoveriesCompanion data) {
+    return BestiaryDiscovery(
+      monsterId: data.monsterId.present ? data.monsterId.value : this.monsterId,
+      defeatedCount: data.defeatedCount.present
+          ? data.defeatedCount.value
+          : this.defeatedCount,
+      firstDefeatedAt: data.firstDefeatedAt.present
+          ? data.firstDefeatedAt.value
+          : this.firstDefeatedAt,
+      lastDefeatedAt: data.lastDefeatedAt.present
+          ? data.lastDefeatedAt.value
+          : this.lastDefeatedAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('BestiaryDiscovery(')
+          ..write('monsterId: $monsterId, ')
+          ..write('defeatedCount: $defeatedCount, ')
+          ..write('firstDefeatedAt: $firstDefeatedAt, ')
+          ..write('lastDefeatedAt: $lastDefeatedAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode =>
+      Object.hash(monsterId, defeatedCount, firstDefeatedAt, lastDefeatedAt);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is BestiaryDiscovery &&
+          other.monsterId == this.monsterId &&
+          other.defeatedCount == this.defeatedCount &&
+          other.firstDefeatedAt == this.firstDefeatedAt &&
+          other.lastDefeatedAt == this.lastDefeatedAt);
+}
+
+class BestiaryDiscoveriesCompanion extends UpdateCompanion<BestiaryDiscovery> {
+  final Value<String> monsterId;
+  final Value<int> defeatedCount;
+  final Value<DateTime> firstDefeatedAt;
+  final Value<DateTime> lastDefeatedAt;
+  final Value<int> rowid;
+  const BestiaryDiscoveriesCompanion({
+    this.monsterId = const Value.absent(),
+    this.defeatedCount = const Value.absent(),
+    this.firstDefeatedAt = const Value.absent(),
+    this.lastDefeatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  BestiaryDiscoveriesCompanion.insert({
+    required String monsterId,
+    this.defeatedCount = const Value.absent(),
+    this.firstDefeatedAt = const Value.absent(),
+    this.lastDefeatedAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : monsterId = Value(monsterId);
+  static Insertable<BestiaryDiscovery> custom({
+    Expression<String>? monsterId,
+    Expression<int>? defeatedCount,
+    Expression<DateTime>? firstDefeatedAt,
+    Expression<DateTime>? lastDefeatedAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (monsterId != null) 'monster_id': monsterId,
+      if (defeatedCount != null) 'defeated_count': defeatedCount,
+      if (firstDefeatedAt != null) 'first_defeated_at': firstDefeatedAt,
+      if (lastDefeatedAt != null) 'last_defeated_at': lastDefeatedAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  BestiaryDiscoveriesCompanion copyWith({
+    Value<String>? monsterId,
+    Value<int>? defeatedCount,
+    Value<DateTime>? firstDefeatedAt,
+    Value<DateTime>? lastDefeatedAt,
+    Value<int>? rowid,
+  }) {
+    return BestiaryDiscoveriesCompanion(
+      monsterId: monsterId ?? this.monsterId,
+      defeatedCount: defeatedCount ?? this.defeatedCount,
+      firstDefeatedAt: firstDefeatedAt ?? this.firstDefeatedAt,
+      lastDefeatedAt: lastDefeatedAt ?? this.lastDefeatedAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (monsterId.present) {
+      map['monster_id'] = Variable<String>(monsterId.value);
+    }
+    if (defeatedCount.present) {
+      map['defeated_count'] = Variable<int>(defeatedCount.value);
+    }
+    if (firstDefeatedAt.present) {
+      map['first_defeated_at'] = Variable<DateTime>(firstDefeatedAt.value);
+    }
+    if (lastDefeatedAt.present) {
+      map['last_defeated_at'] = Variable<DateTime>(lastDefeatedAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('BestiaryDiscoveriesCompanion(')
+          ..write('monsterId: $monsterId, ')
+          ..write('defeatedCount: $defeatedCount, ')
+          ..write('firstDefeatedAt: $firstDefeatedAt, ')
+          ..write('lastDefeatedAt: $lastDefeatedAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -5762,6 +6095,8 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     this,
   );
   late final $GratitudeLogsTable gratitudeLogs = $GratitudeLogsTable(this);
+  late final $BestiaryDiscoveriesTable bestiaryDiscoveries =
+      $BestiaryDiscoveriesTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -5778,6 +6113,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     dungeonInventory,
     dungeonProgress,
     gratitudeLogs,
+    bestiaryDiscoveries,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -8959,6 +9295,220 @@ typedef $$GratitudeLogsTableProcessedTableManager =
       GratitudeLog,
       PrefetchHooks Function()
     >;
+typedef $$BestiaryDiscoveriesTableCreateCompanionBuilder =
+    BestiaryDiscoveriesCompanion Function({
+      required String monsterId,
+      Value<int> defeatedCount,
+      Value<DateTime> firstDefeatedAt,
+      Value<DateTime> lastDefeatedAt,
+      Value<int> rowid,
+    });
+typedef $$BestiaryDiscoveriesTableUpdateCompanionBuilder =
+    BestiaryDiscoveriesCompanion Function({
+      Value<String> monsterId,
+      Value<int> defeatedCount,
+      Value<DateTime> firstDefeatedAt,
+      Value<DateTime> lastDefeatedAt,
+      Value<int> rowid,
+    });
+
+class $$BestiaryDiscoveriesTableFilterComposer
+    extends Composer<_$AppDatabase, $BestiaryDiscoveriesTable> {
+  $$BestiaryDiscoveriesTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get monsterId => $composableBuilder(
+    column: $table.monsterId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get defeatedCount => $composableBuilder(
+    column: $table.defeatedCount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get firstDefeatedAt => $composableBuilder(
+    column: $table.firstDefeatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get lastDefeatedAt => $composableBuilder(
+    column: $table.lastDefeatedAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$BestiaryDiscoveriesTableOrderingComposer
+    extends Composer<_$AppDatabase, $BestiaryDiscoveriesTable> {
+  $$BestiaryDiscoveriesTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get monsterId => $composableBuilder(
+    column: $table.monsterId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get defeatedCount => $composableBuilder(
+    column: $table.defeatedCount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get firstDefeatedAt => $composableBuilder(
+    column: $table.firstDefeatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get lastDefeatedAt => $composableBuilder(
+    column: $table.lastDefeatedAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$BestiaryDiscoveriesTableAnnotationComposer
+    extends Composer<_$AppDatabase, $BestiaryDiscoveriesTable> {
+  $$BestiaryDiscoveriesTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get monsterId =>
+      $composableBuilder(column: $table.monsterId, builder: (column) => column);
+
+  GeneratedColumn<int> get defeatedCount => $composableBuilder(
+    column: $table.defeatedCount,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get firstDefeatedAt => $composableBuilder(
+    column: $table.firstDefeatedAt,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get lastDefeatedAt => $composableBuilder(
+    column: $table.lastDefeatedAt,
+    builder: (column) => column,
+  );
+}
+
+class $$BestiaryDiscoveriesTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $BestiaryDiscoveriesTable,
+          BestiaryDiscovery,
+          $$BestiaryDiscoveriesTableFilterComposer,
+          $$BestiaryDiscoveriesTableOrderingComposer,
+          $$BestiaryDiscoveriesTableAnnotationComposer,
+          $$BestiaryDiscoveriesTableCreateCompanionBuilder,
+          $$BestiaryDiscoveriesTableUpdateCompanionBuilder,
+          (
+            BestiaryDiscovery,
+            BaseReferences<
+              _$AppDatabase,
+              $BestiaryDiscoveriesTable,
+              BestiaryDiscovery
+            >,
+          ),
+          BestiaryDiscovery,
+          PrefetchHooks Function()
+        > {
+  $$BestiaryDiscoveriesTableTableManager(
+    _$AppDatabase db,
+    $BestiaryDiscoveriesTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$BestiaryDiscoveriesTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$BestiaryDiscoveriesTableOrderingComposer(
+                $db: db,
+                $table: table,
+              ),
+          createComputedFieldComposer: () =>
+              $$BestiaryDiscoveriesTableAnnotationComposer(
+                $db: db,
+                $table: table,
+              ),
+          updateCompanionCallback:
+              ({
+                Value<String> monsterId = const Value.absent(),
+                Value<int> defeatedCount = const Value.absent(),
+                Value<DateTime> firstDefeatedAt = const Value.absent(),
+                Value<DateTime> lastDefeatedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => BestiaryDiscoveriesCompanion(
+                monsterId: monsterId,
+                defeatedCount: defeatedCount,
+                firstDefeatedAt: firstDefeatedAt,
+                lastDefeatedAt: lastDefeatedAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String monsterId,
+                Value<int> defeatedCount = const Value.absent(),
+                Value<DateTime> firstDefeatedAt = const Value.absent(),
+                Value<DateTime> lastDefeatedAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => BestiaryDiscoveriesCompanion.insert(
+                monsterId: monsterId,
+                defeatedCount: defeatedCount,
+                firstDefeatedAt: firstDefeatedAt,
+                lastDefeatedAt: lastDefeatedAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$BestiaryDiscoveriesTable, BestiaryDiscovery>(
+                    table,
+                  ),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $BestiaryDiscoveriesTable,
+                    BestiaryDiscovery
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$BestiaryDiscoveriesTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $BestiaryDiscoveriesTable,
+      BestiaryDiscovery,
+      $$BestiaryDiscoveriesTableFilterComposer,
+      $$BestiaryDiscoveriesTableOrderingComposer,
+      $$BestiaryDiscoveriesTableAnnotationComposer,
+      $$BestiaryDiscoveriesTableCreateCompanionBuilder,
+      $$BestiaryDiscoveriesTableUpdateCompanionBuilder,
+      (
+        BestiaryDiscovery,
+        BaseReferences<
+          _$AppDatabase,
+          $BestiaryDiscoveriesTable,
+          BestiaryDiscovery
+        >,
+      ),
+      BestiaryDiscovery,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -8985,4 +9535,6 @@ class $AppDatabaseManager {
       $$DungeonProgressTableTableManager(_db, _db.dungeonProgress);
   $$GratitudeLogsTableTableManager get gratitudeLogs =>
       $$GratitudeLogsTableTableManager(_db, _db.gratitudeLogs);
+  $$BestiaryDiscoveriesTableTableManager get bestiaryDiscoveries =>
+      $$BestiaryDiscoveriesTableTableManager(_db, _db.bestiaryDiscoveries);
 }

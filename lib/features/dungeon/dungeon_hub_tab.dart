@@ -13,6 +13,7 @@ import '../../core/widgets/hero_sprite_widget.dart';
 import '../../core/widgets/pixel_panel.dart';
 import '../../data/database/app_database.dart';
 import '../../providers/app_providers.dart';
+import 'bestiary_view.dart';
 import 'dungeon_run_screen.dart';
 
 /// Nova aba **Raids** (Fase 6): Hub de Masmorras Procedurais + Inventário + Ferreiro.
@@ -87,6 +88,7 @@ class _DungeonHubTabState extends ConsumerState<DungeonHubTab> {
     final attrsList = ref.watch(attributeStatsProvider).value ?? const [];
     final inventoryRows = ref.watch(dungeonInventoryProvider).value ?? const [];
     final progressRows = ref.watch(dungeonProgressProvider).value ?? const [];
+    final discoveries = ref.watch(bestiaryDiscoveriesProvider).value ?? const [];
 
     final attrMap = <RpgAttribute, int>{
       for (final attr in RpgAttribute.values) attr: 1,
@@ -152,6 +154,10 @@ class _DungeonHubTabState extends ConsumerState<DungeonHubTab> {
                     inventoryRows: inventoryRows,
                     charismaLevel: attrMap[RpgAttribute.charisma] ?? 1,
                   ),
+                  BestiaryView(
+                    catalog: catalog,
+                    discoveries: discoveries,
+                  ),
                 ],
               ),
             ),
@@ -162,7 +168,7 @@ class _DungeonHubTabState extends ConsumerState<DungeonHubTab> {
   }
 
   Widget _buildSubTabBar() {
-    const labels = ['MASMORRAS', 'INVENTÁRIO', 'FERREIRO'];
+    const labels = ['MASMORRAS', 'MOCHILA', 'FERREIRO', 'BESTIÁRIO'];
     return Row(
       children: List.generate(labels.length, (i) {
         final active = _subTab == i;
@@ -170,20 +176,22 @@ class _DungeonHubTabState extends ConsumerState<DungeonHubTab> {
           child: GestureDetector(
             onTap: () => setState(() => _subTab = i),
             child: Container(
-              margin: EdgeInsets.only(right: i < 2 ? 6 : 0),
-              padding: const EdgeInsets.symmetric(vertical: 10),
+              margin: EdgeInsets.only(right: i < labels.length - 1 ? 4 : 0),
+              padding: const EdgeInsets.symmetric(vertical: 9, horizontal: 2),
               decoration: BoxDecoration(
                 color: active ? LifeOsColors.surfaceHighlight : LifeOsColors.surface,
                 border: Border.all(
                   color: active ? LifeOsColors.gold : LifeOsColors.border,
-                  width: active ? 2 : 1.5,
+                  width: active ? 2 : 1.4,
                 ),
               ),
               child: Text(
                 labels[i],
                 textAlign: TextAlign.center,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
                 style: LifeOsTheme.pixelTitle(
-                  size: 8.5,
+                  size: 7.4,
                   color: active ? LifeOsColors.gold : LifeOsColors.textSecondary,
                 ),
               ),

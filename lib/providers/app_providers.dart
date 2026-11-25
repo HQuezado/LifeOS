@@ -120,3 +120,7 @@ final gratitudeRepositoryProvider = Provider<GratitudeRepository>((ref) {
 final gratitudeLogsProvider = StreamProvider<List<GratitudeLog>>((ref) {
   return ref.watch(gratitudeRepositoryProvider).watchLogs();
 });
+
+final bestiaryDiscoveriesProvider = StreamProvider<List<BestiaryDiscovery>>((ref) {
+  return ref.watch(dungeonRepositoryProvider).watchBestiaryDiscoveries();
+});

@@ -14,6 +14,7 @@ import 'package:lifeos/core/rpg/shop_catalog.dart';
 import 'package:lifeos/core/social/gratitude_seal.dart';
 import 'package:lifeos/data/database/app_database.dart';
 import 'package:lifeos/data/services/step_encounter_service.dart';
+import 'package:lifeos/features/dungeon/bestiary_view.dart';
 import 'package:lifeos/features/dungeon/dungeon_run_screen.dart';
 import 'package:lifeos/providers/app_providers.dart';
 import 'package:material_ui/material_ui.dart';
@@ -310,6 +311,33 @@ void main() {
       await tester.pump();
       expect(tester.takeException(), isNull);
       expect(find.textContaining('BOSQUE SUSSURRANTE'), findsOneWidget);
+    });
+
+    testWidgets('BestiaryView renders locked silhouettes and unlocked monsters cleanly', (tester) async {
+      final discoveries = [
+        BestiaryDiscovery(
+          monsterId: 'mob_forest_slime',
+          defeatedCount: 3,
+          firstDefeatedAt: DateTime(2026),
+          lastDefeatedAt: DateTime(2026),
+        ),
+      ];
+
+      await tester.pumpWidget(
+        MaterialApp(
+          home: Scaffold(
+            body: BestiaryView(
+              catalog: catalog,
+              discoveries: discoveries,
+            ),
+          ),
+        ),
+      );
+      await tester.pump();
+      expect(tester.takeException(), isNull);
+      expect(find.textContaining('1 / 30 DESCOBERTOS'), findsOneWidget);
+      expect(find.text('Slime do Bosque'), findsOneWidget);
+      expect(find.text('???'), findsWidgets);
     });
   });
 
