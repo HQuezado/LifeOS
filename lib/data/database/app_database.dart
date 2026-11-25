@@ -24,6 +24,14 @@ class HeroProfiles extends Table {
   DateTimeColumn get lastFlashMissionAt => dateTime().nullable()();
   IntColumn get expeditionKeys => integer().withDefault(const Constant(3))();
   TextColumn get lastDailyKeyDate => text().nullable()();
+  TextColumn get heroUid => text().nullable()();
+  IntColumn get gratitudeSentCount => integer().withDefault(const Constant(0))();
+  IntColumn get lastGratitudeSentLevel =>
+      integer().withDefault(const Constant(0))();
+  IntColumn get gratitudeReceivedCount =>
+      integer().withDefault(const Constant(0))();
+  IntColumn get lastGratitudeReceivedLevel =>
+      integer().withDefault(const Constant(0))();
   DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
 }
 
@@ -132,6 +140,23 @@ class DungeonProgress extends Table {
   Set<Column> get primaryKey => {biomeKey};
 }
 
+/// Mural e controle de uso único dos Selos de Gratidão (Fase 7).
+class GratitudeLogs extends Table {
+  TextColumn get tokenId => text()();
+  TextColumn get direction => text()(); // sent | received
+  TextColumn get peerName => text()();
+  TextColumn get note => text().withDefault(const Constant(''))();
+  IntColumn get xpAmount => integer().withDefault(const Constant(0))();
+  IntColumn get goldAmount => integer().withDefault(const Constant(0))();
+  TextColumn get itemId => text().nullable()();
+  TextColumn get itemName => text().nullable()();
+  TextColumn get sealCode => text()();
+  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
+
+  @override
+  Set<Column> get primaryKey => {tokenId};
+}
+
 @DriftDatabase(
   tables: [
     HeroProfiles,
@@ -144,13 +169,14 @@ class DungeonProgress extends Table {
     CalendarEvents,
     DungeonInventory,
     DungeonProgress,
+    GratitudeLogs,
   ],
 )
 class AppDatabase extends _$AppDatabase {
   AppDatabase([QueryExecutor? executor]) : super(executor ?? _openConnection());
 
   @override
-  int get schemaVersion => 9;
+  int get schemaVersion => 10;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -196,6 +222,23 @@ class AppDatabase extends _$AppDatabase {
             await m.addColumn(heroProfiles, heroProfiles.lastDailyKeyDate);
             await m.createTable(dungeonInventory);
             await m.createTable(dungeonProgress);
+          }
+          if (from < 10) {
+            await m.addColumn(heroProfiles, heroProfiles.heroUid);
+            await m.addColumn(heroProfiles, heroProfiles.gratitudeSentCount);
+            await m.addColumn(
+              heroProfiles,
+              heroProfiles.lastGratitudeSentLevel,
+            );
+            await m.addColumn(
+              heroProfiles,
+              heroProfiles.gratitudeReceivedCount,
+            );
+            await m.addColumn(
+              heroProfiles,
+              heroProfiles.lastGratitudeReceivedLevel,
+            );
+            await m.createTable(gratitudeLogs);
           }
         },
       );

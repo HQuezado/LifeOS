@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../core/dungeon/dungeon_catalog.dart';
 import '../data/database/app_database.dart';
 import '../data/repositories/dungeon_repository.dart';
+import '../data/repositories/gratitude_repository.dart';
 import '../data/repositories/hero_repository.dart';
 import '../data/repositories/raid_repository.dart';
 import '../data/repositories/shop_repository.dart';
@@ -106,4 +107,16 @@ final dungeonInventoryProvider = StreamProvider<List<DungeonInventoryData>>((ref
 
 final dungeonProgressProvider = StreamProvider<List<DungeonProgressData>>((ref) {
   return ref.watch(dungeonRepositoryProvider).watchProgress();
+});
+
+final gratitudeRepositoryProvider = Provider<GratitudeRepository>((ref) {
+  return GratitudeRepository(
+    ref.watch(appDatabaseProvider),
+    ref.watch(heroRepositoryProvider),
+    ref.watch(dungeonRepositoryProvider),
+  );
+});
+
+final gratitudeLogsProvider = StreamProvider<List<GratitudeLog>>((ref) {
+  return ref.watch(gratitudeRepositoryProvider).watchLogs();
 });

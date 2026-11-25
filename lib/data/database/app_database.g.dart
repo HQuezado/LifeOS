@@ -213,6 +213,62 @@ class $HeroProfilesTable extends HeroProfiles
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
+  static const VerificationMeta _heroUidMeta = const VerificationMeta(
+    'heroUid',
+  );
+  @override
+  late final GeneratedColumn<String> heroUid = GeneratedColumn<String>(
+    'hero_uid',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _gratitudeSentCountMeta =
+      const VerificationMeta('gratitudeSentCount');
+  @override
+  late final GeneratedColumn<int> gratitudeSentCount = GeneratedColumn<int>(
+    'gratitude_sent_count',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _lastGratitudeSentLevelMeta =
+      const VerificationMeta('lastGratitudeSentLevel');
+  @override
+  late final GeneratedColumn<int> lastGratitudeSentLevel = GeneratedColumn<int>(
+    'last_gratitude_sent_level',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _gratitudeReceivedCountMeta =
+      const VerificationMeta('gratitudeReceivedCount');
+  @override
+  late final GeneratedColumn<int> gratitudeReceivedCount = GeneratedColumn<int>(
+    'gratitude_received_count',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _lastGratitudeReceivedLevelMeta =
+      const VerificationMeta('lastGratitudeReceivedLevel');
+  @override
+  late final GeneratedColumn<int> lastGratitudeReceivedLevel =
+      GeneratedColumn<int>(
+        'last_gratitude_received_level',
+        aliasedName,
+        false,
+        type: DriftSqlType.int,
+        requiredDuringInsert: false,
+        defaultValue: const Constant(0),
+      );
   static const VerificationMeta _createdAtMeta = const VerificationMeta(
     'createdAt',
   );
@@ -244,6 +300,11 @@ class $HeroProfilesTable extends HeroProfiles
     lastFlashMissionAt,
     expeditionKeys,
     lastDailyKeyDate,
+    heroUid,
+    gratitudeSentCount,
+    lastGratitudeSentLevel,
+    gratitudeReceivedCount,
+    lastGratitudeReceivedLevel,
     createdAt,
   ];
   @override
@@ -388,6 +449,48 @@ class $HeroProfilesTable extends HeroProfiles
         ),
       );
     }
+    if (data.containsKey('hero_uid')) {
+      context.handle(
+        _heroUidMeta,
+        heroUid.isAcceptableOrUnknown(data['hero_uid']!, _heroUidMeta),
+      );
+    }
+    if (data.containsKey('gratitude_sent_count')) {
+      context.handle(
+        _gratitudeSentCountMeta,
+        gratitudeSentCount.isAcceptableOrUnknown(
+          data['gratitude_sent_count']!,
+          _gratitudeSentCountMeta,
+        ),
+      );
+    }
+    if (data.containsKey('last_gratitude_sent_level')) {
+      context.handle(
+        _lastGratitudeSentLevelMeta,
+        lastGratitudeSentLevel.isAcceptableOrUnknown(
+          data['last_gratitude_sent_level']!,
+          _lastGratitudeSentLevelMeta,
+        ),
+      );
+    }
+    if (data.containsKey('gratitude_received_count')) {
+      context.handle(
+        _gratitudeReceivedCountMeta,
+        gratitudeReceivedCount.isAcceptableOrUnknown(
+          data['gratitude_received_count']!,
+          _gratitudeReceivedCountMeta,
+        ),
+      );
+    }
+    if (data.containsKey('last_gratitude_received_level')) {
+      context.handle(
+        _lastGratitudeReceivedLevelMeta,
+        lastGratitudeReceivedLevel.isAcceptableOrUnknown(
+          data['last_gratitude_received_level']!,
+          _lastGratitudeReceivedLevelMeta,
+        ),
+      );
+    }
     if (data.containsKey('created_at')) {
       context.handle(
         _createdAtMeta,
@@ -471,6 +574,26 @@ class $HeroProfilesTable extends HeroProfiles
         DriftSqlType.string,
         data['${effectivePrefix}last_daily_key_date'],
       ),
+      heroUid: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}hero_uid'],
+      ),
+      gratitudeSentCount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}gratitude_sent_count'],
+      )!,
+      lastGratitudeSentLevel: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}last_gratitude_sent_level'],
+      )!,
+      gratitudeReceivedCount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}gratitude_received_count'],
+      )!,
+      lastGratitudeReceivedLevel: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}last_gratitude_received_level'],
+      )!,
       createdAt: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}created_at'],
@@ -502,6 +625,11 @@ class HeroProfile extends DataClass implements Insertable<HeroProfile> {
   final DateTime? lastFlashMissionAt;
   final int expeditionKeys;
   final String? lastDailyKeyDate;
+  final String? heroUid;
+  final int gratitudeSentCount;
+  final int lastGratitudeSentLevel;
+  final int gratitudeReceivedCount;
+  final int lastGratitudeReceivedLevel;
   final DateTime createdAt;
   const HeroProfile({
     required this.id,
@@ -521,6 +649,11 @@ class HeroProfile extends DataClass implements Insertable<HeroProfile> {
     this.lastFlashMissionAt,
     required this.expeditionKeys,
     this.lastDailyKeyDate,
+    this.heroUid,
+    required this.gratitudeSentCount,
+    required this.lastGratitudeSentLevel,
+    required this.gratitudeReceivedCount,
+    required this.lastGratitudeReceivedLevel,
     required this.createdAt,
   });
   @override
@@ -557,6 +690,15 @@ class HeroProfile extends DataClass implements Insertable<HeroProfile> {
     if (!nullToAbsent || lastDailyKeyDate != null) {
       map['last_daily_key_date'] = Variable<String>(lastDailyKeyDate);
     }
+    if (!nullToAbsent || heroUid != null) {
+      map['hero_uid'] = Variable<String>(heroUid);
+    }
+    map['gratitude_sent_count'] = Variable<int>(gratitudeSentCount);
+    map['last_gratitude_sent_level'] = Variable<int>(lastGratitudeSentLevel);
+    map['gratitude_received_count'] = Variable<int>(gratitudeReceivedCount);
+    map['last_gratitude_received_level'] = Variable<int>(
+      lastGratitudeReceivedLevel,
+    );
     map['created_at'] = Variable<DateTime>(createdAt);
     return map;
   }
@@ -590,6 +732,13 @@ class HeroProfile extends DataClass implements Insertable<HeroProfile> {
       lastDailyKeyDate: lastDailyKeyDate == null && nullToAbsent
           ? const Value.absent()
           : Value(lastDailyKeyDate),
+      heroUid: heroUid == null && nullToAbsent
+          ? const Value.absent()
+          : Value(heroUid),
+      gratitudeSentCount: Value(gratitudeSentCount),
+      lastGratitudeSentLevel: Value(lastGratitudeSentLevel),
+      gratitudeReceivedCount: Value(gratitudeReceivedCount),
+      lastGratitudeReceivedLevel: Value(lastGratitudeReceivedLevel),
       createdAt: Value(createdAt),
     );
   }
@@ -629,6 +778,17 @@ class HeroProfile extends DataClass implements Insertable<HeroProfile> {
       ),
       expeditionKeys: serializer.fromJson<int>(json['expeditionKeys']),
       lastDailyKeyDate: serializer.fromJson<String?>(json['lastDailyKeyDate']),
+      heroUid: serializer.fromJson<String?>(json['heroUid']),
+      gratitudeSentCount: serializer.fromJson<int>(json['gratitudeSentCount']),
+      lastGratitudeSentLevel: serializer.fromJson<int>(
+        json['lastGratitudeSentLevel'],
+      ),
+      gratitudeReceivedCount: serializer.fromJson<int>(
+        json['gratitudeReceivedCount'],
+      ),
+      lastGratitudeReceivedLevel: serializer.fromJson<int>(
+        json['lastGratitudeReceivedLevel'],
+      ),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
     );
   }
@@ -657,6 +817,13 @@ class HeroProfile extends DataClass implements Insertable<HeroProfile> {
       'lastFlashMissionAt': serializer.toJson<DateTime?>(lastFlashMissionAt),
       'expeditionKeys': serializer.toJson<int>(expeditionKeys),
       'lastDailyKeyDate': serializer.toJson<String?>(lastDailyKeyDate),
+      'heroUid': serializer.toJson<String?>(heroUid),
+      'gratitudeSentCount': serializer.toJson<int>(gratitudeSentCount),
+      'lastGratitudeSentLevel': serializer.toJson<int>(lastGratitudeSentLevel),
+      'gratitudeReceivedCount': serializer.toJson<int>(gratitudeReceivedCount),
+      'lastGratitudeReceivedLevel': serializer.toJson<int>(
+        lastGratitudeReceivedLevel,
+      ),
       'createdAt': serializer.toJson<DateTime>(createdAt),
     };
   }
@@ -679,6 +846,11 @@ class HeroProfile extends DataClass implements Insertable<HeroProfile> {
     Value<DateTime?> lastFlashMissionAt = const Value.absent(),
     int? expeditionKeys,
     Value<String?> lastDailyKeyDate = const Value.absent(),
+    Value<String?> heroUid = const Value.absent(),
+    int? gratitudeSentCount,
+    int? lastGratitudeSentLevel,
+    int? gratitudeReceivedCount,
+    int? lastGratitudeReceivedLevel,
     DateTime? createdAt,
   }) => HeroProfile(
     id: id ?? this.id,
@@ -709,6 +881,14 @@ class HeroProfile extends DataClass implements Insertable<HeroProfile> {
     lastDailyKeyDate: lastDailyKeyDate.present
         ? lastDailyKeyDate.value
         : this.lastDailyKeyDate,
+    heroUid: heroUid.present ? heroUid.value : this.heroUid,
+    gratitudeSentCount: gratitudeSentCount ?? this.gratitudeSentCount,
+    lastGratitudeSentLevel:
+        lastGratitudeSentLevel ?? this.lastGratitudeSentLevel,
+    gratitudeReceivedCount:
+        gratitudeReceivedCount ?? this.gratitudeReceivedCount,
+    lastGratitudeReceivedLevel:
+        lastGratitudeReceivedLevel ?? this.lastGratitudeReceivedLevel,
     createdAt: createdAt ?? this.createdAt,
   );
   HeroProfile copyWithCompanion(HeroProfilesCompanion data) {
@@ -750,6 +930,19 @@ class HeroProfile extends DataClass implements Insertable<HeroProfile> {
       lastDailyKeyDate: data.lastDailyKeyDate.present
           ? data.lastDailyKeyDate.value
           : this.lastDailyKeyDate,
+      heroUid: data.heroUid.present ? data.heroUid.value : this.heroUid,
+      gratitudeSentCount: data.gratitudeSentCount.present
+          ? data.gratitudeSentCount.value
+          : this.gratitudeSentCount,
+      lastGratitudeSentLevel: data.lastGratitudeSentLevel.present
+          ? data.lastGratitudeSentLevel.value
+          : this.lastGratitudeSentLevel,
+      gratitudeReceivedCount: data.gratitudeReceivedCount.present
+          ? data.gratitudeReceivedCount.value
+          : this.gratitudeReceivedCount,
+      lastGratitudeReceivedLevel: data.lastGratitudeReceivedLevel.present
+          ? data.lastGratitudeReceivedLevel.value
+          : this.lastGratitudeReceivedLevel,
       createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
     );
   }
@@ -774,13 +967,18 @@ class HeroProfile extends DataClass implements Insertable<HeroProfile> {
           ..write('lastFlashMissionAt: $lastFlashMissionAt, ')
           ..write('expeditionKeys: $expeditionKeys, ')
           ..write('lastDailyKeyDate: $lastDailyKeyDate, ')
+          ..write('heroUid: $heroUid, ')
+          ..write('gratitudeSentCount: $gratitudeSentCount, ')
+          ..write('lastGratitudeSentLevel: $lastGratitudeSentLevel, ')
+          ..write('gratitudeReceivedCount: $gratitudeReceivedCount, ')
+          ..write('lastGratitudeReceivedLevel: $lastGratitudeReceivedLevel, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
         .toString();
   }
 
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
     id,
     name,
     heroClass,
@@ -798,8 +996,13 @@ class HeroProfile extends DataClass implements Insertable<HeroProfile> {
     lastFlashMissionAt,
     expeditionKeys,
     lastDailyKeyDate,
+    heroUid,
+    gratitudeSentCount,
+    lastGratitudeSentLevel,
+    gratitudeReceivedCount,
+    lastGratitudeReceivedLevel,
     createdAt,
-  );
+  ]);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -821,6 +1024,11 @@ class HeroProfile extends DataClass implements Insertable<HeroProfile> {
           other.lastFlashMissionAt == this.lastFlashMissionAt &&
           other.expeditionKeys == this.expeditionKeys &&
           other.lastDailyKeyDate == this.lastDailyKeyDate &&
+          other.heroUid == this.heroUid &&
+          other.gratitudeSentCount == this.gratitudeSentCount &&
+          other.lastGratitudeSentLevel == this.lastGratitudeSentLevel &&
+          other.gratitudeReceivedCount == this.gratitudeReceivedCount &&
+          other.lastGratitudeReceivedLevel == this.lastGratitudeReceivedLevel &&
           other.createdAt == this.createdAt);
 }
 
@@ -842,6 +1050,11 @@ class HeroProfilesCompanion extends UpdateCompanion<HeroProfile> {
   final Value<DateTime?> lastFlashMissionAt;
   final Value<int> expeditionKeys;
   final Value<String?> lastDailyKeyDate;
+  final Value<String?> heroUid;
+  final Value<int> gratitudeSentCount;
+  final Value<int> lastGratitudeSentLevel;
+  final Value<int> gratitudeReceivedCount;
+  final Value<int> lastGratitudeReceivedLevel;
   final Value<DateTime> createdAt;
   const HeroProfilesCompanion({
     this.id = const Value.absent(),
@@ -861,6 +1074,11 @@ class HeroProfilesCompanion extends UpdateCompanion<HeroProfile> {
     this.lastFlashMissionAt = const Value.absent(),
     this.expeditionKeys = const Value.absent(),
     this.lastDailyKeyDate = const Value.absent(),
+    this.heroUid = const Value.absent(),
+    this.gratitudeSentCount = const Value.absent(),
+    this.lastGratitudeSentLevel = const Value.absent(),
+    this.gratitudeReceivedCount = const Value.absent(),
+    this.lastGratitudeReceivedLevel = const Value.absent(),
     this.createdAt = const Value.absent(),
   });
   HeroProfilesCompanion.insert({
@@ -881,6 +1099,11 @@ class HeroProfilesCompanion extends UpdateCompanion<HeroProfile> {
     this.lastFlashMissionAt = const Value.absent(),
     this.expeditionKeys = const Value.absent(),
     this.lastDailyKeyDate = const Value.absent(),
+    this.heroUid = const Value.absent(),
+    this.gratitudeSentCount = const Value.absent(),
+    this.lastGratitudeSentLevel = const Value.absent(),
+    this.gratitudeReceivedCount = const Value.absent(),
+    this.lastGratitudeReceivedLevel = const Value.absent(),
     this.createdAt = const Value.absent(),
   }) : name = Value(name),
        heroClass = Value(heroClass);
@@ -902,6 +1125,11 @@ class HeroProfilesCompanion extends UpdateCompanion<HeroProfile> {
     Expression<DateTime>? lastFlashMissionAt,
     Expression<int>? expeditionKeys,
     Expression<String>? lastDailyKeyDate,
+    Expression<String>? heroUid,
+    Expression<int>? gratitudeSentCount,
+    Expression<int>? lastGratitudeSentLevel,
+    Expression<int>? gratitudeReceivedCount,
+    Expression<int>? lastGratitudeReceivedLevel,
     Expression<DateTime>? createdAt,
   }) {
     return RawValuesInsertable({
@@ -926,6 +1154,15 @@ class HeroProfilesCompanion extends UpdateCompanion<HeroProfile> {
         'last_flash_mission_at': lastFlashMissionAt,
       if (expeditionKeys != null) 'expedition_keys': expeditionKeys,
       if (lastDailyKeyDate != null) 'last_daily_key_date': lastDailyKeyDate,
+      if (heroUid != null) 'hero_uid': heroUid,
+      if (gratitudeSentCount != null)
+        'gratitude_sent_count': gratitudeSentCount,
+      if (lastGratitudeSentLevel != null)
+        'last_gratitude_sent_level': lastGratitudeSentLevel,
+      if (gratitudeReceivedCount != null)
+        'gratitude_received_count': gratitudeReceivedCount,
+      if (lastGratitudeReceivedLevel != null)
+        'last_gratitude_received_level': lastGratitudeReceivedLevel,
       if (createdAt != null) 'created_at': createdAt,
     });
   }
@@ -948,6 +1185,11 @@ class HeroProfilesCompanion extends UpdateCompanion<HeroProfile> {
     Value<DateTime?>? lastFlashMissionAt,
     Value<int>? expeditionKeys,
     Value<String?>? lastDailyKeyDate,
+    Value<String?>? heroUid,
+    Value<int>? gratitudeSentCount,
+    Value<int>? lastGratitudeSentLevel,
+    Value<int>? gratitudeReceivedCount,
+    Value<int>? lastGratitudeReceivedLevel,
     Value<DateTime>? createdAt,
   }) {
     return HeroProfilesCompanion(
@@ -971,6 +1213,14 @@ class HeroProfilesCompanion extends UpdateCompanion<HeroProfile> {
       lastFlashMissionAt: lastFlashMissionAt ?? this.lastFlashMissionAt,
       expeditionKeys: expeditionKeys ?? this.expeditionKeys,
       lastDailyKeyDate: lastDailyKeyDate ?? this.lastDailyKeyDate,
+      heroUid: heroUid ?? this.heroUid,
+      gratitudeSentCount: gratitudeSentCount ?? this.gratitudeSentCount,
+      lastGratitudeSentLevel:
+          lastGratitudeSentLevel ?? this.lastGratitudeSentLevel,
+      gratitudeReceivedCount:
+          gratitudeReceivedCount ?? this.gratitudeReceivedCount,
+      lastGratitudeReceivedLevel:
+          lastGratitudeReceivedLevel ?? this.lastGratitudeReceivedLevel,
       createdAt: createdAt ?? this.createdAt,
     );
   }
@@ -1037,6 +1287,27 @@ class HeroProfilesCompanion extends UpdateCompanion<HeroProfile> {
     if (lastDailyKeyDate.present) {
       map['last_daily_key_date'] = Variable<String>(lastDailyKeyDate.value);
     }
+    if (heroUid.present) {
+      map['hero_uid'] = Variable<String>(heroUid.value);
+    }
+    if (gratitudeSentCount.present) {
+      map['gratitude_sent_count'] = Variable<int>(gratitudeSentCount.value);
+    }
+    if (lastGratitudeSentLevel.present) {
+      map['last_gratitude_sent_level'] = Variable<int>(
+        lastGratitudeSentLevel.value,
+      );
+    }
+    if (gratitudeReceivedCount.present) {
+      map['gratitude_received_count'] = Variable<int>(
+        gratitudeReceivedCount.value,
+      );
+    }
+    if (lastGratitudeReceivedLevel.present) {
+      map['last_gratitude_received_level'] = Variable<int>(
+        lastGratitudeReceivedLevel.value,
+      );
+    }
     if (createdAt.present) {
       map['created_at'] = Variable<DateTime>(createdAt.value);
     }
@@ -1063,6 +1334,11 @@ class HeroProfilesCompanion extends UpdateCompanion<HeroProfile> {
           ..write('lastFlashMissionAt: $lastFlashMissionAt, ')
           ..write('expeditionKeys: $expeditionKeys, ')
           ..write('lastDailyKeyDate: $lastDailyKeyDate, ')
+          ..write('heroUid: $heroUid, ')
+          ..write('gratitudeSentCount: $gratitudeSentCount, ')
+          ..write('lastGratitudeSentLevel: $lastGratitudeSentLevel, ')
+          ..write('gratitudeReceivedCount: $gratitudeReceivedCount, ')
+          ..write('lastGratitudeReceivedLevel: $lastGratitudeReceivedLevel, ')
           ..write('createdAt: $createdAt')
           ..write(')'))
         .toString();
@@ -4863,6 +5139,611 @@ class DungeonProgressCompanion extends UpdateCompanion<DungeonProgressData> {
   }
 }
 
+class $GratitudeLogsTable extends GratitudeLogs
+    with TableInfo<$GratitudeLogsTable, GratitudeLog> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $GratitudeLogsTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _tokenIdMeta = const VerificationMeta(
+    'tokenId',
+  );
+  @override
+  late final GeneratedColumn<String> tokenId = GeneratedColumn<String>(
+    'token_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _directionMeta = const VerificationMeta(
+    'direction',
+  );
+  @override
+  late final GeneratedColumn<String> direction = GeneratedColumn<String>(
+    'direction',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _peerNameMeta = const VerificationMeta(
+    'peerName',
+  );
+  @override
+  late final GeneratedColumn<String> peerName = GeneratedColumn<String>(
+    'peer_name',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _noteMeta = const VerificationMeta('note');
+  @override
+  late final GeneratedColumn<String> note = GeneratedColumn<String>(
+    'note',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(''),
+  );
+  static const VerificationMeta _xpAmountMeta = const VerificationMeta(
+    'xpAmount',
+  );
+  @override
+  late final GeneratedColumn<int> xpAmount = GeneratedColumn<int>(
+    'xp_amount',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _goldAmountMeta = const VerificationMeta(
+    'goldAmount',
+  );
+  @override
+  late final GeneratedColumn<int> goldAmount = GeneratedColumn<int>(
+    'gold_amount',
+    aliasedName,
+    false,
+    type: DriftSqlType.int,
+    requiredDuringInsert: false,
+    defaultValue: const Constant(0),
+  );
+  static const VerificationMeta _itemIdMeta = const VerificationMeta('itemId');
+  @override
+  late final GeneratedColumn<String> itemId = GeneratedColumn<String>(
+    'item_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _itemNameMeta = const VerificationMeta(
+    'itemName',
+  );
+  @override
+  late final GeneratedColumn<String> itemName = GeneratedColumn<String>(
+    'item_name',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _sealCodeMeta = const VerificationMeta(
+    'sealCode',
+  );
+  @override
+  late final GeneratedColumn<String> sealCode = GeneratedColumn<String>(
+    'seal_code',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _createdAtMeta = const VerificationMeta(
+    'createdAt',
+  );
+  @override
+  late final GeneratedColumn<DateTime> createdAt = GeneratedColumn<DateTime>(
+    'created_at',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    defaultValue: currentDateAndTime,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    tokenId,
+    direction,
+    peerName,
+    note,
+    xpAmount,
+    goldAmount,
+    itemId,
+    itemName,
+    sealCode,
+    createdAt,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'gratitude_logs';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<GratitudeLog> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('token_id')) {
+      context.handle(
+        _tokenIdMeta,
+        tokenId.isAcceptableOrUnknown(data['token_id']!, _tokenIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_tokenIdMeta);
+    }
+    if (data.containsKey('direction')) {
+      context.handle(
+        _directionMeta,
+        direction.isAcceptableOrUnknown(data['direction']!, _directionMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_directionMeta);
+    }
+    if (data.containsKey('peer_name')) {
+      context.handle(
+        _peerNameMeta,
+        peerName.isAcceptableOrUnknown(data['peer_name']!, _peerNameMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_peerNameMeta);
+    }
+    if (data.containsKey('note')) {
+      context.handle(
+        _noteMeta,
+        note.isAcceptableOrUnknown(data['note']!, _noteMeta),
+      );
+    }
+    if (data.containsKey('xp_amount')) {
+      context.handle(
+        _xpAmountMeta,
+        xpAmount.isAcceptableOrUnknown(data['xp_amount']!, _xpAmountMeta),
+      );
+    }
+    if (data.containsKey('gold_amount')) {
+      context.handle(
+        _goldAmountMeta,
+        goldAmount.isAcceptableOrUnknown(data['gold_amount']!, _goldAmountMeta),
+      );
+    }
+    if (data.containsKey('item_id')) {
+      context.handle(
+        _itemIdMeta,
+        itemId.isAcceptableOrUnknown(data['item_id']!, _itemIdMeta),
+      );
+    }
+    if (data.containsKey('item_name')) {
+      context.handle(
+        _itemNameMeta,
+        itemName.isAcceptableOrUnknown(data['item_name']!, _itemNameMeta),
+      );
+    }
+    if (data.containsKey('seal_code')) {
+      context.handle(
+        _sealCodeMeta,
+        sealCode.isAcceptableOrUnknown(data['seal_code']!, _sealCodeMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_sealCodeMeta);
+    }
+    if (data.containsKey('created_at')) {
+      context.handle(
+        _createdAtMeta,
+        createdAt.isAcceptableOrUnknown(data['created_at']!, _createdAtMeta),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {tokenId};
+  @override
+  GratitudeLog map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return GratitudeLog(
+      tokenId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}token_id'],
+      )!,
+      direction: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}direction'],
+      )!,
+      peerName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}peer_name'],
+      )!,
+      note: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}note'],
+      )!,
+      xpAmount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}xp_amount'],
+      )!,
+      goldAmount: attachedDatabase.typeMapping.read(
+        DriftSqlType.int,
+        data['${effectivePrefix}gold_amount'],
+      )!,
+      itemId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}item_id'],
+      ),
+      itemName: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}item_name'],
+      ),
+      sealCode: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}seal_code'],
+      )!,
+      createdAt: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}created_at'],
+      )!,
+    );
+  }
+
+  @override
+  $GratitudeLogsTable createAlias(String alias) {
+    return $GratitudeLogsTable(attachedDatabase, alias);
+  }
+}
+
+class GratitudeLog extends DataClass implements Insertable<GratitudeLog> {
+  final String tokenId;
+  final String direction;
+  final String peerName;
+  final String note;
+  final int xpAmount;
+  final int goldAmount;
+  final String? itemId;
+  final String? itemName;
+  final String sealCode;
+  final DateTime createdAt;
+  const GratitudeLog({
+    required this.tokenId,
+    required this.direction,
+    required this.peerName,
+    required this.note,
+    required this.xpAmount,
+    required this.goldAmount,
+    this.itemId,
+    this.itemName,
+    required this.sealCode,
+    required this.createdAt,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['token_id'] = Variable<String>(tokenId);
+    map['direction'] = Variable<String>(direction);
+    map['peer_name'] = Variable<String>(peerName);
+    map['note'] = Variable<String>(note);
+    map['xp_amount'] = Variable<int>(xpAmount);
+    map['gold_amount'] = Variable<int>(goldAmount);
+    if (!nullToAbsent || itemId != null) {
+      map['item_id'] = Variable<String>(itemId);
+    }
+    if (!nullToAbsent || itemName != null) {
+      map['item_name'] = Variable<String>(itemName);
+    }
+    map['seal_code'] = Variable<String>(sealCode);
+    map['created_at'] = Variable<DateTime>(createdAt);
+    return map;
+  }
+
+  GratitudeLogsCompanion toCompanion(bool nullToAbsent) {
+    return GratitudeLogsCompanion(
+      tokenId: Value(tokenId),
+      direction: Value(direction),
+      peerName: Value(peerName),
+      note: Value(note),
+      xpAmount: Value(xpAmount),
+      goldAmount: Value(goldAmount),
+      itemId: itemId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(itemId),
+      itemName: itemName == null && nullToAbsent
+          ? const Value.absent()
+          : Value(itemName),
+      sealCode: Value(sealCode),
+      createdAt: Value(createdAt),
+    );
+  }
+
+  factory GratitudeLog.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return GratitudeLog(
+      tokenId: serializer.fromJson<String>(json['tokenId']),
+      direction: serializer.fromJson<String>(json['direction']),
+      peerName: serializer.fromJson<String>(json['peerName']),
+      note: serializer.fromJson<String>(json['note']),
+      xpAmount: serializer.fromJson<int>(json['xpAmount']),
+      goldAmount: serializer.fromJson<int>(json['goldAmount']),
+      itemId: serializer.fromJson<String?>(json['itemId']),
+      itemName: serializer.fromJson<String?>(json['itemName']),
+      sealCode: serializer.fromJson<String>(json['sealCode']),
+      createdAt: serializer.fromJson<DateTime>(json['createdAt']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'tokenId': serializer.toJson<String>(tokenId),
+      'direction': serializer.toJson<String>(direction),
+      'peerName': serializer.toJson<String>(peerName),
+      'note': serializer.toJson<String>(note),
+      'xpAmount': serializer.toJson<int>(xpAmount),
+      'goldAmount': serializer.toJson<int>(goldAmount),
+      'itemId': serializer.toJson<String?>(itemId),
+      'itemName': serializer.toJson<String?>(itemName),
+      'sealCode': serializer.toJson<String>(sealCode),
+      'createdAt': serializer.toJson<DateTime>(createdAt),
+    };
+  }
+
+  GratitudeLog copyWith({
+    String? tokenId,
+    String? direction,
+    String? peerName,
+    String? note,
+    int? xpAmount,
+    int? goldAmount,
+    Value<String?> itemId = const Value.absent(),
+    Value<String?> itemName = const Value.absent(),
+    String? sealCode,
+    DateTime? createdAt,
+  }) => GratitudeLog(
+    tokenId: tokenId ?? this.tokenId,
+    direction: direction ?? this.direction,
+    peerName: peerName ?? this.peerName,
+    note: note ?? this.note,
+    xpAmount: xpAmount ?? this.xpAmount,
+    goldAmount: goldAmount ?? this.goldAmount,
+    itemId: itemId.present ? itemId.value : this.itemId,
+    itemName: itemName.present ? itemName.value : this.itemName,
+    sealCode: sealCode ?? this.sealCode,
+    createdAt: createdAt ?? this.createdAt,
+  );
+  GratitudeLog copyWithCompanion(GratitudeLogsCompanion data) {
+    return GratitudeLog(
+      tokenId: data.tokenId.present ? data.tokenId.value : this.tokenId,
+      direction: data.direction.present ? data.direction.value : this.direction,
+      peerName: data.peerName.present ? data.peerName.value : this.peerName,
+      note: data.note.present ? data.note.value : this.note,
+      xpAmount: data.xpAmount.present ? data.xpAmount.value : this.xpAmount,
+      goldAmount: data.goldAmount.present
+          ? data.goldAmount.value
+          : this.goldAmount,
+      itemId: data.itemId.present ? data.itemId.value : this.itemId,
+      itemName: data.itemName.present ? data.itemName.value : this.itemName,
+      sealCode: data.sealCode.present ? data.sealCode.value : this.sealCode,
+      createdAt: data.createdAt.present ? data.createdAt.value : this.createdAt,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('GratitudeLog(')
+          ..write('tokenId: $tokenId, ')
+          ..write('direction: $direction, ')
+          ..write('peerName: $peerName, ')
+          ..write('note: $note, ')
+          ..write('xpAmount: $xpAmount, ')
+          ..write('goldAmount: $goldAmount, ')
+          ..write('itemId: $itemId, ')
+          ..write('itemName: $itemName, ')
+          ..write('sealCode: $sealCode, ')
+          ..write('createdAt: $createdAt')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    tokenId,
+    direction,
+    peerName,
+    note,
+    xpAmount,
+    goldAmount,
+    itemId,
+    itemName,
+    sealCode,
+    createdAt,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is GratitudeLog &&
+          other.tokenId == this.tokenId &&
+          other.direction == this.direction &&
+          other.peerName == this.peerName &&
+          other.note == this.note &&
+          other.xpAmount == this.xpAmount &&
+          other.goldAmount == this.goldAmount &&
+          other.itemId == this.itemId &&
+          other.itemName == this.itemName &&
+          other.sealCode == this.sealCode &&
+          other.createdAt == this.createdAt);
+}
+
+class GratitudeLogsCompanion extends UpdateCompanion<GratitudeLog> {
+  final Value<String> tokenId;
+  final Value<String> direction;
+  final Value<String> peerName;
+  final Value<String> note;
+  final Value<int> xpAmount;
+  final Value<int> goldAmount;
+  final Value<String?> itemId;
+  final Value<String?> itemName;
+  final Value<String> sealCode;
+  final Value<DateTime> createdAt;
+  final Value<int> rowid;
+  const GratitudeLogsCompanion({
+    this.tokenId = const Value.absent(),
+    this.direction = const Value.absent(),
+    this.peerName = const Value.absent(),
+    this.note = const Value.absent(),
+    this.xpAmount = const Value.absent(),
+    this.goldAmount = const Value.absent(),
+    this.itemId = const Value.absent(),
+    this.itemName = const Value.absent(),
+    this.sealCode = const Value.absent(),
+    this.createdAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  GratitudeLogsCompanion.insert({
+    required String tokenId,
+    required String direction,
+    required String peerName,
+    this.note = const Value.absent(),
+    this.xpAmount = const Value.absent(),
+    this.goldAmount = const Value.absent(),
+    this.itemId = const Value.absent(),
+    this.itemName = const Value.absent(),
+    required String sealCode,
+    this.createdAt = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : tokenId = Value(tokenId),
+       direction = Value(direction),
+       peerName = Value(peerName),
+       sealCode = Value(sealCode);
+  static Insertable<GratitudeLog> custom({
+    Expression<String>? tokenId,
+    Expression<String>? direction,
+    Expression<String>? peerName,
+    Expression<String>? note,
+    Expression<int>? xpAmount,
+    Expression<int>? goldAmount,
+    Expression<String>? itemId,
+    Expression<String>? itemName,
+    Expression<String>? sealCode,
+    Expression<DateTime>? createdAt,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (tokenId != null) 'token_id': tokenId,
+      if (direction != null) 'direction': direction,
+      if (peerName != null) 'peer_name': peerName,
+      if (note != null) 'note': note,
+      if (xpAmount != null) 'xp_amount': xpAmount,
+      if (goldAmount != null) 'gold_amount': goldAmount,
+      if (itemId != null) 'item_id': itemId,
+      if (itemName != null) 'item_name': itemName,
+      if (sealCode != null) 'seal_code': sealCode,
+      if (createdAt != null) 'created_at': createdAt,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  GratitudeLogsCompanion copyWith({
+    Value<String>? tokenId,
+    Value<String>? direction,
+    Value<String>? peerName,
+    Value<String>? note,
+    Value<int>? xpAmount,
+    Value<int>? goldAmount,
+    Value<String?>? itemId,
+    Value<String?>? itemName,
+    Value<String>? sealCode,
+    Value<DateTime>? createdAt,
+    Value<int>? rowid,
+  }) {
+    return GratitudeLogsCompanion(
+      tokenId: tokenId ?? this.tokenId,
+      direction: direction ?? this.direction,
+      peerName: peerName ?? this.peerName,
+      note: note ?? this.note,
+      xpAmount: xpAmount ?? this.xpAmount,
+      goldAmount: goldAmount ?? this.goldAmount,
+      itemId: itemId ?? this.itemId,
+      itemName: itemName ?? this.itemName,
+      sealCode: sealCode ?? this.sealCode,
+      createdAt: createdAt ?? this.createdAt,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (tokenId.present) {
+      map['token_id'] = Variable<String>(tokenId.value);
+    }
+    if (direction.present) {
+      map['direction'] = Variable<String>(direction.value);
+    }
+    if (peerName.present) {
+      map['peer_name'] = Variable<String>(peerName.value);
+    }
+    if (note.present) {
+      map['note'] = Variable<String>(note.value);
+    }
+    if (xpAmount.present) {
+      map['xp_amount'] = Variable<int>(xpAmount.value);
+    }
+    if (goldAmount.present) {
+      map['gold_amount'] = Variable<int>(goldAmount.value);
+    }
+    if (itemId.present) {
+      map['item_id'] = Variable<String>(itemId.value);
+    }
+    if (itemName.present) {
+      map['item_name'] = Variable<String>(itemName.value);
+    }
+    if (sealCode.present) {
+      map['seal_code'] = Variable<String>(sealCode.value);
+    }
+    if (createdAt.present) {
+      map['created_at'] = Variable<DateTime>(createdAt.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('GratitudeLogsCompanion(')
+          ..write('tokenId: $tokenId, ')
+          ..write('direction: $direction, ')
+          ..write('peerName: $peerName, ')
+          ..write('note: $note, ')
+          ..write('xpAmount: $xpAmount, ')
+          ..write('goldAmount: $goldAmount, ')
+          ..write('itemId: $itemId, ')
+          ..write('itemName: $itemName, ')
+          ..write('sealCode: $sealCode, ')
+          ..write('createdAt: $createdAt, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -4880,6 +5761,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $DungeonProgressTable dungeonProgress = $DungeonProgressTable(
     this,
   );
+  late final $GratitudeLogsTable gratitudeLogs = $GratitudeLogsTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -4895,6 +5777,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     calendarEvents,
     dungeonInventory,
     dungeonProgress,
+    gratitudeLogs,
   ];
   @override
   StreamQueryUpdateRules get streamUpdateRules => const StreamQueryUpdateRules([
@@ -4927,6 +5810,11 @@ typedef $$HeroProfilesTableCreateCompanionBuilder =
       Value<DateTime?> lastFlashMissionAt,
       Value<int> expeditionKeys,
       Value<String?> lastDailyKeyDate,
+      Value<String?> heroUid,
+      Value<int> gratitudeSentCount,
+      Value<int> lastGratitudeSentLevel,
+      Value<int> gratitudeReceivedCount,
+      Value<int> lastGratitudeReceivedLevel,
       Value<DateTime> createdAt,
     });
 typedef $$HeroProfilesTableUpdateCompanionBuilder =
@@ -4948,6 +5836,11 @@ typedef $$HeroProfilesTableUpdateCompanionBuilder =
       Value<DateTime?> lastFlashMissionAt,
       Value<int> expeditionKeys,
       Value<String?> lastDailyKeyDate,
+      Value<String?> heroUid,
+      Value<int> gratitudeSentCount,
+      Value<int> lastGratitudeSentLevel,
+      Value<int> gratitudeReceivedCount,
+      Value<int> lastGratitudeReceivedLevel,
       Value<DateTime> createdAt,
     });
 
@@ -5042,6 +5935,31 @@ class $$HeroProfilesTableFilterComposer
 
   ColumnFilters<String> get lastDailyKeyDate => $composableBuilder(
     column: $table.lastDailyKeyDate,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get heroUid => $composableBuilder(
+    column: $table.heroUid,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get gratitudeSentCount => $composableBuilder(
+    column: $table.gratitudeSentCount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get lastGratitudeSentLevel => $composableBuilder(
+    column: $table.lastGratitudeSentLevel,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get gratitudeReceivedCount => $composableBuilder(
+    column: $table.gratitudeReceivedCount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get lastGratitudeReceivedLevel => $composableBuilder(
+    column: $table.lastGratitudeReceivedLevel,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -5145,6 +6063,31 @@ class $$HeroProfilesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<String> get heroUid => $composableBuilder(
+    column: $table.heroUid,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get gratitudeSentCount => $composableBuilder(
+    column: $table.gratitudeSentCount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get lastGratitudeSentLevel => $composableBuilder(
+    column: $table.lastGratitudeSentLevel,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get gratitudeReceivedCount => $composableBuilder(
+    column: $table.gratitudeReceivedCount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get lastGratitudeReceivedLevel => $composableBuilder(
+    column: $table.lastGratitudeReceivedLevel,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get createdAt => $composableBuilder(
     column: $table.createdAt,
     builder: (column) => ColumnOrderings(column),
@@ -5231,6 +6174,29 @@ class $$HeroProfilesTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<String> get heroUid =>
+      $composableBuilder(column: $table.heroUid, builder: (column) => column);
+
+  GeneratedColumn<int> get gratitudeSentCount => $composableBuilder(
+    column: $table.gratitudeSentCount,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get lastGratitudeSentLevel => $composableBuilder(
+    column: $table.lastGratitudeSentLevel,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get gratitudeReceivedCount => $composableBuilder(
+    column: $table.gratitudeReceivedCount,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<int> get lastGratitudeReceivedLevel => $composableBuilder(
+    column: $table.lastGratitudeReceivedLevel,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<DateTime> get createdAt =>
       $composableBuilder(column: $table.createdAt, builder: (column) => column);
 }
@@ -5283,6 +6249,11 @@ class $$HeroProfilesTableTableManager
                 Value<DateTime?> lastFlashMissionAt = const Value.absent(),
                 Value<int> expeditionKeys = const Value.absent(),
                 Value<String?> lastDailyKeyDate = const Value.absent(),
+                Value<String?> heroUid = const Value.absent(),
+                Value<int> gratitudeSentCount = const Value.absent(),
+                Value<int> lastGratitudeSentLevel = const Value.absent(),
+                Value<int> gratitudeReceivedCount = const Value.absent(),
+                Value<int> lastGratitudeReceivedLevel = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
               }) => HeroProfilesCompanion(
                 id: id,
@@ -5302,6 +6273,11 @@ class $$HeroProfilesTableTableManager
                 lastFlashMissionAt: lastFlashMissionAt,
                 expeditionKeys: expeditionKeys,
                 lastDailyKeyDate: lastDailyKeyDate,
+                heroUid: heroUid,
+                gratitudeSentCount: gratitudeSentCount,
+                lastGratitudeSentLevel: lastGratitudeSentLevel,
+                gratitudeReceivedCount: gratitudeReceivedCount,
+                lastGratitudeReceivedLevel: lastGratitudeReceivedLevel,
                 createdAt: createdAt,
               ),
           createCompanionCallback:
@@ -5323,6 +6299,11 @@ class $$HeroProfilesTableTableManager
                 Value<DateTime?> lastFlashMissionAt = const Value.absent(),
                 Value<int> expeditionKeys = const Value.absent(),
                 Value<String?> lastDailyKeyDate = const Value.absent(),
+                Value<String?> heroUid = const Value.absent(),
+                Value<int> gratitudeSentCount = const Value.absent(),
+                Value<int> lastGratitudeSentLevel = const Value.absent(),
+                Value<int> gratitudeReceivedCount = const Value.absent(),
+                Value<int> lastGratitudeReceivedLevel = const Value.absent(),
                 Value<DateTime> createdAt = const Value.absent(),
               }) => HeroProfilesCompanion.insert(
                 id: id,
@@ -5342,6 +6323,11 @@ class $$HeroProfilesTableTableManager
                 lastFlashMissionAt: lastFlashMissionAt,
                 expeditionKeys: expeditionKeys,
                 lastDailyKeyDate: lastDailyKeyDate,
+                heroUid: heroUid,
+                gratitudeSentCount: gratitudeSentCount,
+                lastGratitudeSentLevel: lastGratitudeSentLevel,
+                gratitudeReceivedCount: gratitudeReceivedCount,
+                lastGratitudeReceivedLevel: lastGratitudeReceivedLevel,
                 createdAt: createdAt,
               ),
           withReferenceMapper: (p0) => p0
@@ -7667,6 +8653,312 @@ typedef $$DungeonProgressTableProcessedTableManager =
       DungeonProgressData,
       PrefetchHooks Function()
     >;
+typedef $$GratitudeLogsTableCreateCompanionBuilder =
+    GratitudeLogsCompanion Function({
+      required String tokenId,
+      required String direction,
+      required String peerName,
+      Value<String> note,
+      Value<int> xpAmount,
+      Value<int> goldAmount,
+      Value<String?> itemId,
+      Value<String?> itemName,
+      required String sealCode,
+      Value<DateTime> createdAt,
+      Value<int> rowid,
+    });
+typedef $$GratitudeLogsTableUpdateCompanionBuilder =
+    GratitudeLogsCompanion Function({
+      Value<String> tokenId,
+      Value<String> direction,
+      Value<String> peerName,
+      Value<String> note,
+      Value<int> xpAmount,
+      Value<int> goldAmount,
+      Value<String?> itemId,
+      Value<String?> itemName,
+      Value<String> sealCode,
+      Value<DateTime> createdAt,
+      Value<int> rowid,
+    });
+
+class $$GratitudeLogsTableFilterComposer
+    extends Composer<_$AppDatabase, $GratitudeLogsTable> {
+  $$GratitudeLogsTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get tokenId => $composableBuilder(
+    column: $table.tokenId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get direction => $composableBuilder(
+    column: $table.direction,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get peerName => $composableBuilder(
+    column: $table.peerName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get note => $composableBuilder(
+    column: $table.note,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get xpAmount => $composableBuilder(
+    column: $table.xpAmount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<int> get goldAmount => $composableBuilder(
+    column: $table.goldAmount,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get itemId => $composableBuilder(
+    column: $table.itemId,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get itemName => $composableBuilder(
+    column: $table.itemName,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get sealCode => $composableBuilder(
+    column: $table.sealCode,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$GratitudeLogsTableOrderingComposer
+    extends Composer<_$AppDatabase, $GratitudeLogsTable> {
+  $$GratitudeLogsTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get tokenId => $composableBuilder(
+    column: $table.tokenId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get direction => $composableBuilder(
+    column: $table.direction,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get peerName => $composableBuilder(
+    column: $table.peerName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get note => $composableBuilder(
+    column: $table.note,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get xpAmount => $composableBuilder(
+    column: $table.xpAmount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<int> get goldAmount => $composableBuilder(
+    column: $table.goldAmount,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get itemId => $composableBuilder(
+    column: $table.itemId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get itemName => $composableBuilder(
+    column: $table.itemName,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get sealCode => $composableBuilder(
+    column: $table.sealCode,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get createdAt => $composableBuilder(
+    column: $table.createdAt,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$GratitudeLogsTableAnnotationComposer
+    extends Composer<_$AppDatabase, $GratitudeLogsTable> {
+  $$GratitudeLogsTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get tokenId =>
+      $composableBuilder(column: $table.tokenId, builder: (column) => column);
+
+  GeneratedColumn<String> get direction =>
+      $composableBuilder(column: $table.direction, builder: (column) => column);
+
+  GeneratedColumn<String> get peerName =>
+      $composableBuilder(column: $table.peerName, builder: (column) => column);
+
+  GeneratedColumn<String> get note =>
+      $composableBuilder(column: $table.note, builder: (column) => column);
+
+  GeneratedColumn<int> get xpAmount =>
+      $composableBuilder(column: $table.xpAmount, builder: (column) => column);
+
+  GeneratedColumn<int> get goldAmount => $composableBuilder(
+    column: $table.goldAmount,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get itemId =>
+      $composableBuilder(column: $table.itemId, builder: (column) => column);
+
+  GeneratedColumn<String> get itemName =>
+      $composableBuilder(column: $table.itemName, builder: (column) => column);
+
+  GeneratedColumn<String> get sealCode =>
+      $composableBuilder(column: $table.sealCode, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get createdAt =>
+      $composableBuilder(column: $table.createdAt, builder: (column) => column);
+}
+
+class $$GratitudeLogsTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $GratitudeLogsTable,
+          GratitudeLog,
+          $$GratitudeLogsTableFilterComposer,
+          $$GratitudeLogsTableOrderingComposer,
+          $$GratitudeLogsTableAnnotationComposer,
+          $$GratitudeLogsTableCreateCompanionBuilder,
+          $$GratitudeLogsTableUpdateCompanionBuilder,
+          (
+            GratitudeLog,
+            BaseReferences<_$AppDatabase, $GratitudeLogsTable, GratitudeLog>,
+          ),
+          GratitudeLog,
+          PrefetchHooks Function()
+        > {
+  $$GratitudeLogsTableTableManager(_$AppDatabase db, $GratitudeLogsTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$GratitudeLogsTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$GratitudeLogsTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$GratitudeLogsTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<String> tokenId = const Value.absent(),
+                Value<String> direction = const Value.absent(),
+                Value<String> peerName = const Value.absent(),
+                Value<String> note = const Value.absent(),
+                Value<int> xpAmount = const Value.absent(),
+                Value<int> goldAmount = const Value.absent(),
+                Value<String?> itemId = const Value.absent(),
+                Value<String?> itemName = const Value.absent(),
+                Value<String> sealCode = const Value.absent(),
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => GratitudeLogsCompanion(
+                tokenId: tokenId,
+                direction: direction,
+                peerName: peerName,
+                note: note,
+                xpAmount: xpAmount,
+                goldAmount: goldAmount,
+                itemId: itemId,
+                itemName: itemName,
+                sealCode: sealCode,
+                createdAt: createdAt,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                required String tokenId,
+                required String direction,
+                required String peerName,
+                Value<String> note = const Value.absent(),
+                Value<int> xpAmount = const Value.absent(),
+                Value<int> goldAmount = const Value.absent(),
+                Value<String?> itemId = const Value.absent(),
+                Value<String?> itemName = const Value.absent(),
+                required String sealCode,
+                Value<DateTime> createdAt = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => GratitudeLogsCompanion.insert(
+                tokenId: tokenId,
+                direction: direction,
+                peerName: peerName,
+                note: note,
+                xpAmount: xpAmount,
+                goldAmount: goldAmount,
+                itemId: itemId,
+                itemName: itemName,
+                sealCode: sealCode,
+                createdAt: createdAt,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$GratitudeLogsTable, GratitudeLog>(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $GratitudeLogsTable,
+                    GratitudeLog
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$GratitudeLogsTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $GratitudeLogsTable,
+      GratitudeLog,
+      $$GratitudeLogsTableFilterComposer,
+      $$GratitudeLogsTableOrderingComposer,
+      $$GratitudeLogsTableAnnotationComposer,
+      $$GratitudeLogsTableCreateCompanionBuilder,
+      $$GratitudeLogsTableUpdateCompanionBuilder,
+      (
+        GratitudeLog,
+        BaseReferences<_$AppDatabase, $GratitudeLogsTable, GratitudeLog>,
+      ),
+      GratitudeLog,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -7691,4 +8983,6 @@ class $AppDatabaseManager {
       $$DungeonInventoryTableTableManager(_db, _db.dungeonInventory);
   $$DungeonProgressTableTableManager get dungeonProgress =>
       $$DungeonProgressTableTableManager(_db, _db.dungeonProgress);
+  $$GratitudeLogsTableTableManager get gratitudeLogs =>
+      $$GratitudeLogsTableTableManager(_db, _db.gratitudeLogs);
 }

@@ -250,6 +250,34 @@ class GuideScreen extends StatelessWidget {
               ],
             ),
           ),
+          const SizedBox(height: 14),
+
+          // Gratidão entre Aventureiros
+          PixelPanel(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  'GRATIDÃO ENTRE AVENTUREIROS',
+                  style: LifeOsTheme.pixelTitle(
+                    size: 10,
+                    color: LifeOsColors.gold,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                const Text(
+                  'Quando alguém faz uma boa ação por você na vida real, você pode abrir a aba Herói e gerar um Selo de Gratidão para enviar pelo WhatsApp ou copiar o código.\n\n'
+                  '• O XP do Selo é gerado pelo próprio jogo (não sai do seu personagem). Se quiser, você também pode incluir Ouro do seu saldo ou 1 item da mochila.\n\n'
+                  '• Para manter o gesto especial e evitar exageros, cada personagem pode enviar e resgatar no máximo 1 Selo por nível, até 5 vezes no total.',
+                  style: TextStyle(
+                    fontSize: 13.2,
+                    color: LifeOsColors.textSecondary,
+                    height: 1.48,
+                  ),
+                ),
+              ],
+            ),
+          ),
         ],
       ),
     );

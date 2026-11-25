@@ -11,6 +11,7 @@ import 'package:lifeos/core/dungeon/dungeon_models.dart';
 import 'package:lifeos/core/rpg/reward_engine.dart';
 import 'package:lifeos/core/rpg/rpg_models.dart';
 import 'package:lifeos/core/rpg/shop_catalog.dart';
+import 'package:lifeos/core/social/gratitude_seal.dart';
 import 'package:lifeos/data/database/app_database.dart';
 import 'package:lifeos/data/services/step_encounter_service.dart';
 import 'package:lifeos/features/dungeon/dungeon_run_screen.dart';
@@ -280,6 +281,10 @@ void main() {
         stepsToday: 0,
         lastEncounterStepMilestone: 0,
         expeditionKeys: 3,
+        gratitudeSentCount: 0,
+        lastGratitudeSentLevel: 0,
+        gratitudeReceivedCount: 0,
+        lastGratitudeReceivedLevel: 0,
         createdAt: DateTime(2026),
       );
 
@@ -305,6 +310,75 @@ void main() {
       await tester.pump();
       expect(tester.takeException(), isNull);
       expect(find.textContaining('BOSQUE SUSSURRANTE'), findsOneWidget);
+    });
+  });
+
+  group('Phase 7 Gratitude Seals (Anti-Abuse & HMAC Integrity)', () {
+    test('Signed seal encodes, extracts from WhatsApp text and rejects tampering', () {
+      final payload = GratitudeSealPayload(
+        tokenId: 'abc1234567890def',
+        senderUid: 'hero998877665544',
+        senderName: 'Aldric',
+        senderLevel: 4,
+        xpAmount: GratitudeSealCodec.systemBlessingXpForLevel(4),
+        goldAmount: 50,
+        itemId: 'wpn_iron_sword',
+        note: 'Valeu pela carona hoje!',
+        createdEpochSec: DateTime.now().toUtc().millisecondsSinceEpoch ~/ 1000,
+      );
+
+      final code = GratitudeSealCodec.encode(payload);
+      final whatsappMsg = GratitudeSealCodec.buildShareMessage(
+        payload: payload,
+        sealCode: code,
+        itemName: 'Espada de Ferro',
+      );
+
+      final parsed = GratitudeSealCodec.decodeAndVerify(whatsappMsg);
+      expect(parsed.error, isNull);
+      expect(parsed.payload, isNotNull);
+      expect(parsed.payload!.senderName, 'Aldric');
+      expect(parsed.payload!.xpAmount, 135);
+      expect(parsed.payload!.goldAmount, 50);
+      expect(parsed.payload!.itemId, 'wpn_iron_sword');
+
+      // Tamper with a single character in the code -> signature must fail!
+      final tampered = code.replaceFirst('LIFEOS-GRAT-', 'LIFEOS-GRAT-X');
+      final bad = GratitudeSealCodec.decodeAndVerify(tampered);
+      expect(bad.payload, isNull);
+      expect(bad.error, isNotNull);
+    });
+
+    test('Anti-abuse enforces max 1 use per level and max 5 uses total for both send and receive', () {
+      // First send at level 2 -> allowed
+      expect(
+        GratitudeSealCodec.canSend(heroLevel: 2, sentCount: 0, lastSentLevel: 0).allowed,
+        isTrue,
+      );
+      // Second send still at level 2 -> blocked
+      expect(
+        GratitudeSealCodec.canSend(heroLevel: 2, sentCount: 1, lastSentLevel: 2).allowed,
+        isFalse,
+      );
+      // Next level (level 3) -> allowed again
+      expect(
+        GratitudeSealCodec.canSend(heroLevel: 3, sentCount: 1, lastSentLevel: 2).allowed,
+        isTrue,
+      );
+      // After 5 sends -> permanently blocked even at level 20
+      expect(
+        GratitudeSealCodec.canSend(heroLevel: 20, sentCount: 5, lastSentLevel: 10).allowed,
+        isFalse,
+      );
+      // Same rules for receive
+      expect(
+        GratitudeSealCodec.canReceive(heroLevel: 4, receivedCount: 2, lastReceivedLevel: 4).allowed,
+        isFalse,
+      );
+      expect(
+        GratitudeSealCodec.canReceive(heroLevel: 5, receivedCount: 5, lastReceivedLevel: 4).allowed,
+        isFalse,
+      );
     });
   });
 }

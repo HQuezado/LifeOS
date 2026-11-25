@@ -2,6 +2,7 @@ import 'package:drift/drift.dart';
 
 import '../../core/rpg/reward_engine.dart';
 import '../../core/rpg/rpg_models.dart';
+import '../../core/social/gratitude_seal.dart';
 import '../database/app_database.dart';
 
 class HeroRepository {
@@ -133,6 +134,7 @@ class HeroRepository {
               currentXp: const Value(0),
               gold: const Value(50),
               armorTint: Value(armorTint.key),
+              heroUid: Value(GratitudeSealCodec.generateUid()),
             ),
           );
 
@@ -191,6 +193,7 @@ class HeroRepository {
       await _db.delete(_db.mysteryChests).go();
       await _db.delete(_db.dungeonInventory).go();
       await _db.delete(_db.dungeonProgress).go();
+      await _db.delete(_db.gratitudeLogs).go();
     });
   }
 

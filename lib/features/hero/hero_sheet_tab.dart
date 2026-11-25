@@ -9,6 +9,7 @@ import '../../core/widgets/hero_sprite_widget.dart';
 import '../../core/widgets/pixel_panel.dart';
 import '../../data/database/app_database.dart';
 import '../../providers/app_providers.dart';
+import '../social/gratitude_screen.dart';
 
 /// Aba "Herói": Ficha RPG completa com Nível Geral, Baús Misteriosos e os 5 Atributos.
 class HeroSheetTab extends ConsumerWidget {
@@ -529,6 +530,57 @@ class HeroSheetTab extends ConsumerWidget {
                     ),
                   );
                 }).toList(),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 16),
+
+        // Gratidão entre Aventureiros (Fase 7)
+        PixelPanel(
+          borderColor: LifeOsColors.gold,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  const Icon(
+                    Icons.favorite_rounded,
+                    color: LifeOsColors.gold,
+                    size: 20,
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'GRATIDÃO ENTRE AVENTUREIROS',
+                      style: LifeOsTheme.pixelTitle(
+                        size: 9.5,
+                        color: LifeOsColors.gold,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: 6),
+              Text(
+                'Presenteie quem te ajudou na vida real com XP (grátis), Ouro ou itens — ou resgate um Selo recebido.\n'
+                'Enviados: ${hero.gratitudeSentCount}/5  •  Recebidos: ${hero.gratitudeReceivedCount}/5',
+                style: const TextStyle(
+                  fontSize: 12.5,
+                  color: LifeOsColors.textSecondary,
+                  height: 1.4,
+                ),
+              ),
+              const SizedBox(height: 12),
+              PixelButton(
+                label: 'ABRIR SELOS DE GRATIDÃO',
+                onPressed: () {
+                  Navigator.of(context).push(
+                    MaterialPageRoute<void>(
+                      builder: (_) => const GratitudeScreen(),
+                    ),
+                  );
+                },
               ),
             ],
           ),
