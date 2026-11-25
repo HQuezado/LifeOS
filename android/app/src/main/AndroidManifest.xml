@@ -3,7 +3,7 @@
     <uses-permission android:name="android.permission.ACTIVITY_RECOGNITION"/>
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <application
-        android:label="lifeos"
+        android:label="LifeOS"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity

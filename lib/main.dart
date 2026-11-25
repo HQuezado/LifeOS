@@ -1,3 +1,4 @@
+import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:material_ui/material_ui.dart';
 
@@ -9,6 +10,14 @@ import 'providers/app_providers.dart';
 
 void main() {
   WidgetsFlutterBinding.ensureInitialized();
+  SystemChrome.setSystemUIOverlayStyle(
+    const SystemUiOverlayStyle(
+      statusBarColor: Colors.transparent,
+      statusBarIconBrightness: Brightness.light,
+      systemNavigationBarColor: LifeOsColors.bgDark,
+      systemNavigationBarIconBrightness: Brightness.light,
+    ),
+  );
   runApp(const ProviderScope(child: LifeOsApp()));
 }
 
