@@ -27,7 +27,7 @@ class DungeonHubTab extends ConsumerStatefulWidget {
 
 class _DungeonHubTabState extends ConsumerState<DungeonHubTab> {
   int _subTab = 0; // 0: Masmorras, 1: Inventário, 2: Ferreiro
-  DungeonItemSlot _smithFilter = DungeonItemSlot.weapon;
+  DungeonShopCategory _smithCategory = DungeonShopCategory.sword;
   late TextEditingController _seedController;
   bool _initialized = false;
 
@@ -562,17 +562,24 @@ class _DungeonHubTabState extends ConsumerState<DungeonHubTab> {
                       item: equippedIn(DungeonItemSlot.weapon),
                     ),
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: 6),
+                  Expanded(
+                    child: _EquippedSlotTile(
+                      slotLabel: 'ESCUDO',
+                      item: equippedIn(DungeonItemSlot.shield),
+                    ),
+                  ),
+                  const SizedBox(width: 6),
                   Expanded(
                     child: _EquippedSlotTile(
                       slotLabel: 'ARMADURA',
                       item: equippedIn(DungeonItemSlot.armor),
                     ),
                   ),
-                  const SizedBox(width: 8),
+                  const SizedBox(width: 6),
                   Expanded(
                     child: _EquippedSlotTile(
-                      slotLabel: 'ANEL',
+                      slotLabel: 'JOIA',
                       item: equippedIn(DungeonItemSlot.ring),
                     ),
                   ),
@@ -755,34 +762,77 @@ class _DungeonHubTabState extends ConsumerState<DungeonHubTab> {
     final heroClass = HeroClass.fromKey(widget.hero.heroClass);
     final qtyMap = {for (final r in inventoryRows) r.itemId: r.quantity};
     final items = catalog.allItems
-        .where((i) => i.slot == _smithFilter)
+        .where((i) => i.category == _smithCategory)
         .toList()
       ..sort((a, b) => a.price.compareTo(b.price));
 
     return Column(
       children: [
-        Padding(
-          padding: const EdgeInsets.fromLTRB(16, 2, 16, 8),
-          child: SingleChildScrollView(
+        // Barra horizontal de 11 categorias com ícones pixel art próprios
+        SizedBox(
+          height: 58,
+          child: ListView.separated(
             scrollDirection: Axis.horizontal,
-            child: Row(
-              children: DungeonItemSlot.values.map((slot) {
-                final selected = _smithFilter == slot;
-                return Padding(
-                  padding: const EdgeInsets.only(right: 6),
-                  child: ChoiceChip(
-                    label: Text(slot.label),
-                    selected: selected,
-                    onSelected: (_) => setState(() => _smithFilter = slot),
+            padding: const EdgeInsets.fromLTRB(16, 2, 16, 8),
+            itemCount: DungeonShopCategory.values.length,
+            separatorBuilder: (_, _) => const SizedBox(width: 6),
+            itemBuilder: (_, idx) {
+              final cat = DungeonShopCategory.values[idx];
+              final selected = _smithCategory == cat;
+              final count =
+                  catalog.allItems.where((i) => i.category == cat).length;
+              return GestureDetector(
+                onTap: () => setState(() => _smithCategory = cat),
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 140),
+                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                  decoration: BoxDecoration(
+                    color: selected
+                        ? LifeOsColors.surfaceHighlight
+                        : LifeOsColors.surface,
+                    border: Border.all(
+                      color: selected ? LifeOsColors.gold : LifeOsColors.border,
+                      width: selected ? 2 : 1.2,
+                    ),
                   ),
-                );
-              }).toList(),
-            ),
+                  child: Row(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      PixelIcon(cat.iconAsset, size: 28),
+                      const SizedBox(width: 6),
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
+                            cat.label,
+                            style: TextStyle(
+                              fontSize: 11.5,
+                              fontWeight: FontWeight.w800,
+                              color: selected
+                                  ? LifeOsColors.gold
+                                  : LifeOsColors.textPrimary,
+                            ),
+                          ),
+                          Text(
+                            '$count opções',
+                            style: const TextStyle(
+                              fontSize: 9.5,
+                              color: LifeOsColors.textMuted,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
           ),
         ),
         Expanded(
           child: ListView.builder(
-            padding: const EdgeInsets.fromLTRB(16, 0, 16, 28),
+            padding: const EdgeInsets.fromLTRB(16, 2, 16, 28),
             itemCount: items.length,
             itemBuilder: (_, idx) {
               final item = items[idx];
@@ -801,21 +851,21 @@ class _DungeonHubTabState extends ConsumerState<DungeonHubTab> {
                 decoration: BoxDecoration(
                   color: LifeOsColors.surface,
                   border: Border.all(
-                    color: item.rarity.color.withValues(alpha: 0.65),
+                    color: item.rarity.color.withValues(alpha: 0.7),
                     width: 1.5,
                   ),
                 ),
                 child: Row(
                   children: [
                     Container(
-                      width: 48,
-                      height: 48,
+                      width: 52,
+                      height: 52,
                       padding: const EdgeInsets.all(4),
                       decoration: BoxDecoration(
                         color: LifeOsColors.bgDark,
                         border: Border.all(color: item.rarity.color),
                       ),
-                      child: PixelIcon(item.iconAsset, size: 38),
+                      child: PixelIcon(item.iconAsset, size: 42),
                     ),
                     const SizedBox(width: 10),
                     Expanded(
@@ -838,10 +888,13 @@ class _DungeonHubTabState extends ConsumerState<DungeonHubTab> {
                             ),
                           ),
                           Text(
-                            chips.isNotEmpty ? chips.join(' • ') : item.description,
+                            chips.isNotEmpty
+                                ? chips.join(' • ')
+                                : item.description,
                             style: const TextStyle(
                               fontSize: 11.5,
-                              color: LifeOsColors.textSecondary,
+                              color: LifeOsColors.textPrimary,
+                              fontWeight: FontWeight.w600,
                             ),
                           ),
                         ],

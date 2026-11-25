@@ -166,11 +166,19 @@ void main() {
       );
     });
 
-    test('Bestiary has 30 monsters (5 bosses) and Items has 40 equips + 15 consumables with valid PNG assets', () {
+    test('Bestiary has 30 monsters (5 bosses) and Items has 53 equips + 15 consumables across all 11 categories with valid PNG assets', () {
       expect(catalog.monsters.length, 30);
       expect(catalog.monsters.where((m) => m.isBoss).length, 5);
-      expect(catalog.equipment.length, 40);
+      expect(catalog.equipment.length, 53);
       expect(catalog.consumables.length, 15);
+      for (final cat in DungeonShopCategory.values) {
+        expect(
+          catalog.allItems.any((i) => i.category == cat),
+          isTrue,
+          reason: 'Empty category ${cat.key}',
+        );
+        expect(File(cat.iconAsset).existsSync(), isTrue, reason: 'Missing ${cat.iconAsset}');
+      }
 
       for (final m in catalog.monsters) {
         expect(File(m.spriteAsset).existsSync(), isTrue, reason: 'Missing ${m.spriteAsset}');

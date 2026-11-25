@@ -200,11 +200,12 @@ enum ItemRarity {
   }
 }
 
-/// Slot de inventário.
+/// Slot de equipamento/inventário (4 slots equipáveis + consumíveis).
 enum DungeonItemSlot {
   weapon(key: 'weapon', label: 'Arma'),
+  shield(key: 'shield', label: 'Escudo'),
   armor(key: 'armor', label: 'Armadura'),
-  ring(key: 'ring', label: 'Anel / Amuleto'),
+  ring(key: 'ring', label: 'Joia'),
   consumable(key: 'consumable', label: 'Consumível');
 
   const DungeonItemSlot({required this.key, required this.label});
@@ -216,6 +217,82 @@ enum DungeonItemSlot {
     return DungeonItemSlot.values.firstWhere(
       (s) => s.key == key,
       orElse: () => DungeonItemSlot.consumable,
+    );
+  }
+}
+
+/// Sub-abas organizadas do Ferreiro / Arsenal (11 categorias com ícones próprios).
+enum DungeonShopCategory {
+  sword(
+    key: 'sword',
+    label: 'Espadas',
+    iconAsset: 'assets/images/dungeon/items/sword_mithril.png',
+  ),
+  spear(
+    key: 'spear',
+    label: 'Lanças',
+    iconAsset: 'assets/images/dungeon/items/spear_silver.png',
+  ),
+  axe(
+    key: 'axe',
+    label: 'Machados',
+    iconAsset: 'assets/images/dungeon/items/axe_steel.png',
+  ),
+  dagger(
+    key: 'dagger',
+    label: 'Adagas',
+    iconAsset: 'assets/images/dungeon/items/dagger_silver.png',
+  ),
+  staff(
+    key: 'staff',
+    label: 'Cajados',
+    iconAsset: 'assets/images/dungeon/items/staff_crystal.png',
+  ),
+  plate(
+    key: 'plate',
+    label: 'Armaduras',
+    iconAsset: 'assets/images/dungeon/items/plate_mithril.png',
+  ),
+  robe(
+    key: 'robe',
+    label: 'Mantos',
+    iconAsset: 'assets/images/dungeon/items/robe_crystal.png',
+  ),
+  shield(
+    key: 'shield',
+    label: 'Escudos',
+    iconAsset: 'assets/images/dungeon/items/shield_silver.png',
+  ),
+  ring(
+    key: 'ring',
+    label: 'Anéis',
+    iconAsset: 'assets/images/dungeon/items/ring_mithril.png',
+  ),
+  amulet(
+    key: 'amulet',
+    label: 'Amuletos',
+    iconAsset: 'assets/images/dungeon/items/amulet_crystal.png',
+  ),
+  consumable(
+    key: 'consumable',
+    label: 'Poções & Itens',
+    iconAsset: 'assets/images/dungeon/items/pot_hp_supreme.png',
+  );
+
+  const DungeonShopCategory({
+    required this.key,
+    required this.label,
+    required this.iconAsset,
+  });
+
+  final String key;
+  final String label;
+  final String iconAsset;
+
+  static DungeonShopCategory fromKey(String key) {
+    return DungeonShopCategory.values.firstWhere(
+      (c) => c.key == key,
+      orElse: () => DungeonShopCategory.consumable,
     );
   }
 }
@@ -382,10 +459,12 @@ class DungeonItem {
     required this.id,
     required this.name,
     required this.slot,
+    required this.category,
     required this.material,
     required this.rarity,
     required this.price,
     required this.description,
+    this.iconFile,
     this.bonuses = ItemBonuses.zero,
     this.consumableEffect,
   });
@@ -393,83 +472,44 @@ class DungeonItem {
   final String id;
   final String name;
   final DungeonItemSlot slot;
+  final DungeonShopCategory category;
   final String material;
   final ItemRarity rarity;
   final int price;
   final String description;
+  final String? iconFile;
   final ItemBonuses bonuses;
   final ConsumableEffect? consumableEffect;
 
   bool get isConsumable => slot == DungeonItemSlot.consumable;
   int get sellPrice => (price * 0.5).round().clamp(5, 9999);
 
-  /// Mapeia o item para o ícone pixel art correspondente em `assets/images/dungeon/items/`.
+  /// Caminho exato do ícone pixel art em `assets/images/dungeon/items/`.
   String get iconAsset {
-    final lower = '$id ${name.toLowerCase()}';
-    switch (slot) {
-      case DungeonItemSlot.weapon:
-        if (lower.contains('staff') ||
-            lower.contains('wand') ||
-            lower.contains('scepter') ||
-            lower.contains('cajado') ||
-            lower.contains('varinha') ||
-            lower.contains('cetro')) {
-          return 'assets/images/dungeon/items/icon_weapon_staff.png';
-        }
-        if (lower.contains('dagger') ||
-            lower.contains('rapier') ||
-            lower.contains('katana') ||
-            lower.contains('scimitar')) {
-          return 'assets/images/dungeon/items/icon_weapon_daggers.png';
-        }
-        if (lower.contains('wood') || lower.contains('bone')) {
-          return 'assets/images/dungeon/items/icon_weapon_wood.png';
-        }
-        return 'assets/images/dungeon/items/icon_weapon_steel.png';
-      case DungeonItemSlot.armor:
-        if (lower.contains('robe') ||
-            lower.contains('vestment') ||
-            lower.contains('mantle') ||
-            lower.contains('manto')) {
-          return 'assets/images/dungeon/items/icon_armor_robe.png';
-        }
-        if (lower.contains('leather') || lower.contains('wood')) {
-          return 'assets/images/dungeon/items/icon_armor_leather.png';
-        }
-        if (lower.contains('aegis') ||
-            lower.contains('silver') ||
-            lower.contains('copper')) {
-          return 'assets/images/dungeon/items/icon_armor_shield.png';
-        }
-        return 'assets/images/dungeon/items/icon_armor_plate.png';
-      case DungeonItemSlot.ring:
-        if (lower.contains('amulet') ||
-            lower.contains('pendant') ||
-            lower.contains('talisman')) {
-          return 'assets/images/dungeon/items/icon_amulet.png';
-        }
-        return 'assets/images/dungeon/items/icon_ring.png';
-      case DungeonItemSlot.consumable:
-        final kind = consumableEffect?.kind ?? '';
-        if (kind == 'heal_hp') {
-          return 'assets/images/dungeon/items/icon_potion_hp.png';
-        }
-        if (kind == 'heal_mana') {
-          return 'assets/images/dungeon/items/icon_potion_mana.png';
-        }
-        if (kind == 'cure_status' || kind == 'buff_attack') {
-          return 'assets/images/dungeon/items/icon_potion_antidote.png';
-        }
-        return 'assets/images/dungeon/items/icon_scroll.png';
+    if (iconFile != null && iconFile!.isNotEmpty) {
+      return 'assets/images/dungeon/items/$iconFile';
     }
+    return category.iconAsset;
   }
 
   factory DungeonItem.fromJson(Map<String, dynamic> json) {
     final slot = DungeonItemSlot.fromKey(json['slot'] as String? ?? 'consumable');
+    final rawCategory = json['category'] as String?;
+    final category = rawCategory != null
+        ? DungeonShopCategory.fromKey(rawCategory)
+        : switch (slot) {
+            DungeonItemSlot.weapon => DungeonShopCategory.sword,
+            DungeonItemSlot.shield => DungeonShopCategory.shield,
+            DungeonItemSlot.armor => DungeonShopCategory.plate,
+            DungeonItemSlot.ring => DungeonShopCategory.ring,
+            DungeonItemSlot.consumable => DungeonShopCategory.consumable,
+          };
     return DungeonItem(
       id: json['id'] as String,
       name: json['name'] as String,
       slot: slot,
+      category: category,
+      iconFile: json['icon'] as String?,
       material: json['material'] as String? ?? 'Comum',
       rarity: ItemRarity.fromKey(json['rarity'] as String? ?? 'common'),
       price: (json['price'] as num?)?.toInt() ?? 40,

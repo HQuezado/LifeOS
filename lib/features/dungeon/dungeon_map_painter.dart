@@ -143,6 +143,34 @@ class DungeonMapPainter extends CustomPainter {
           if (wallImg != null) {
             _drawImg(canvas, wallImg, dst, wallPaint);
           }
+        } else if (tile == DungeonTileType.door) {
+          // Porta 100% embutida na parede: preenche os cantos do arco com o muro do bioma
+          // (zero fresta de grama/terra ao redor dos batentes!)
+          final horiz = _isHorizontalCorridorDoor(x, y);
+          final backingWall = atlas[horiz
+                  ? 'assets/images/dungeon/tiles/wall_w.png'
+                  : 'assets/images/dungeon/tiles/wall_n.png'] ??
+              atlas['assets/images/dungeon/tiles/wall_top.png'];
+          if (backingWall != null) {
+            _drawImg(canvas, backingWall, dst, wallPaint);
+          }
+          final doorImg = atlas['assets/images/dungeon/tiles/door_closed.png'];
+          if (doorImg != null) {
+            if (horiz) {
+              canvas.save();
+              canvas.translate(dst.center.dx, dst.center.dy);
+              canvas.rotate(pi / 2);
+              final rotDst = Rect.fromCenter(
+                center: Offset.zero,
+                width: dst.width,
+                height: dst.height,
+              );
+              _drawImg(canvas, doorImg, rotDst, imgPaint);
+              canvas.restore();
+            } else {
+              _drawImg(canvas, doorImg, dst, imgPaint);
+            }
+          }
         } else {
           // 1. Desenha piso base (ou o próprio terreno)
           final baseType = tile.overlayOnFloor ? floor.baseFloorTile : tile;
@@ -234,7 +262,9 @@ class DungeonMapPainter extends CustomPainter {
   bool _isOpenSpace(int x, int y) {
     if (!floor.inBounds(x, y)) return false;
     final t = floor.tileAt(x, y);
-    return t != DungeonTileType.voidWall && t != DungeonTileType.wallBrick;
+    return t != DungeonTileType.voidWall &&
+        t != DungeonTileType.wallBrick &&
+        t != DungeonTileType.door;
   }
 
   /// Seleciona o tile de parede direcional / canto 45° correto olhando os 8 vizinhos!
