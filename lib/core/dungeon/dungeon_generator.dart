@@ -371,10 +371,18 @@ class DungeonGenerator {
 
           switch (biome) {
             case DungeonBiome.forest:
-              if (isCorner && r.w >= 4 && r.h >= 4 && rng.nextDouble() < 0.30) {
+              if (isCorner && r.w >= 4 && r.h >= 4 && rng.nextDouble() < 0.28) {
                 tiles[y][x] = DungeonTileType.water;
-              } else if (rng.nextDouble() < 0.16) {
-                tiles[y][x] = DungeonTileType.floorDirt;
+              } else {
+                // Gera trilhas e clareiras orgânicas conectadas de terra (evita quadradinhos soltos!)
+                final nearDirt = tiles[y - 1][x] == DungeonTileType.floorDirt ||
+                    tiles[y + 1][x] == DungeonTileType.floorDirt ||
+                    tiles[y][x - 1] == DungeonTileType.floorDirt ||
+                    tiles[y][x + 1] == DungeonTileType.floorDirt;
+                final chance = nearDirt ? 0.36 : 0.05;
+                if (rng.nextDouble() < chance) {
+                  tiles[y][x] = DungeonTileType.floorDirt;
+                }
               }
             case DungeonBiome.catacombs:
               if (isCorner && r.w >= 5 && r.h >= 5 && rng.nextDouble() < 0.45) {

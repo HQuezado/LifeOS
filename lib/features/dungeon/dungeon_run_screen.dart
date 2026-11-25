@@ -14,6 +14,7 @@ import '../../core/widgets/hero_sprite_widget.dart';
 import '../../core/widgets/pixel_panel.dart';
 import '../../data/database/app_database.dart';
 import '../../providers/app_providers.dart';
+import 'dungeon_map_painter.dart';
 
 /// Tela jogável da Masmorra Procedural estilo Pixel Dungeon (turnos, névoa de guerra,
 /// habilidades de classe, consumíveis, baús, armadilhas e Boss final).
@@ -43,6 +44,9 @@ class _DungeonRunScreenState extends ConsumerState<DungeonRunScreen> {
   late HeroCombatStats _stats;
   late DungeonFloorMap _floor;
   late Random _combatRng;
+  late List<DungeonItem> _equippedItems;
+  DungeonTileAtlas? _atlas;
+  int _repaintVersion = 0;
 
   int _floorNumber = 1;
   int _heroX = 0;
@@ -79,18 +83,50 @@ class _DungeonRunScreenState extends ConsumerState<DungeonRunScreen> {
   void initState() {
     super.initState();
     _combatRng = Random(widget.seed ^ 0x55AA33);
+    _equippedItems = [...widget.equippedItems];
     _stats = DungeonCombatEngine.computeHeroStats(
       heroLevel: widget.hero.level,
       heroClass: _heroClass,
       attributes: widget.attributes,
-      equippedItems: widget.equippedItems,
+      equippedItems: _equippedItems,
     );
     _hp = _stats.maxHp;
     _mana = _stats.maxMana;
     _loadFloor(1);
+    _loadAtlas();
     _pushLog(
       'Você entrou em ${widget.biome.name} (Seed #${widget.seed}). Boa caçada!',
     );
+  }
+
+  Future<void> _loadAtlas() async {
+    final monsterPaths = _floor.enemies.map((e) => e.template.spriteAsset);
+    final loaded = await DungeonTileAtlas.load(extraAssets: monsterPaths);
+    if (!mounted) return;
+    setState(() {
+      _atlas = loaded;
+      _repaintVersion++;
+    });
+  }
+
+  void _recomputeEquippedStats(List<DungeonItem> newEquipped) {
+    final oldMaxHp = _stats.maxHp;
+    final oldMaxMp = _stats.maxMana;
+    _equippedItems = newEquipped;
+    _stats = DungeonCombatEngine.computeHeroStats(
+      heroLevel: widget.hero.level,
+      heroClass: _heroClass,
+      attributes: widget.attributes,
+      equippedItems: _equippedItems,
+    );
+    final hpGain = _stats.maxHp - oldMaxHp;
+    final mpGain = _stats.maxMana - oldMaxMp;
+    if (hpGain > 0) _hp = min(_stats.maxHp, _hp + hpGain);
+    if (mpGain > 0) _mana = min(_stats.maxMana, _mana + mpGain);
+    _hp = _hp.clamp(1, _stats.maxHp);
+    _mana = _mana.clamp(0, _stats.maxMana);
+    _floor.updateVisibility(_heroX, _heroY, _stats.visionRadius, _stats.wisdom);
+    _repaintVersion++;
   }
 
   void _loadFloor(int floorNumber) {
@@ -111,9 +147,17 @@ class _DungeonRunScreenState extends ConsumerState<DungeonRunScreen> {
       _stats.visionRadius,
       _stats.wisdom,
     );
+    _repaintVersion++;
+    final atlas = _atlas;
+    if (atlas != null) {
+      atlas.ensureAssets(_floor.enemies.map((e) => e.template.spriteAsset)).then((_) {
+        if (mounted) setState(() => _repaintVersion++);
+      });
+    }
   }
 
   void _pushLog(String message) {
+    _repaintVersion++;
     _log.insert(0, message);
     if (_log.length > 30) {
       _log.removeLast();
@@ -872,11 +916,28 @@ class _DungeonRunScreenState extends ConsumerState<DungeonRunScreen> {
                   ],
                 ),
               ),
+              IconButton(
+                onPressed: _openInDungeonInventory,
+                tooltip: 'Abrir Mochila / Inventário',
+                style: IconButton.styleFrom(
+                  backgroundColor: LifeOsColors.bgDark,
+                  side: const BorderSide(color: LifeOsColors.gold, width: 1.4),
+                  shape: const RoundedRectangleBorder(),
+                  padding: const EdgeInsets.all(6),
+                  minimumSize: const Size(34, 34),
+                ),
+                icon: const Icon(
+                  Icons.backpack_rounded,
+                  size: 18,
+                  color: LifeOsColors.gold,
+                ),
+              ),
+              const SizedBox(width: 4),
               TextButton.icon(
                 onPressed: _confirmRetreat,
                 style: TextButton.styleFrom(
                   foregroundColor: LifeOsColors.textSecondary,
-                  padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                  padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 4),
                 ),
                 icon: const Icon(Icons.exit_to_app_rounded, size: 16),
                 label: const Text('Sair', style: TextStyle(fontSize: 12)),
@@ -930,106 +991,75 @@ class _DungeonRunScreenState extends ConsumerState<DungeonRunScreen> {
     );
   }
 
-  /// Viewport de câmera centrada no herói renderizando os tiles 16-bit + Névoa + Monstros.
+  /// Viewport GPU-acelerado (CustomPainter) com Auto-Tiling de Paredes 45°,
+  /// Mesclagem Orgânica entre Grama/Terra/Água/Pântano/Lava e Sombras de Profundidade.
   Widget _buildDungeonViewport() {
+    const tileSize = 48.0;
+    final atlas = _atlas;
+
     return LayoutBuilder(
       builder: (context, constraints) {
-        const tileSize = 46.0;
-        final colsVisible = (constraints.maxWidth / tileSize).ceil() + 2;
-        final rowsVisible = (constraints.maxHeight / tileSize).ceil() + 2;
-
-        final halfCols = colsVisible ~/ 2;
-        final halfRows = rowsVisible ~/ 2;
-
-        final mapWidgets = <Widget>[];
         final centerX = constraints.maxWidth / 2;
         final centerY = constraints.maxHeight / 2;
 
-        for (var y = _heroY - halfRows; y <= _heroY + halfRows; y++) {
-          for (var x = _heroX - halfCols; x <= _heroX + halfCols; x++) {
-            if (!_floor.inBounds(x, y)) continue;
-            final explored = _floor.explored[y][x];
-            if (!explored) continue;
-
-            final visible = _floor.visible[y][x];
-            final tile = _floor.tileAt(x, y);
-            if (tile == DungeonTileType.voidWall) continue;
-
-            final left = centerX + (x - _heroX) * tileSize - tileSize / 2;
-            final top = centerY + (y - _heroY) * tileSize - tileSize / 2;
-
-            final enemy = visible ? _floor.enemyAt(x, y) : null;
-            final chest = _floor.chestAt(x, y);
-            final trap = _floor.trapAt(x, y);
-            final isHero = x == _heroX && y == _heroY;
-
-            mapWidgets.add(
-              Positioned(
-                left: left,
-                top: top,
-                width: tileSize,
-                height: tileSize,
-                child: GestureDetector(
-                  onTap: () => _onTileTap(x, y),
-                  child: Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      // Base floor underneath overlays (stairs, pillar, door)
-                      if (tile.overlayOnFloor && _floor.baseFloorTile.asset != null)
-                        Image.asset(
-                          _floor.baseFloorTile.asset!,
-                          fit: BoxFit.fill,
-                          filterQuality: FilterQuality.none,
+        return SizedBox.expand(
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTapUp: (details) {
+              final local = details.localPosition;
+              final tx = _heroX + ((local.dx - centerX) / tileSize).round();
+              final ty = _heroY + ((local.dy - centerY) / tileSize).round();
+              _onTileTap(tx, ty);
+            },
+            child: ClipRect(
+              child: ColoredBox(
+                color: const Color(0xFF100B0A),
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    if (atlas != null)
+                      CustomPaint(
+                        painter: DungeonMapPainter(
+                          floor: _floor,
+                          atlas: atlas,
+                          heroX: _heroX,
+                          heroY: _heroY,
+                          tileSize: tileSize,
+                          repaintVersion: _repaintVersion,
                         ),
-                      if (tile.asset != null)
-                        Image.asset(
-                          tile.asset!,
-                          fit: BoxFit.fill,
-                          filterQuality: FilterQuality.none,
-                        ),
-                      // Armadilha revelada
-                      if (trap != null && trap.isRevealed)
-                        Image.asset(
-                          'assets/images/dungeon/tiles/prop_trap.png',
-                          fit: BoxFit.contain,
-                          filterQuality: FilterQuality.none,
-                        ),
-                      // Baú
-                      if (chest != null)
-                        Image.asset(
-                          'assets/images/dungeon/tiles/prop_chest.png',
-                          fit: BoxFit.contain,
-                          filterQuality: FilterQuality.none,
-                        ),
-                      // Escurecimento de Névoa de Guerra fora do campo de visão
-                      if (!visible)
-                        Container(color: const Color(0x9E0E0A09)),
-                      // Inimigo visível
-                      if (enemy != null) _buildEnemyTileSprite(enemy, tileSize),
-                      // Herói no centro
-                      if (isHero)
-                        Center(
-                          child: HeroSpriteWidget(
-                            assetPath: _heroClass.spriteAsset,
-                            armorTint: _armorTint,
-                            size: tileSize * 0.94,
+                      ),
+                    // Herói animado no centro da câmera com sombra suave no chão
+                    IgnorePointer(
+                      child: Center(
+                        child: SizedBox(
+                          width: tileSize,
+                          height: tileSize,
+                          child: Stack(
+                            alignment: Alignment.center,
+                            children: [
+                              Positioned(
+                                bottom: 3,
+                                child: Container(
+                                  width: tileSize * 0.56,
+                                  height: 7,
+                                  decoration: BoxDecoration(
+                                    color: const Color(0x700A0605),
+                                    borderRadius: BorderRadius.circular(10),
+                                  ),
+                                ),
+                              ),
+                              HeroSpriteWidget(
+                                assetPath: _heroClass.spriteAsset,
+                                armorTint: _armorTint,
+                                size: tileSize * 0.94,
+                              ),
+                            ],
                           ),
                         ),
-                    ],
-                  ),
+                      ),
+                    ),
+                  ],
                 ),
-              ),
-            );
-          }
-        }
-
-        return SizedBox.expand(
-          child: ClipRect(
-            child: ColoredBox(
-              color: const Color(0xFF100B0A),
-              child: Stack(
-                fit: StackFit.expand,
-                children: mapWidgets,
               ),
             ),
           ),
@@ -1038,46 +1068,280 @@ class _DungeonRunScreenState extends ConsumerState<DungeonRunScreen> {
     );
   }
 
-  Widget _buildEnemyTileSprite(DungeonEnemy enemy, double tileSize) {
-    final hpRatio = enemy.maxHp > 0 ? (enemy.hp / enemy.maxHp).clamp(0.0, 1.0) : 0.0;
-    return Stack(
-      clipBehavior: Clip.none,
-      children: [
-        if (enemy.isBoss)
-          Positioned.fill(
-            child: Container(
-              decoration: BoxDecoration(
-                border: Border.all(color: LifeOsColors.danger, width: 1.5),
-                color: LifeOsColors.danger.withValues(alpha: 0.16),
-              ),
+  /// Abre a Mochila / Inventário do personagem sem precisar sair da masmorra.
+  Future<void> _openInDungeonInventory() async {
+    await showModalBottomSheet<void>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: LifeOsColors.surface,
+      shape: const RoundedRectangleBorder(
+        side: BorderSide(color: LifeOsColors.gold, width: 2),
+      ),
+      builder: (ctx) {
+        return DraggableScrollableSheet(
+          expand: false,
+          initialChildSize: 0.72,
+          minChildSize: 0.45,
+          maxChildSize: 0.9,
+          builder: (_, scrollController) {
+            return Consumer(
+              builder: (context, sheetRef, _) {
+                final rows =
+                    sheetRef.watch(dungeonInventoryProvider).value ?? const [];
+                final equipRows = rows
+                    .where((r) => r.slot != DungeonItemSlot.consumable.key)
+                    .toList();
+                final consRows = rows
+                    .where((r) => r.slot == DungeonItemSlot.consumable.key)
+                    .toList();
+
+                return Column(
+                  children: [
+                    Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 12, 12, 8),
+                      child: Row(
+                        children: [
+                          const Icon(
+                            Icons.backpack_rounded,
+                            color: LifeOsColors.gold,
+                            size: 20,
+                          ),
+                          const SizedBox(width: 8),
+                          Expanded(
+                            child: Text(
+                              'MOCHILA DO AVENTUREIRO',
+                              style: LifeOsTheme.pixelTitle(
+                                size: 10,
+                                color: LifeOsColors.gold,
+                              ),
+                            ),
+                          ),
+                          IconButton(
+                            onPressed: () => Navigator.of(ctx).pop(),
+                            icon: const Icon(Icons.close_rounded),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 16),
+                      child: Wrap(
+                        spacing: 6,
+                        runSpacing: 4,
+                        children: [
+                          _StatusChip('HP $_hp/${_stats.maxHp}', LifeOsColors.danger),
+                          _StatusChip('ATQ ${_stats.attackPower}', LifeOsColors.gold),
+                          _StatusChip('MAG ${_stats.magicPower}', const Color(0xFFC078F8)),
+                          _StatusChip('DEF ${_stats.defense}', LifeOsColors.success),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    const Divider(color: LifeOsColors.border, height: 1),
+                    Expanded(
+                      child: ListView(
+                        controller: scrollController,
+                        padding: const EdgeInsets.all(14),
+                        children: [
+                          Text(
+                            'EQUIPAMENTOS (${equipRows.length})',
+                            style: LifeOsTheme.pixelTitle(
+                              size: 9,
+                              color: LifeOsColors.gold,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          for (final row in equipRows)
+                            if (widget.catalog.itemById(row.itemId) != null)
+                              _buildInRunEquipRow(
+                                widget.catalog.itemById(row.itemId)!,
+                                row,
+                                rows,
+                              ),
+                          const SizedBox(height: 12),
+                          Text(
+                            'CONSUMÍVEIS',
+                            style: LifeOsTheme.pixelTitle(
+                              size: 9,
+                              color: LifeOsColors.gold,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          if (consRows.isEmpty)
+                            const Text(
+                              'Nenhum consumível restante na mochila.',
+                              style: TextStyle(
+                                fontSize: 12,
+                                color: LifeOsColors.textMuted,
+                              ),
+                            )
+                          else
+                            for (final row in consRows)
+                              if (widget.catalog.itemById(row.itemId) != null)
+                                _buildInRunConsumableRow(
+                                  widget.catalog.itemById(row.itemId)!,
+                                  row,
+                                  ctx,
+                                ),
+                        ],
+                      ),
+                    ),
+                  ],
+                );
+              },
+            );
+          },
+        );
+      },
+    );
+  }
+
+  Widget _buildInRunEquipRow(
+    DungeonItem item,
+    DungeonInventoryData row,
+    List<DungeonInventoryData> allRows,
+  ) {
+    final chips = item.bonuses.summaryChips();
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.all(9),
+      decoration: BoxDecoration(
+        color: LifeOsColors.bgDark,
+        border: Border.all(
+          color: row.isEquipped
+              ? LifeOsColors.gold
+              : item.rarity.color.withValues(alpha: 0.6),
+          width: row.isEquipped ? 2 : 1.2,
+        ),
+      ),
+      child: Row(
+        children: [
+          PixelIcon(item.iconAsset, size: 36),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  item.name,
+                  style: TextStyle(
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w800,
+                    color: item.rarity.color,
+                  ),
+                ),
+                Text(
+                  chips.join(' • '),
+                  style: const TextStyle(
+                    fontSize: 11,
+                    color: LifeOsColors.textSecondary,
+                    fontWeight: FontWeight.w700,
+                  ),
+                ),
+              ],
             ),
           ),
-        Center(
-          child: Image.asset(
-            enemy.template.spriteAsset,
-            width: enemy.isBoss ? tileSize * 1.04 : tileSize * 0.9,
-            height: enemy.isBoss ? tileSize * 1.04 : tileSize * 0.9,
-            fit: BoxFit.contain,
-            filterQuality: FilterQuality.none,
-          ),
-        ),
-        Positioned(
-          left: 4,
-          right: 4,
-          top: 1,
-          child: Container(
-            height: 4,
-            color: const Color(0xCC0E0A09),
-            child: FractionallySizedBox(
-              alignment: Alignment.centerLeft,
-              widthFactor: hpRatio,
-              child: Container(
-                color: enemy.isBoss ? LifeOsColors.gold : LifeOsColors.danger,
-              ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: row.isEquipped
+                  ? LifeOsColors.surfaceHighlight
+                  : LifeOsColors.gold,
+              foregroundColor:
+                  row.isEquipped ? LifeOsColors.gold : LifeOsColors.bgDark,
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              shape: const RoundedRectangleBorder(),
+            ),
+            onPressed: () async {
+              final repo = ref.read(dungeonRepositoryProvider);
+              if (row.isEquipped) {
+                await repo.unequipItem(item.id);
+              } else {
+                await repo.equipItem(item.id, item.slot);
+              }
+              final updatedRows = await repo.getInventory();
+              final nextEquipped = <DungeonItem>[];
+              for (final r in updatedRows) {
+                if (r.isEquipped) {
+                  final found = widget.catalog.itemById(r.itemId);
+                  if (found != null) nextEquipped.add(found);
+                }
+              }
+              if (!mounted) return;
+              setState(() {
+                _recomputeEquippedStats(nextEquipped);
+                _pushLog(
+                  row.isEquipped
+                      ? 'Desequipou ${item.name}.'
+                      : 'Equipou ${item.name} (${chips.join(', ')})!',
+                );
+              });
+            },
+            child: Text(
+              row.isEquipped ? 'EQUIPADO' : 'EQUIPAR',
+              style: const TextStyle(fontSize: 10, fontWeight: FontWeight.w900),
             ),
           ),
-        ),
-      ],
+        ],
+      ),
+    );
+  }
+
+  Widget _buildInRunConsumableRow(
+    DungeonItem item,
+    DungeonInventoryData row,
+    BuildContext sheetContext,
+  ) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 8),
+      padding: const EdgeInsets.all(9),
+      decoration: BoxDecoration(
+        color: LifeOsColors.bgDark,
+        border: Border.all(color: item.rarity.color.withValues(alpha: 0.6)),
+      ),
+      child: Row(
+        children: [
+          PixelIcon(item.iconAsset, size: 34),
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  '${item.name} x${row.quantity}',
+                  style: TextStyle(
+                    fontSize: 12.5,
+                    fontWeight: FontWeight.w800,
+                    color: item.rarity.color,
+                  ),
+                ),
+                Text(
+                  item.description,
+                  style: const TextStyle(
+                    fontSize: 11,
+                    color: LifeOsColors.textSecondary,
+                  ),
+                ),
+              ],
+            ),
+          ),
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(
+              backgroundColor: LifeOsColors.gold,
+              foregroundColor: LifeOsColors.bgDark,
+              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+              shape: const RoundedRectangleBorder(),
+            ),
+            onPressed: () async {
+              Navigator.of(sheetContext).pop();
+              await _useConsumable(item);
+            },
+            child: const Text(
+              'USAR',
+              style: TextStyle(fontSize: 10, fontWeight: FontWeight.w900),
+            ),
+          ),
+        ],
+      ),
     );
   }
 
